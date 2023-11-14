@@ -1,0 +1,110 @@
+We are writing a framework for building USSD applications in nodejs. Write out routing module syntax for the following:
+
+# Features
+* Validation
+* Easy routing
+* Session management via redis
+
+# Routing
+* Automatic handling of back accounts
+
+
+# Router Syntax
+Router.menu("home", {
+    "1": "home",
+    "2": "about",
+    "3": "contact"
+})
+
+Router.menu("__main_menu__")
+    // .back("goodbye_route" || USSD_EXIT)
+    .option([
+        # Each option can have 'route' (and 'display') field, redirects to another menu or 'action', returned by a class
+        # 'display' field to display static information
+        {"choice": "1", "route"?: "transfer_money", action?: TransferMoneyAction()},
+        {"choice": "2", "route": "my_wallet", display: "My Wallet"},
+        {"choice": "3", "route": "exit_app", action: ExitAppAction()}
+    ])
+
+
+
+Router.menu("my_wallet")
+    .back("goodbye_route)
+    .option([
+        # 'method' field for directly calling a function in a class
+        # 'validation' field for validating user input
+        {
+            "choice": "1",
+            "id": "transfer_money",
+            action?: TransferMoneyAction(),
+            method?: 'startInit',
+            validation?: 'regex-expression' | async function() => boolean,
+
+            # next menu to show after receiving the input. should it be named 'next_menu'?
+            redirect_to?: 'enter_wallet_pin_1'
+        },
+        {"choice": "2", "id": "my_wallet", action: MyWalletAction()}
+        {"choice": "3", "id": "exit_app", action: ExitAppAction()}
+    ])
+
+# Form Syntax
+Router.menu("my_wallet")
+    .back("goodbye_route)
+    .isForm()
+    .option([
+        # 'method' field for directly calling a function in a class
+        # 'validation' field for validating user input
+        {
+            "choice": "1",
+            "id": "transfer_money",
+            action?: TransferMoneyAction(),
+            method?: 'startInit',
+            validation?: 'regex-expression' | async function() => boolean,
+
+            # next menu to show after receiving the input. should it be named 'next_menu'?
+            redirect_to?: 'enter_wallet_pin_1'
+        },
+        {"choice": "2", "id": "my_wallet", action: MyWalletAction()}
+
+        # For form route, the last option is always the submit option
+        # it'll have all the fields & response in the form
+        {"choice": "3", "id": "exit_app", action: ExitAppAction()}
+    ])
+
+
+# Action Syntaxi
+class MyAction extends Action {
+    message?: () => string?
+
+    # basically all usefull hooks from rejoice framework
+}
+
+# Form Action
+class MyFormAction extends FormAction {
+    inputs () => Map<{key: string, value: string, is_valid: boolean}>
+    message?: () => string?
+
+    # basically all usefull hooks from rejoice framework
+}
+
+
+# Middleware Syntax/flow
+class Middleware {
+    handleRequest(req: Request, resp: Response, next: NextFunction){
+        # extract ussd params from request body/parameters/json/form-data
+        # extract session from redis
+        next()
+    }
+
+    handleResponse(req: Request, resp: Response, next: NextFunction){
+        # pick data from session, eg. req.session
+        # AND
+        # return response based on the expected format of the ussd gateway
+
+    }
+}
+
+
+class AfricasTalkingMiddleware extends Middleware {
+    # basically all usefull hooks from rejoice framework
+}
