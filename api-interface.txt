@@ -17,7 +17,7 @@ Router.menu("home", {
 })
 
 Router.menu("__main_menu__")
-    // .back("goodbye_route" || USSD_EXIT)
+   // .back("goodbye_route" || USSD_EXIT)
     .option([
         # Each option can have 'route' (and 'display') field, redirects to another menu or 'action', returned by a class
         # 'display' field to display static information
@@ -76,7 +76,7 @@ Router.menu("my_wallet")
 class MyAction extends Action {
     message?: () => string?
 
-    # basically all usefull hooks from rejoice framework
+    # basically all useful hooks from rejoice framework
 }
 
 # Form Action

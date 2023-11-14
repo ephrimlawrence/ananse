@@ -7,6 +7,7 @@
     "watch": "nodemon --ext ts,js --watch . --exec npm run dev",
     "dev": "ts-node src/server.ts",
     "nodemon": "nodemon",
+    "node": "ts-node",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
