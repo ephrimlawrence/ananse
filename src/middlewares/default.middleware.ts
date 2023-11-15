@@ -2,7 +2,11 @@ import { Request, Response } from "@src/interfaces/request";
 import { Middleware } from "./base.middleware";
 import { USSDState } from "@src/models/ussd-state";
 
-export class DefaultMiddleware implements Middleware {
+export class DefaultMiddleware extends Middleware {
+  get sessionId(): string {
+    return this.state.sessionId;
+  }
+
   async handleRequest(req: Request, resp: Response): Promise<void> {
     // We assume the vendor is Wigal
     if (req.query?.trafficid != null && req.query?.username != null) {
@@ -18,6 +22,7 @@ export class DefaultMiddleware implements Middleware {
       // state.other = req.query?.other;
 
       req.state = state;
+      this.state = state;
     }
   }
   async handleResponse(req: Request, res: Response): Promise<void> {

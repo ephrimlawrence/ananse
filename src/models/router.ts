@@ -1,5 +1,5 @@
 // TODO: Keep list of menus cached in a map, globally
-import { Action } from "@src/interfaces/action.interface";
+import { Type } from "@src/interfaces/action.interface";
 import { Request } from "@src/interfaces/request";
 import { BaseAction } from "./action";
 
@@ -9,7 +9,7 @@ export class MenuOption {
   // route: string; // Route ID
   // TODO: change return type to response
   // TODO: or link to action class
-  action?: Action<BaseAction>;
+  action?: Type<BaseAction>;
   display?: string; // text to display. or function?
   validation?: string | RegExp | ((req: Request) => boolean);
   error_message?: string;

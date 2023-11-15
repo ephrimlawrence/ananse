@@ -1,3 +1,4 @@
+import { Type } from "@src/interfaces/action.interface";
 import { Request, Response } from "@src/interfaces/request";
 import { Middleware } from "@src/middlewares/base.middleware";
 import { DefaultMiddleware } from "@src/middlewares/default.middleware";
@@ -14,18 +15,20 @@ class App {
 
   private router: Route;
   // private current_route: Route;
+
+  private currentState: USSDState;
   private currentMenu: Menu;
 
-  private middlewares: Middleware[] = [];
+  private middlewares: Type<Middleware>[] = [];
 
   /**
    * Track the state of the USSD session
    */
   private readonly states: { [msisdn: string]: USSDState } = {};
 
-  configure(opts: { middlewares?: Middleware[] }) {
+  configure(opts: { middlewares?: Type<Middleware>[] }) {
     if ((opts.middlewares || []).length == 0) {
-      this.middlewares = [new DefaultMiddleware()];
+      this.middlewares = [DefaultMiddleware];
     } else {
       this.middlewares = opts.middlewares!;
     }
@@ -42,9 +45,9 @@ class App {
     );
   }
 
-  get currentState() {
-    return this.states[this.request.state.msisdn];
-  }
+  // get currentState() {
+  //   return this.states[this.request.state?.msisdn];
+  // }
 
   private async handle() {
     this.router = router;
@@ -64,6 +67,10 @@ class App {
     await this.lookupMenuOptions();
 
     await this.resolveMenuOption();
+
+    await this.handleNextOption();
+
+    // TODO: cache current state
 
     // Resolve middlewares
     await this.resolveMiddlewares("response");
@@ -85,7 +92,9 @@ class App {
     // TODO: resolve acoitn & validation
   }
 
-  private async handleNextOption() {}
+  private async handleNextOption() {
+    // TODO: handle next menu/option
+  }
 
   private async lookupMenuOptions() {
     if (this.currentMenu.getOptions().length == 0) {
@@ -114,14 +123,18 @@ class App {
   private async resolveMiddlewares(stage: "request" | "response") {
     if (stage == "request") {
       for (const middleware of this.middlewares) {
-        await middleware.handleRequest(this.request, this.response);
-        this.states[this.request.state.msisdn] = this.request.state;
+        const item = new middleware(this.currentState);
+        await item.handleRequest(this.request, this.response);
+
+        this.states[item.sessionId] = this.request.state;
+        this.currentState = this.states[item.sessionId];
       }
     }
 
     if (stage == "response") {
       for (const middleware of this.middlewares) {
-        await middleware.handleResponse(this.request, this.response);
+        const item = new middleware(this.currentState);
+        await item.handleResponse(this.request, this.response);
         // this.states[this.request.state.msisdn] = this.request.state;
       }
     }

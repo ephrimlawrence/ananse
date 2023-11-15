@@ -11,7 +11,7 @@ class TestAction extends BaseAction {
   }
 }
 
-const app = new App().configure({ middlewares: [new DefaultMiddleware()] });
+const app = new App().configure({ middlewares: [DefaultMiddleware] });
 
 router
   .menu("main")
