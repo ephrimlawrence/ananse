@@ -2,6 +2,12 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../../oss/rejoice"
+		},
+		{
+			"path": "../../oss/rejoice-framework"
 		}
 	],
 	"settings": {}

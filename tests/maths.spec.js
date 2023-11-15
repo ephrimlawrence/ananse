@@ -1,4 +1,4 @@
-import { test } from '@japa/runner'
+const { test } = require('@japa/runner')
 
 test.group('Maths.add', () => {
   test('add two numbers', ({ assert }) => {

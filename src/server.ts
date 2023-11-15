@@ -1,11 +1,12 @@
 import { createServer } from "http";
-import url from "url";
+import { parse } from "url";
 import { ServerResponse, IncomingMessage, IncomingHttpHeaders } from "http";
 import { Request } from "./interfaces/request";
 import App from "./core/app.core";
 
 const requestListener = function (req: IncomingMessage, res: ServerResponse) {
-  const request = new Request(url.parse(req.url!, true), req);
+  console.log("hellow");
+  const request = new Request(parse(req.url!, true), req);
 
   if (req.method == "POST" || req.method == "PUT" || req.method == "PATCH") {
     let data = "";
@@ -28,16 +29,17 @@ const requestListener = function (req: IncomingMessage, res: ServerResponse) {
       }
     });
 
-    res.end("Hello, World!");
-    return new App(request, res).handle();
+    // res.end("Hello, World!");
     // TODO: Handle request/response
   }
+
+  return new App(request, res).handle();
 
   // TODO: pass request to router
 };
 
 // export const server = createServer(requestListener);
 const server = createServer(requestListener);
-server.listen(3333, "localhost", () => {
-  console.log("Server listening on port 3333");
+server.listen(3000, "localhost", () => {
+  console.log("Server listening on port 3000");
 });
