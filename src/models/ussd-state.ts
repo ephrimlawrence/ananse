@@ -9,15 +9,19 @@ export class USSDState {
   currentRoute: Route;
   currentMenu: Menu;
 
+  get isStart(): boolean {
+    return this.mode == "start";
+  }
+
   // other?: string;
 
-  constructor(opts: USSDState) {
-    this.network = opts.network;
-    this.sessionId = opts.sessionId;
-    this.mode = opts.mode;
-    this.msisdn = opts.msisdn;
-    this.userData = opts.userData;
-    this.currentRoute = opts.currentRoute;
-    this.currentMenu = opts.currentMenu;
-  }
+  // constructor(opts: USSDState) {
+  //   this.network = opts.network;
+  //   this.sessionId = opts.sessionId;
+  //   this.mode = opts.mode;
+  //   this.msisdn = opts.msisdn;
+  //   this.userData = opts.userData;
+  //   this.currentRoute = opts.currentRoute;
+  //   this.currentMenu = opts.currentMenu;
+  // }
 }

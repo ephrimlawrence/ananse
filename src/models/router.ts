@@ -1,14 +1,14 @@
 // TODO: Keep list of menus cached in a map, globally
 import { Action } from "@src/interfaces/action.interface";
 import { Request } from "@src/interfaces/request";
-import { Action } from "./action";
+import { BaseAction } from "./action";
 
 class MenuOption {
   choice: string; // TODO: or function
   // route: string; // Route ID
   // TODO: change return type to response
   // TODO: or link to action class
-  action?: Action<Action>;
+  action?: Action<BaseAction>;
   display?: string; // text to display
   validation?: string | RegExp | ((req: Request) => boolean);
   error_message?: string;
@@ -21,7 +21,7 @@ export class Menu {
   private id: string;
   private _options: MenuOption[];
   private _back?: string; // TODO: links to previous menu/action
-
+  private _isStart: boolean = false;
   private _currentOption?: MenuOption | undefined = undefined; // make private??
 
   constructor(id: string) {
@@ -38,6 +38,17 @@ export class Menu {
     this._back = id;
 
     return this;
+  }
+
+  start(): Menu {
+    // TODO: verify that only one start menu is defined. Move to Route class?
+    this._isStart = true;
+
+    return this;
+  }
+
+  get isStart(): boolean {
+    return this._isStart || false;
   }
 
   set currentOption(value: MenuOption | undefined) {
@@ -71,6 +82,22 @@ export class Route {
     return _menu;
   }
 
+  get menus() {
+    return this._menus;
+  }
+
+  get startMenu(): Menu {
+    const start = Object.values(this._menus).find((menu) => menu.isStart);
+
+    if (start == undefined) {
+      throw new Error("No start menu defined. Please define a start menu");
+    }
+
+    return start;
+  }
+  // readonly getRoute(){
+
+  // }
   // get routes(): Record<string, Route> {
   //   return this._menus;
   // }

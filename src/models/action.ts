@@ -1,7 +1,7 @@
 import { Request } from "@src/interfaces/request";
 import { ServerResponse } from "http";
 
-export abstract class Action {
+export abstract class BaseAction {
   constructor(
     protected readonly request: Request,
     protected readonly response: ServerResponse

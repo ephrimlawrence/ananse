@@ -1,4 +1,3 @@
-import { server } from "../src/server.js";
 import router from "../src/models/router.js";
 import { BaseAction } from "../src/models/action.js";
 
@@ -13,6 +12,7 @@ class TestAction extends BaseAction {
 
 router
   .menu("main")
+  .start()
   .options([
     { choice: "1", display: "hello", validation: /regex/ },
     { choice: "2", action: TestAction, next_menu: "main" },

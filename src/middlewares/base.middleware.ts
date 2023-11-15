@@ -1,13 +1,12 @@
-// class Middleware {
-//   handleRequest(req: Request, resp: Response, next: NextFunction) {
-//     // # extract ussd params from request body/parameters/json/form-data
-//     // # extract session from redis
-//     next();
-//   }
+import { Request, Response } from "@src/interfaces/request";
 
-//   handleResponse(req: Request, resp: Response, next: NextFunction) {
-//     // # pick data from session, eg. req.session
-//     // # AND
-//     // # return response based on the expected format of the ussd gateway
-//   }
-// }
+export abstract class Middleware {
+  // # extract ussd params from request body/parameters/json/form-data
+  // # extract session from redis
+  abstract handleRequest(req: Request, resp: Response): Promise<void>;
+
+  abstract handleResponse(req: Request, resp: Response): Promise<void>;
+  // # pick data from session, eg. req.session
+  // # AND
+  // # return response based on the expected format of the ussd gateway
+}

@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "../../oss/rejoice-framework"
+		},
+		{
+			"path": "../insurerity/salem-ussd"
 		}
 	],
 	"settings": {}

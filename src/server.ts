@@ -3,6 +3,7 @@ import { parse } from "url";
 import { ServerResponse, IncomingMessage, IncomingHttpHeaders } from "http";
 import { Request } from "./interfaces/request";
 import App from "./core/app.core";
+import { DefaultMiddleware } from "./middlewares/default.middleware";
 
 const requestListener = function (req: IncomingMessage, res: ServerResponse) {
   console.log("hellow");
@@ -33,7 +34,9 @@ const requestListener = function (req: IncomingMessage, res: ServerResponse) {
     // TODO: Handle request/response
   }
 
-  return new App(request, res).handle();
+  return new App(request, res)
+    .configure({ middlewares: [new DefaultMiddleware()] })
+    .handle();
 
   // TODO: pass request to router
 };
