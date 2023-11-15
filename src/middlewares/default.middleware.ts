@@ -20,7 +20,8 @@ export class DefaultMiddleware implements Middleware {
       req.state = state;
     }
   }
-  async handleResponse(req: Request, resp: Response): Promise<void> {
-    throw new Error("Method not implemented.");
+  async handleResponse(req: Request, res: Response): Promise<void> {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(res.data);
   }
 }

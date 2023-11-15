@@ -1,4 +1,4 @@
-import { Menu, Route } from "./router";
+import { Menu, MenuOption, Route } from "./router";
 
 export class USSDState {
   network: string;
@@ -6,8 +6,12 @@ export class USSDState {
   mode: "start" | "more" | "end";
   msisdn: string;
   userData: string;
-  currentRoute: Route;
+  // currentRoute: Route;
   currentMenu: Menu;
+  nextMenu?: Menu | undefined;
+
+  option?: MenuOption;
+  nextOption?: { name: string; value: MenuOption } | undefined;
 
   get isStart(): boolean {
     return this.mode == "start";

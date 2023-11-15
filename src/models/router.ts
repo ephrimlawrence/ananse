@@ -3,13 +3,14 @@ import { Action } from "@src/interfaces/action.interface";
 import { Request } from "@src/interfaces/request";
 import { BaseAction } from "./action";
 
-class MenuOption {
+export class MenuOption {
+  name: string;
   choice: string; // TODO: or function
   // route: string; // Route ID
   // TODO: change return type to response
   // TODO: or link to action class
   action?: Action<BaseAction>;
-  display?: string; // text to display
+  display?: string; // text to display. or function?
   validation?: string | RegExp | ((req: Request) => boolean);
   error_message?: string;
   next_menu?: string | ((req: Request, resp: any) => any); // TODO: links to next menu
@@ -18,14 +19,14 @@ class MenuOption {
 }
 
 export class Menu {
-  private id: string;
+  private _id: string;
   private _options: MenuOption[];
   private _back?: string; // TODO: links to previous menu/action
   private _isStart: boolean = false;
   private _currentOption?: MenuOption | undefined = undefined; // make private??
 
   constructor(id: string) {
-    this.id = id;
+    this._id = id;
   }
 
   options(items: MenuOption[]): Menu {
@@ -45,6 +46,14 @@ export class Menu {
     this._isStart = true;
 
     return this;
+  }
+
+  getOptions(): MenuOption[] {
+    return this._options || [];
+  }
+
+  get id(): string {
+    return this._id;
   }
 
   get isStart(): boolean {

@@ -14,8 +14,8 @@ router
   .menu("main")
   .start()
   .options([
-    { choice: "1", display: "hello", validation: /regex/ },
-    { choice: "2", action: TestAction, next_menu: "main" },
+    { choice: "1", display: "hello", validation: /regex/, name: 'first' },
+    { choice: "2", action: TestAction, next_menu: "main", name: 'second' },
   ])
   .back("main");
 

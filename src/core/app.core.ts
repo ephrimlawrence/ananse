@@ -1,7 +1,7 @@
 import { Request, Response } from "@src/interfaces/request";
 import { Middleware } from "@src/middlewares/base.middleware";
 import { DefaultMiddleware } from "@src/middlewares/default.middleware";
-import router, { Menu, Route } from "@src/models/router";
+import router, { Menu, MenuOption, Route } from "@src/models/router";
 import { USSDState } from "@src/models/ussd-state";
 import { ServerResponse, IncomingMessage, IncomingHttpHeaders } from "http";
 import { createServer } from "http";
@@ -34,6 +34,7 @@ class App {
   }
 
   listen(port?: number, hostname?: string, listeningListener?: () => void) {
+    // TODO: Resolve all menu naming conflicts and other sanity checks before starting the server
     return createServer((req, res) => this.requestListener(req, res)).listen(
       port,
       hostname,
@@ -54,19 +55,51 @@ class App {
     // 3. Process response via middleware
 
     // Resolve middlewares
-    await this.resolveMiddlewares();
+    await this.resolveMiddlewares("request");
 
     // Lookup menu
     await this.lookupMenu();
 
     // Resolve menu options
+    await this.lookupMenuOptions();
+
+    await this.resolveMenuOption();
+
+    // Resolve middlewares
+    await this.resolveMiddlewares("response");
 
     console.log(this.currentMenu);
 
     console.log(this.request.state);
-    this.response.setHeader("Content-Type", "application/json");
-    this.response.writeHead(200);
-    this.response.end("Hello, World!");
+    // this.response.setHeader("Content-Type", "application/json");
+    // this.response.writeHead(200);
+    // this.response.end("Hello, World!");
+  }
+
+  private async resolveMenuOption() {
+    const option = this.currentState.option;
+    if (option?.display != null) {
+      this.response.data = option.display;
+    }
+
+    // TODO: resolve acoitn & validation
+  }
+
+  private async handleNextOption() {}
+
+  private async lookupMenuOptions() {
+    if (this.currentMenu.getOptions().length == 0) {
+      throw new Error(
+        `Menu #${this.currentMenu.id} has no options. At least one option must be defined`
+      );
+    }
+
+    if (this.currentState.isStart) {
+      this.currentState.option = this.currentMenu.getOptions()[0];
+      return this.currentState.option;
+    }
+    // TODO: Handle other request types
+    // let option: MenuOption = undefined;
   }
 
   private async lookupMenu() {
@@ -74,12 +107,23 @@ class App {
     if (this.currentState.isStart) {
       this.currentMenu = this.router.startMenu;
     }
+
+    // TODO: Handle other request types
   }
 
-  private async resolveMiddlewares() {
-    for (const middleware of this.middlewares) {
-      await middleware.handleRequest(this.request, this.response);
-      this.states[this.request.state.msisdn] = this.request.state;
+  private async resolveMiddlewares(stage: "request" | "response") {
+    if (stage == "request") {
+      for (const middleware of this.middlewares) {
+        await middleware.handleRequest(this.request, this.response);
+        this.states[this.request.state.msisdn] = this.request.state;
+      }
+    }
+
+    if (stage == "response") {
+      for (const middleware of this.middlewares) {
+        await middleware.handleResponse(this.request, this.response);
+        // this.states[this.request.state.msisdn] = this.request.state;
+      }
     }
 
     return;
@@ -115,7 +159,7 @@ class App {
     }
 
     this.request = request;
-    this.response = res;
+    this.response = res as Response;
     await this.handle();
   }
 }

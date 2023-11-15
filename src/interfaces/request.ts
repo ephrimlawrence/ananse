@@ -39,4 +39,6 @@ export class Request {
   }
 }
 
-export class Response extends ServerResponse {}
+export class Response extends ServerResponse {
+  data: Record<string, any> | any;
+}
