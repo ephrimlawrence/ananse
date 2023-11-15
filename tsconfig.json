@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "CommonJS",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -22,6 +22,9 @@
     "exactOptionalPropertyTypes": true,
     "strictFunctionTypes": true,
     "moduleResolution": "node",
+    "types": [
+      "node"
+    ],
     "paths": {
       "@src/*": [
         "src/*"
@@ -38,11 +41,14 @@
     },
   },
   "ts-node": {
-    "transpileOnly": true,
+    // "transpileOnly": true,
+    "require": [
+      "tsconfig-paths/register"
+    ]
   },
   "include": [
     "src",
     "public",
     "views"
-  ]
+  ],
 }

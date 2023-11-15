@@ -1,5 +1,5 @@
 // TODO: Keep list of menus cached in a map, globally
-
+import { Action } from "@src/interfaces/action.interface";
 import { Request } from "@src/interfaces/request";
 import { BaseAction } from "./action";
 

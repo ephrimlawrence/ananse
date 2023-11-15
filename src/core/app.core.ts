@@ -16,6 +16,8 @@ class App {
     //  2a. Process request in route
     // 3. Process response via middleware
 
+    this.response.writeHead(200);
+    this.response.setHeader("Content-Type", "application/json");
     this.response.end("Hello, World!");
   }
 }

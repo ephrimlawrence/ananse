@@ -1,4 +1,4 @@
-import http from "https";
+import { createServer } from "http";
 import url from "url";
 import { ServerResponse, IncomingMessage, IncomingHttpHeaders } from "http";
 import { Request } from "./interfaces/request";
@@ -28,12 +28,16 @@ const requestListener = function (req: IncomingMessage, res: ServerResponse) {
       }
     });
 
+    res.end("Hello, World!");
     return new App(request, res).handle();
-    // res.end("Hello, World!");
     // TODO: Handle request/response
   }
 
   // TODO: pass request to router
 };
 
-export const server = http.createServer(requestListener);
+// export const server = createServer(requestListener);
+const server = createServer(requestListener);
+server.listen(3333, "localhost", () => {
+  console.log("Server listening on port 3333");
+});
