@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "watch": "nodemon --ext ts,js --watch . --exec npm run dev",
+    "watch": "nodemon --ext ts,js --watch . --exec npm run test",
     "dev": "ts-node src/server",
     "nodemon": "nodemon",
     "tsnode": "ts-node",
-    "test": "node bin/test.js"
+    "test": "ts-node ./tests/test_app.ts"
   },
   "author": "",
   "license": "ISC",

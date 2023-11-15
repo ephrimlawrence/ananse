@@ -3,9 +3,15 @@ import { Middleware } from "@src/middlewares/base.middleware";
 import { DefaultMiddleware } from "@src/middlewares/default.middleware";
 import router, { Menu, Route } from "@src/models/router";
 import { USSDState } from "@src/models/ussd-state";
+import { ServerResponse, IncomingMessage, IncomingHttpHeaders } from "http";
+import { createServer } from "http";
+import { parse } from "url";
 
 // TODO: change to project name
 class App {
+  private request: Request;
+  private response: Response;
+
   private router: Route;
   // private current_route: Route;
   private currentMenu: Menu;
@@ -17,10 +23,6 @@ class App {
    */
   private readonly states: { [msisdn: string]: USSDState } = {};
 
-  constructor(private request: Request, private response: Response) {
-    this.router = router;
-  }
-
   configure(opts: { middlewares?: Middleware[] }) {
     if ((opts.middlewares || []).length == 0) {
       this.middlewares = [new DefaultMiddleware()];
@@ -31,7 +33,20 @@ class App {
     return this;
   }
 
-  async handle() {
+  listen(port?: number, hostname?: string, listeningListener?: () => void) {
+    return createServer((req, res) => this.requestListener(req, res)).listen(
+      port,
+      hostname,
+      listeningListener
+    );
+  }
+
+  get currentState() {
+    return this.states[this.request.state.msisdn];
+  }
+
+  private async handle() {
+    this.router = router;
     // TODO: implement framework logic
     // 1. Process request via middleware
     // 2. Lookup route
@@ -54,10 +69,6 @@ class App {
     this.response.end("Hello, World!");
   }
 
-  get currentState() {
-    return this.states[this.request.state.msisdn];
-  }
-
   private async lookupMenu() {
     // If the request is a start request, we need to lookup the start menu
     if (this.currentState.isStart) {
@@ -72,6 +83,40 @@ class App {
     }
 
     return;
+  }
+
+  private async requestListener(req: IncomingMessage, res: ServerResponse) {
+    console.log("hellow");
+    const request = new Request(parse(req.url!, true), req);
+
+    if (req.method == "POST" || req.method == "PUT" || req.method == "PATCH") {
+      let data = "";
+
+      req.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      req.on("end", () => {
+        try {
+          if (req.headers["content-type"] == "application/json") {
+            request.body = JSON.parse(data);
+          }
+          // TODO: parse other content types
+        } catch (error) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(
+            JSON.stringify({ error: "Invalid JSON format in the request body" })
+          );
+        }
+      });
+
+      // res.end("Hello, World!");
+      // TODO: Handle request/response
+    }
+
+    this.request = request;
+    this.response = res;
+    await this.handle();
   }
 }
 
