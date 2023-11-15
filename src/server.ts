@@ -2,6 +2,7 @@ import http from "https";
 import url from "url";
 import { ServerResponse, IncomingMessage, IncomingHttpHeaders } from "http";
 import { Request } from "./interfaces/request";
+import App from "./core/app.core";
 
 const requestListener = function (req: IncomingMessage, res: ServerResponse) {
   const request = new Request(url.parse(req.url!, true), req);
@@ -27,7 +28,8 @@ const requestListener = function (req: IncomingMessage, res: ServerResponse) {
       }
     });
 
-    res.end("Hello, World!");
+    return new App(request, res).handle();
+    // res.end("Hello, World!");
     // TODO: Handle request/response
   }
 

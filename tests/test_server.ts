@@ -1,11 +1,6 @@
-import { server } from "../src/server.ts";
-import router from "../src/models/router.ts";
+import { server } from "../src/server.js";
 
-// const route = Route
 
-router
-  .menu("main")
-  .options([{ choice: "1", route: "1" }])
-  .back("main");
-
-console.log(router);
+server.listen(3000, () => {
+  console.log("Server listening on port 3000");
+});

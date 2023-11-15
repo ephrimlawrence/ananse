@@ -1,4 +1,4 @@
-import { IncomingHttpHeaders, IncomingMessage } from "http";
+import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
 import { ParsedUrlQuery } from "querystring";
 import { Url } from "url";
 
@@ -32,3 +32,5 @@ export class Request {
     this.query = _url.query;
   }
 }
+
+export class Response extends ServerResponse {}
