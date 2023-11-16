@@ -13,5 +13,9 @@
 			"path": "../insurerity/salem-ussd"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"cSpell.words": [
+			"Wigal"
+		]
+	}
 }

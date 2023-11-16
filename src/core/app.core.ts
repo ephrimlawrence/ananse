@@ -85,6 +85,7 @@ class App {
 
   private async resolveMenuOption() {
     const option = this.currentState.option;
+    // TODO:add action?
     if (option?.display != null) {
       this.response.data = option.display;
     }
@@ -94,6 +95,20 @@ class App {
 
   private async handleNextOption() {
     // TODO: handle next menu/option
+    const action = this.currentState.option;
+
+    if (action?.next_menu == null) {
+      this.currentState.mode = "end";
+      return this.currentState;
+    }
+
+    if (typeof action.next_menu == "string") {
+      this.currentState.nextMenu = this.router.getMenu(action?.next_menu);
+    } else {
+      this.currentState.nextMenu = this.router.getMenu(
+        action.next_menu(this.request, this.response)
+      );
+    }
   }
 
   private async lookupMenuOptions() {

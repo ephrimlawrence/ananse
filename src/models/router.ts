@@ -1,19 +1,19 @@
 // TODO: Keep list of menus cached in a map, globally
 import { Type } from "@src/interfaces/action.interface";
-import { Request } from "@src/interfaces/request";
+import { Request, Response } from "@src/interfaces/request";
 import { BaseAction } from "./action";
 
 export class MenuOption {
   name: string;
-  choice: string; // TODO: or function
+  choice: string; // TODO: or function //FIXME: remove this
   // route: string; // Route ID
   // TODO: change return type to response
   // TODO: or link to action class
   action?: Type<BaseAction>;
-  display?: string; // text to display. or function?
-  validation?: string | RegExp | ((req: Request) => boolean);
+  display?: string; // text to display. or function? text?
+  validation?: string | RegExp | ((req: Request) => boolean); //FIXME: move to action class
   error_message?: string;
-  next_menu?: string | ((req: Request, resp: any) => any); // TODO: links to next menu
+  next_menu?: string | ((req: Request, resp: Response) => string); // TODO: links to next menu
 
   // TODO: validate that either route or action is provided
 }
@@ -24,9 +24,11 @@ export class Menu {
   private _back?: string; // TODO: links to previous menu/action
   private _isStart: boolean = false;
   private _currentOption?: MenuOption | undefined = undefined; // make private??
+  private _action?: Type<BaseAction> | undefined = undefined;
 
-  constructor(id: string) {
+  constructor(id: string, action?: Type<BaseAction>) {
     this._id = id;
+    this._action = action;
   }
 
   options(items: MenuOption[]): Menu {
@@ -50,6 +52,10 @@ export class Menu {
 
   getOptions(): MenuOption[] {
     return this._options || [];
+  }
+
+  get action() {
+    return this._action;
   }
 
   get id(): string {
@@ -103,6 +109,16 @@ export class Route {
     }
 
     return start;
+  }
+
+  getMenu(id: string): Menu {
+    const menu = this._menus[id];
+
+    if (menu == undefined) {
+      throw new Error(`Menu #${id} not found`);
+    }
+
+    return menu;
   }
   // readonly getRoute(){
 

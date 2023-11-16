@@ -1,7 +1,7 @@
 import { Menu, MenuOption, Route } from "./router";
 
 export class USSDState {
-  network: string;
+  // network: string;
   sessionId: string;
   mode: "start" | "more" | "end";
   msisdn: string;
@@ -11,10 +11,14 @@ export class USSDState {
   nextMenu?: Menu | undefined;
 
   option?: MenuOption;
-  nextOption?: { name: string; value: MenuOption } | undefined;
+  // nextOption?: { name: string; value: MenuOption } | undefined;
 
   get isStart(): boolean {
-    return this.mode == "start";
+    return this.mode === "start";
+  }
+
+  get isEnd(): boolean {
+    return this.mode === "end";
   }
 
   // other?: string;
