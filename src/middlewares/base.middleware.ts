@@ -1,8 +1,8 @@
 import { Request, Response } from "@src/types/request";
-import { USSDState } from "@src/models/ussd-state";
+import { State } from "@src/models/ussd-state";
 
 export abstract class Middleware {
-  constructor(protected state: USSDState) {}
+  constructor(protected state: State) {}
 
   abstract get sessionId(): string;
 

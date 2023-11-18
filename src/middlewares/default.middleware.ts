@@ -1,6 +1,6 @@
 import { Request, Response } from "@src/types/request";
 import { Middleware } from "./base.middleware";
-import { USSDState } from "@src/models/ussd-state";
+import { State } from "@src/models/ussd-state";
 
 export class DefaultMiddleware extends Middleware {
   get sessionId(): string {
@@ -9,7 +9,7 @@ export class DefaultMiddleware extends Middleware {
 
   async handleRequest(req: Request, resp: Response): Promise<void> {
     if (this.isVendorWigal(req)) {
-      let state: USSDState = new USSDState();
+      let state: State = new State();
 
       // state.network = req.query?.network;
       state.mode = req.query?.mode as any; //todo: validate

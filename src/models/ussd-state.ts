@@ -1,17 +1,18 @@
-import { Menu, MenuOption, Route } from "./router";
+import { Menu, MenuAction } from "./menus.model";
 
-export class USSDState {
+export class State {
+  // private _trackedMenus: {previous: string, current: string}[] = [];
   // network: string;
   sessionId: string;
   mode: "start" | "more" | "end";
   msisdn: string;
   userData: string;
   // currentRoute: Route;
-  currentMenu: Menu;
-  nextMenu?: Menu | undefined;
+  menu: Menu;
+  nextMenu?: string | undefined;
 
-  option?: MenuOption;
-  // nextOption?: { name: string; value: MenuOption } | undefined;
+  action?: MenuAction;
+  previous?: State | undefined;
 
   get isStart(): boolean {
     return this.mode === "start";

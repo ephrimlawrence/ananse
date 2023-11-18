@@ -2,29 +2,30 @@ import { Type } from "@src/types";
 import { Request, Response } from "@src/types/request";
 import { Middleware } from "@src/middlewares/base.middleware";
 import { DefaultMiddleware } from "@src/middlewares/default.middleware";
-import router, { Menu, MenuOption, Route } from "@src/models/router";
-import { USSDState } from "@src/models/ussd-state";
+// import router, { Route } from "@src/models/router";
+import { State } from "@src/models/ussd-state";
 import { ServerResponse, IncomingMessage, IncomingHttpHeaders } from "http";
 import { createServer } from "http";
 import { parse } from "url";
+import router, { BaseMenu, Menu, Menus } from "@src/models/menus.model";
 
 // TODO: change to project name
 class App {
   private request: Request;
   private response: Response;
 
-  private router: Route;
+  private router: Menus;
   // private current_route: Route;
 
-  private currentState: USSDState;
-  private currentMenu: Menu;
+  private currentState: State;
+  // private currentMenu: Menu;
 
   private middlewares: Type<Middleware>[] = [];
 
   /**
    * Track the state of the USSD session
    */
-  private readonly states: { [msisdn: string]: USSDState } = {};
+  private readonly states: { [msisdn: string]: State } = {};
 
   configure(opts: { middlewares?: Type<Middleware>[] }) {
     if ((opts.middlewares || []).length == 0) {
@@ -34,6 +35,18 @@ class App {
     }
 
     return this;
+  }
+
+  private get currentMenu(): Menu {
+    return this.currentState.menu;
+  }
+
+  private get menuType(): "class" | "dynamic" {
+    if (this.currentMenu instanceof BaseMenu) {
+      return "class";
+    }
+
+    return "dynamic";
   }
 
   listen(port?: number, hostname?: string, listeningListener?: () => void) {
@@ -64,7 +77,7 @@ class App {
     await this.lookupMenu();
 
     // Resolve menu options
-    await this.lookupMenuOptions();
+    // await this.lookupMenuOptions();
 
     await this.resolveMenuOption();
 
@@ -84,7 +97,7 @@ class App {
   }
 
   private async resolveMenuOption() {
-    const option = this.currentState.option;
+    const option = this.currentState.action;
     // TODO:add action?
     if (option?.display != null) {
       this.response.data = option.display;
@@ -95,7 +108,7 @@ class App {
 
   private async handleNextOption() {
     // TODO: handle next menu/option
-    const action = this.currentState.option;
+    const action = this.currentState.action;
 
     if (action?.next_menu == null) {
       this.currentState.mode = "end";
@@ -103,36 +116,56 @@ class App {
     }
 
     if (typeof action.next_menu == "string") {
-      this.currentState.nextMenu = this.router.getMenu(action?.next_menu);
+      this.currentState.nextMenu = action.next_menu;
     } else {
-      this.currentState.nextMenu = this.router.getMenu(
-        action.next_menu(this.request, this.response)
+      // TODO: verify that the next menu is exists
+      this.currentState.nextMenu = action.next_menu(
+        this.request,
+        this.response
       );
     }
   }
 
-  private async lookupMenuOptions() {
-    if (this.currentMenu.getOptions().length == 0) {
-      throw new Error(
-        `Menu #${this.currentMenu.id} has no options. At least one option must be defined`
-      );
-    }
+  // private async lookupMenuOptions() {
+  //   if(this.menuType == )
+  //   if (this.currentMenu.getOptions().length == 0) {
+  //     throw new Error(
+  //       `Menu #${this.currentMenu.id} has no options. At least one option must be defined`
+  //     );
+  //   }
 
-    if (this.currentState.isStart) {
-      this.currentState.option = this.currentMenu.getOptions()[0];
-      return this.currentState.option;
-    }
-    // TODO: Handle other request types
-    // let option: MenuOption = undefined;
-  }
+  //   if (this.currentState.isStart) {
+  //     this.currentState.action = this.currentMenu.getOptions()[0];
+  //     return this.currentState.action;
+  //   }
+  //   // TODO: Handle other request types
+  //   // let option: MenuOption = undefined;
+  // }
 
   private async lookupMenu() {
+    let menu: Menu | undefined = undefined;
+
     // If the request is a start request, we need to lookup the start menu
     if (this.currentState.isStart) {
-      this.currentMenu = this.router.startMenu;
+      menu = this.router.getStartMenu(this.request, this.response);
+    } else {
+      if (this.currentState.nextMenu == null) {
+        throw new Error(
+          `Next menu for #${this.currentState.sessionId} is not defined`
+        );
+      }
+
+      // If the request is not a start request, we need to lookup the current menu
+      menu = this.router.getMenu(this.currentState.nextMenu);
     }
 
-    // TODO: Handle other request types
+    if (menu instanceof BaseMenu) {
+      // @ts-ignore
+      this.currentState.menu = new menu(this.request, this.response);
+      return this.currentState.menu;
+    }
+
+    this.currentState.menu = menu;
   }
 
   private async resolveMiddlewares(stage: "request" | "response") {

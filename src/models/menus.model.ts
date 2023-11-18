@@ -1,7 +1,7 @@
 // TODO: Keep list of menus cached in a map, globally
 import { Request, Response } from "@src/types/request";
-import { BaseMenu } from "./action";
-import { Validation, Type } from "@src/types";
+// import { BaseMenu } from "./action";
+import { Validation, Type, ValidationResponse } from "@src/types";
 // TODO: rename to action
 
 export class MenuAction {
@@ -48,8 +48,8 @@ export class DynamicMenu {
     return this;
   }
 
-  back(id: string): DynamicMenu {
-    this._back = id;
+  back(menuName: string): DynamicMenu {
+    this._back = menuName;
 
     return this;
   }
@@ -72,7 +72,8 @@ export class DynamicMenu {
     return this;
   }
 
-  getOptions(): MenuAction[] {
+  // TODO: rename to getactiona
+  getActions(): MenuAction[] {
     return this._actions || [];
   }
 
@@ -177,6 +178,31 @@ export class Menus {
   //   this.routes[id] = router;
   // }
 }
+
+export abstract class BaseMenu {
+  constructor(
+    protected readonly request: Request,
+    protected readonly response: Response
+  ) {}
+
+  async validate(data?: string): Promise<ValidationResponse> {
+    return true;
+  }
+
+  abstract message(): string;
+
+  abstract nextMenu(): string | undefined;
+
+  get isStart(): boolean {
+    return false;
+  }
+
+  actions(): MenuAction[] {
+    return [];
+  }
+}
+
+export type Menu = Type<BaseMenu> | DynamicMenu;
 
 const router = Menus.getInstance();
 export default router;

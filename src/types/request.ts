@@ -1,4 +1,4 @@
-import { USSDState } from "@src/models/ussd-state";
+import { State } from "@src/models/ussd-state";
 import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
 import { ParsedUrlQuery } from "querystring";
 import { Url } from "url";
@@ -28,7 +28,7 @@ export class Request {
   /**
    * Current USSD state. Is null until the request is processed by the middlewares
    */
-  state: USSDState;
+  state: State;
 
   constructor(_url: Url, req: IncomingMessage) {
     this.method = req.method as any;

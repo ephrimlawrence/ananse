@@ -1,14 +1,14 @@
 // TODO: Keep list of menus cached in a map, globally
 import { Type } from "@src/types";
 import { Request, Response } from "@src/types/request";
-import { BaseMenu } from "./action";
+import { BaseMenu } from "./menus.model";
 
 export class MenuOption {
   name: string;
   choice: string; // TODO: or function //FIXME: remove this
   // route: string; // Route ID
   // TODO: change return type to response
-  // TODO: or link to action class
+  // TODO: or link to menus.model class
   action?: Type<BaseMenu>;
   display?: string; // text to display. or function? text?
   validation?: string | RegExp | ((req: Request) => boolean); //FIXME: move to action class
