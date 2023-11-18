@@ -7,6 +7,7 @@
     "dev": "ts-node src/server",
     "nodemon": "nodemon",
     "tsnode": "ts-node",
+    "tsc": "tsc",
     "test": "ts-node ./tests/test_app.ts"
   },
   "author": "",

@@ -3,7 +3,7 @@ import { MenuOption } from "./router";
 import { ValidationResponse } from "@src/types";
 
 // TODO: rename to menu
-export abstract class BaseAction {
+export abstract class BaseMenu {
   constructor(
     protected readonly request: Request,
     protected readonly response: Response

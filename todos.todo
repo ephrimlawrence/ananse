@@ -1,0 +1,8 @@
+Pending features:
+    ☐ session management
+        ☐ set
+        ☐ get
+        ☐ update
+        ☐ remove
+    ☐ State/session hydration to disk
+        ☐ reload hydated state on request

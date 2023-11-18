@@ -1,7 +1,7 @@
 // TODO: Keep list of menus cached in a map, globally
 import { Type } from "@src/types";
 import { Request, Response } from "@src/types/request";
-import { BaseAction } from "./action";
+import { BaseMenu } from "./action";
 
 export class MenuOption {
   name: string;
@@ -9,7 +9,7 @@ export class MenuOption {
   // route: string; // Route ID
   // TODO: change return type to response
   // TODO: or link to action class
-  action?: Type<BaseAction>;
+  action?: Type<BaseMenu>;
   display?: string; // text to display. or function? text?
   validation?: string | RegExp | ((req: Request) => boolean); //FIXME: move to action class
   error_message?: string;
@@ -24,9 +24,9 @@ export class Menu {
   private _back?: string; // TODO: links to previous menu/action
   private _isStart: boolean = false;
   private _currentOption?: MenuOption | undefined = undefined; // make private??
-  private _action?: Type<BaseAction> | undefined = undefined;
+  private _action?: Type<BaseMenu> | undefined = undefined;
 
-  constructor(id: string, action?: Type<BaseAction>) {
+  constructor(id: string, action?: Type<BaseMenu>) {
     this._id = id;
     this._action = action;
   }

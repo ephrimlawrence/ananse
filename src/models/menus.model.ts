@@ -1,11 +1,13 @@
 // TODO: Keep list of menus cached in a map, globally
 import { Request, Response } from "@src/types/request";
-import { BaseAction } from "./action";
+import { BaseMenu } from "./action";
 import { Validation, Type } from "@src/types";
 // TODO: rename to action
-export class MenuOption {
+
+export class MenuAction {
   name: string;
-  choice?: string | RegExp | ((req: Request, res: Response) => string); // TODO: or function //FIXME: remove this
+  choice?: string | RegExp | ((req: Request, res: Response) => string); // TODO: or function
+  //FIXME: remove this
   // route: string; // Route ID
   // TODO: change return type to response
   // TODO: or link to action class
@@ -23,18 +25,18 @@ export class DynamicMenu {
 
   private _id: string;
   private _validation?: Validation;
-  private _actions: MenuOption[];
+  private _actions: MenuAction[];
   private _back?: string; // TODO: links to previous menu/action
   private _isStart: boolean = false;
-  private _currentOption?: MenuOption | undefined = undefined; // make private??
-  private _action?: Type<BaseAction> | undefined = undefined;
+  private _currentOption?: MenuAction | undefined = undefined; // make private??
+  private _action?: Type<BaseMenu> | undefined = undefined;
 
-  constructor(id: string, action?: Type<BaseAction>) {
+  constructor(id: string, action?: Type<BaseMenu>) {
     this._id = id;
     this._action = action;
   }
 
-  options(items: MenuOption[]): DynamicMenu {
+  options(items: MenuAction[]): DynamicMenu {
     if (this._action != undefined) {
       throw new Error(
         "Cannot set options for a menu with an action. Menu #${this._id} has an action defined"
@@ -70,7 +72,7 @@ export class DynamicMenu {
     return this;
   }
 
-  getOptions(): MenuOption[] {
+  getOptions(): MenuAction[] {
     return this._actions || [];
   }
 
@@ -86,11 +88,11 @@ export class DynamicMenu {
     return this._isStart || false;
   }
 
-  set currentOption(value: MenuOption | undefined) {
+  set currentOption(value: MenuAction | undefined) {
     this._currentOption = value;
   }
 
-  get currentOption(): MenuOption | undefined {
+  get currentOption(): MenuAction | undefined {
     return this._currentOption;
   }
 }
@@ -98,7 +100,7 @@ export class DynamicMenu {
 export class Menus {
   private static instance: Menus;
 
-  private items: Record<string, Type<BaseAction> | DynamicMenu> = {};
+  private items: Record<string, Type<BaseMenu> | DynamicMenu> = {};
 
   private constructor() {}
 
@@ -116,7 +118,7 @@ export class Menus {
     return _menu;
   }
 
-  add(cls: Type<BaseAction>, name: string): void {
+  add(cls: Type<BaseMenu>, name: string): void {
     // const _menu = new cls(cls.name, cls);
     this.items[name] = cls;
 
@@ -134,9 +136,9 @@ export class Menus {
     return this.items;
   }
 
-  getStartMenu(req: Request, res: Response): DynamicMenu | Type<BaseAction> {
+  getStartMenu(req: Request, res: Response): DynamicMenu | Type<BaseMenu> {
     const start = Object.values(this.items).find((menu) => {
-      if (menu instanceof BaseAction) {
+      if (menu instanceof BaseMenu) {
         // @ts-ignore
         return new menu(req, res).isStart;
       }
@@ -151,7 +153,7 @@ export class Menus {
     return start;
   }
 
-  getMenu(id: string): DynamicMenu | Type<BaseAction> {
+  getMenu(id: string): DynamicMenu | Type<BaseMenu> {
     const menu = this.items[id];
 
     if (menu == undefined) {
