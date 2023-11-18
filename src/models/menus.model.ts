@@ -5,7 +5,7 @@ import { Validation, Type, ValidationResponse } from "@src/types";
 // TODO: rename to action
 
 export class MenuAction {
-  name: string;
+  name: string; // FIXME: relevant? should be removed?
   choice?: string | RegExp | ((req: Request, res: Response) => string); // TODO: or function
   //FIXME: remove this
   // route: string; // Route ID
@@ -15,7 +15,7 @@ export class MenuAction {
   display?: string; // text to display. or function? text?
   // validation?: string | RegExp | ((req: Request) => boolean); //FIXME: move to action class
   // error_message?: string;
-  next_menu?: string | ((req: Request, resp: Response) => string); // TODO: links to next menu
+  next_menu?: string | ((req: Request, resp: Response) => Promise<string>); // TODO: links to next menu
 
   // TODO: validate that either route or action is provided
 }
@@ -36,7 +36,7 @@ export class DynamicMenu {
     this._action = action;
   }
 
-  options(items: MenuAction[]): DynamicMenu {
+  actions(items: MenuAction[]): DynamicMenu {
     if (this._action != undefined) {
       throw new Error(
         "Cannot set options for a menu with an action. Menu #${this._id} has an action defined"
@@ -163,20 +163,6 @@ export class Menus {
 
     return menu;
   }
-  // readonly getRoute(){
-
-  // }
-  // get routes(): Record<string, Route> {
-  //   return this._menus;
-  // }
-
-  // set routes(value: Record<string, Route>) {
-  //   this._menus = value;
-  // }
-
-  // addRoute(id: string, router: Route): void {
-  //   this.routes[id] = router;
-  // }
 }
 
 export abstract class BaseMenu {
@@ -189,15 +175,19 @@ export abstract class BaseMenu {
     return true;
   }
 
-  abstract message(): string;
+  abstract message(): Promise<string>;
 
-  abstract nextMenu(): string | undefined;
+  abstract nextMenu(): Promise<string | undefined>;
 
-  get isStart(): boolean {
-    return false;
+  get isStart(): Promise<boolean> {
+    return Promise.resolve(false);
   }
 
-  actions(): MenuAction[] {
+  async back(): Promise<string | undefined> {
+    return undefined;
+  }
+
+  async actions(): Promise<MenuAction[]> {
     return [];
   }
 }

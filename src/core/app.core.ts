@@ -7,7 +7,13 @@ import { State } from "@src/models/ussd-state";
 import { ServerResponse, IncomingMessage, IncomingHttpHeaders } from "http";
 import { createServer } from "http";
 import { parse } from "url";
-import router, { BaseMenu, Menu, Menus } from "@src/models/menus.model";
+import router, {
+  BaseMenu,
+  DynamicMenu,
+  Menu,
+  MenuAction,
+  Menus,
+} from "@src/models/menus.model";
 
 // TODO: change to project name
 class App {
@@ -77,7 +83,7 @@ class App {
     await this.lookupMenu();
 
     // Resolve menu options
-    // await this.lookupMenuOptions();
+    await this.lookupMenuOptions();
 
     await this.resolveMenuOption();
 
@@ -119,28 +125,46 @@ class App {
       this.currentState.nextMenu = action.next_menu;
     } else {
       // TODO: verify that the next menu is exists
-      this.currentState.nextMenu = action.next_menu(
+      this.currentState.nextMenu = await action.next_menu(
         this.request,
         this.response
       );
     }
   }
 
-  // private async lookupMenuOptions() {
-  //   if(this.menuType == )
-  //   if (this.currentMenu.getOptions().length == 0) {
-  //     throw new Error(
-  //       `Menu #${this.currentMenu.id} has no options. At least one option must be defined`
-  //     );
-  //   }
+  private async lookupMenuOptions() {
+    let actions: MenuAction[] = [];
 
-  //   if (this.currentState.isStart) {
-  //     this.currentState.action = this.currentMenu.getOptions()[0];
-  //     return this.currentState.action;
-  //   }
-  //   // TODO: Handle other request types
-  //   // let option: MenuOption = undefined;
-  // }
+    if (this.menuType == "class") {
+      actions = await (this.currentMenu as unknown as BaseMenu).actions();
+    } else {
+      actions = (this.currentMenu as DynamicMenu).getActions();
+    }
+
+    if (actions.length == 0) {
+      throw new Error(
+        `Menu #${this.currentMenu.toString()} has no actions. At least one option must be defined`
+      );
+    }
+
+    if (this.currentState.isStart) {
+      this.currentState.action = actions[0];
+      return this.currentState.action;
+    }
+
+    // Loop through the actions, and find the one that matches the user input
+    const input = this.currentState.userData;
+    for (const action of actions) {
+      if (action.choice != null && action.choice == input) {
+        this.currentState.action = action;
+        return this.currentState.action;
+      }
+    }
+
+    throw new Error(
+      `No action found for input ${input} in menu ${this.currentMenu.toString()}`
+    );
+  }
 
   private async lookupMenu() {
     let menu: Menu | undefined = undefined;

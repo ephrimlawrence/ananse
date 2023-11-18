@@ -38,11 +38,9 @@ export class DefaultMiddleware extends Middleware {
   }
 
   private wigalResponse(req: Request, res: Response): string {
-    return `network=${req.query?.network}&sessionid=${
+    return `${req.query?.network}|${this.state.mode}|${this.state.msisdn}|${
       this.state.sessionId
-    }&mode=${this.state.mode}&msisdn=${this.state.msisdn}&userdata=${
-      res.data
-    }&username=${req.query?.username}&trafficid=${req.query?.trafficid}&other=${
+    }|${res.data}|${req.query?.username}|${req.query?.trafficid}|${
       this.state.nextMenu || ""
     }`;
   }
