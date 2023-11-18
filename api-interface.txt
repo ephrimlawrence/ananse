@@ -9,6 +9,11 @@ We are writing a framework for building USSD applications in nodejs. Write out r
 * Automatic handling of back accounts
 
 
+Menus.add({start, name, actions, back}).name("test")
+.actions([..action objects])
+.back("home")
+.addAction({..action object})
+
 # Router Syntax
 Router.menu("home", {
     "1": "home",

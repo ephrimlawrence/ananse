@@ -1,11 +1,11 @@
-import { Request } from "@src/interfaces/request";
-import { ServerResponse } from "http";
+import { Request, Response } from "@src/interfaces/request";
 import { MenuOption } from "./router";
 
+// TODO: rename to menu
 export abstract class BaseAction {
   constructor(
     protected readonly request: Request,
-    protected readonly response: ServerResponse
+    protected readonly response: Response
   ) {}
 
   async validate(data?: string): Promise<boolean> {
@@ -14,9 +14,7 @@ export abstract class BaseAction {
 
   abstract message(): string;
 
-  defaultNextMenu(): string | undefined {
-    return undefined;
-  }
+  abstract nextMenu(): string | undefined;
 
   actions(): MenuOption[] {
     return [];

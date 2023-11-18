@@ -3,24 +3,25 @@ import { Type } from "@src/interfaces/action.interface";
 import { Request, Response } from "@src/interfaces/request";
 import { BaseAction } from "./action";
 
+// TODO: rename to action
 export class MenuOption {
   name: string;
   choice: string; // TODO: or function //FIXME: remove this
   // route: string; // Route ID
   // TODO: change return type to response
   // TODO: or link to action class
-  action?: Type<BaseAction>;
+  // action?: Type<BaseAction>;
   display?: string; // text to display. or function? text?
-  validation?: string | RegExp | ((req: Request) => boolean); //FIXME: move to action class
-  error_message?: string;
-  next_menu?: string | ((req: Request, resp: Response) => string); // TODO: links to next menu
+  // validation?: string | RegExp | ((req: Request) => boolean); //FIXME: move to action class
+  // error_message?: string;
+  // next_menu?: string | ((req: Request, resp: Response) => string); // TODO: links to next menu
 
   // TODO: validate that either route or action is provided
 }
 
 export class Menu {
   private _id: string;
-  private _options: MenuOption[];
+  private _actions: MenuOption[];
   private _back?: string; // TODO: links to previous menu/action
   private _isStart: boolean = false;
   private _currentOption?: MenuOption | undefined = undefined; // make private??
@@ -38,7 +39,7 @@ export class Menu {
       );
     }
 
-    this._options = items;
+    this._actions = items;
 
     return this;
   }
@@ -57,7 +58,7 @@ export class Menu {
   }
 
   getOptions(): MenuOption[] {
-    return this._options || [];
+    return this._actions || [];
   }
 
   get action() {
@@ -81,34 +82,47 @@ export class Menu {
   }
 }
 
-export class Route {
-  private static instance: Route;
+export class Menus {
+  private static instance: Menus;
 
-  private _menus: Record<string, Menu> = {};
+  private items: Record<string, Type<BaseAction> | Menu> = {};
 
   private constructor() {}
 
-  public static getInstance(): Route {
-    if (!Route.instance) {
-      Route.instance = new Route();
+  public static getInstance(): Menus {
+    if (!Menus.instance) {
+      Menus.instance = new Menus();
     }
 
-    return Route.instance;
+    return Menus.instance;
+  }
+
+  name(value: string): Menu {
+    const _menu = new Menu(value);
+    this.items[value] = _menu;
+    return _menu;
+  }
+
+  add(cls: Type<BaseAction>, name: string): void {
+    // const _menu = new cls(cls.name, cls);
+    this.items[name] = cls;
+
+    // return _menu;
   }
 
   menu(id: string) {
     const _menu = new Menu(id);
-    this._menus[id] = _menu;
+    this.items[id] = _menu;
 
     return _menu;
   }
 
   get menus() {
-    return this._menus;
+    return this.items;
   }
 
   get startMenu(): Menu {
-    const start = Object.values(this._menus).find((menu) => menu.isStart);
+    const start = Object.values(this.items).find((menu) => menu.isStart);
 
     if (start == undefined) {
       throw new Error("No start menu defined. Please define a start menu");
@@ -118,7 +132,7 @@ export class Route {
   }
 
   getMenu(id: string): Menu {
-    const menu = this._menus[id];
+    const menu = this.items[id];
 
     if (menu == undefined) {
       throw new Error(`Menu #${id} not found`);
@@ -142,7 +156,7 @@ export class Route {
   // }
 }
 
-const router = Route.getInstance();
+const router = Menus.getInstance();
 export default router;
 
 // const test = Route.
