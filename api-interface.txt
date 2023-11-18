@@ -9,7 +9,12 @@ We are writing a framework for building USSD applications in nodejs. Write out r
 * Automatic handling of back accounts
 
 
-Menus.add({start, name, actions, back}).name("test")
+Menus.add(cls, name).name("test")
+.actions([..action objects])
+.back("home")
+.addAction({..action object})
+
+Menus.name("test")
 .actions([..action objects])
 .back("home")
 .addAction({..action object})

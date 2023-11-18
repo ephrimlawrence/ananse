@@ -1,6 +1,6 @@
 // TODO: Keep list of menus cached in a map, globally
-import { Type } from "@src/interfaces/action.interface";
-import { Request, Response } from "@src/interfaces/request";
+import { Type } from "@src/types";
+import { Request, Response } from "@src/types/request";
 import { BaseAction } from "./action";
 
 export class MenuOption {

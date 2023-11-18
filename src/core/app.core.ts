@@ -1,5 +1,5 @@
-import { Type } from "@src/interfaces/action.interface";
-import { Request, Response } from "@src/interfaces/request";
+import { Type } from "@src/types";
+import { Request, Response } from "@src/types/request";
 import { Middleware } from "@src/middlewares/base.middleware";
 import { DefaultMiddleware } from "@src/middlewares/default.middleware";
 import router, { Menu, MenuOption, Route } from "@src/models/router";

@@ -1,4 +1,4 @@
-import { Request, Response } from "@src/interfaces/request";
+import { Request, Response } from "@src/types/request";
 import { Middleware } from "./base.middleware";
 import { USSDState } from "@src/models/ussd-state";
 
