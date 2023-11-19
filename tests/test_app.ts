@@ -10,7 +10,7 @@ class SelfService extends BaseMenu {
   }
 
   async message() {
-    return "";
+    return "Self Service";
   }
 
   async actions() {
@@ -47,6 +47,7 @@ router
       choice: "1",
       display: "1. Check Balance",
       name: "check_balance",
+      next_menu: "check_balance",
     },
     {
       choice: "2",
@@ -62,6 +63,17 @@ router
       name: "self_service",
     },
   ]);
+
+router
+  .menu("check_balance")
+  .message("Enter your account PIN")
+  .defaultNextMenu("verify_pin");
+
+router
+  .menu("verify_pin")
+  .validation(/[a-zA-Z1-9]{4}/)
+  .message("Your account balance is GHS12.000");
+// TODO: add .end() function
 
 router.add(SelfService, "self_service");
 

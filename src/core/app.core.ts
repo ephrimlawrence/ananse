@@ -214,16 +214,16 @@ class App {
       actions = (this.currentMenu as DynamicMenu).getActions();
     }
 
-    if (actions.length == 0) {
-      throw new Error(
-        `Menu #${this.currentMenu.toString()} has no actions. At least one option must be defined`
-      );
-    }
+    // if (actions.length == 0) {
+    //   throw new Error(
+    //     `Menu #${this.currentMenu.toString()} has no actions. At least one option must be defined`
+    //   );
+    // }
 
-    if (this.currentState.isStart) {
-      this.currentState.action = actions[0];
-      return this.currentState.action;
-    }
+    // if (this.currentState.isStart) {
+    //   this.currentState.action = actions[0];
+    //   return this.currentState.action;
+    // }
 
     // Loop through the actions, and find the one that matches the user input
     const input = this.currentState.userData;
@@ -274,28 +274,10 @@ class App {
         );
       }
 
-      // if (this.currentState.nextMenu == null) {
-      //   throw new Error(
-      //     `Next menu for #${this.currentState.sessionId} is not defined`
-      //   );
-      // }
-
-      // If the request is not a start request, we need to lookup the current menu
-      // menu = this.router.getMenu(this.currentState.menu);
       menu = this.currentState.menu;
     }
 
-    if (this.menuType(menu) == "class") {
-      if (menu instanceof BaseMenu) {
-        return (this.currentState.menu = menu);
-      } else {
-        // @ts-ignore
-        this.currentState.menu = new menu(this.request, this.response);
-        return this.currentState.menu;
-      }
-    }
-
-    this.currentState.menu = menu;
+    this.currentState.menu = this.instantiateMenu(menu);
   }
 
   private async resolveMiddlewares(stage: "request" | "response") {
