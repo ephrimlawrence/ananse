@@ -28,7 +28,7 @@ class Simulator {
     try {
       let resp = await axios.get(this.url);
       let wigal = this.formatResponse(resp.data);
-      console.log(resp.data);
+      console.log("");
       console.log(this.formatUserData(wigal.userdata));
       console.log("");
 

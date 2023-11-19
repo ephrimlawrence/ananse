@@ -6,13 +6,25 @@ import { Validation, Type, ValidationResponse } from "@src/types";
 
 export class MenuAction {
   name: string; // FIXME: relevant? should be removed?
-  choice?: string | RegExp | ((req: Request, res: Response) => string); // TODO: or function
+
+  /**
+   * The choice that the user should enter to select this option
+   * '*' is used to match any input. Useful for a catch-all option, must be the last option
+   */
+  choice:
+    | string
+    | RegExp
+    | ((
+        input: string | undefined,
+        req: Request,
+        res: Response
+      ) => Promise<string>); // TODO: or function
   //FIXME: remove this
   // route: string; // Route ID
   // TODO: change return type to response
   // TODO: or link to action class
   // action?: Type<BaseAction>;
-  display?: string; // text to display. or function? text?
+  display?: string | ((req: Request, res: Response) => Promise<string>); // text to display. or function? text?
   // validation?: string | RegExp | ((req: Request) => boolean); //FIXME: move to action class
   // error_message?: string;
   next_menu?: string | ((req: Request, resp: Response) => Promise<string>); // TODO: links to next menu
@@ -30,6 +42,9 @@ export class DynamicMenu {
   private _isStart: boolean = false;
   private _currentOption?: MenuAction | undefined = undefined; // make private??
   private _action?: Type<BaseMenu> | undefined = undefined;
+  private _message?:
+    | string
+    | ((req: Request, res: Response) => Promise<string>) = undefined;
 
   constructor(id: string, action?: Type<BaseMenu>) {
     this._id = id;
@@ -62,19 +77,31 @@ export class DynamicMenu {
   }
 
   validation(val: Validation) {
-    if (this._validation != null) {
-      throw Error(
-        `Menu #${this._id} already has a validation function defined!`
-      );
-    }
+    // if (this._validation != null) {
+    //   throw Error(
+    //     `Menu #${this._id} already has a validation function defined!`
+    //   );
+    // }
 
     this._validation = val;
+    return this;
+  }
+
+  message(msg: string | ((req: Request, res: Response) => Promise<string>)) {
+    this._message = msg;
     return this;
   }
 
   // TODO: rename to getactiona
   getActions(): MenuAction[] {
     return this._actions || [];
+  }
+
+  async getMessage(req: Request, res: Response): Promise<string> {
+    if (typeof this._message == "function") {
+      return this._message(req, res);
+    }
+    return this._message || "";
   }
 
   get action() {
@@ -187,9 +214,7 @@ export abstract class BaseMenu {
     return undefined;
   }
 
-  async actions(): Promise<MenuAction[]> {
-    return [];
-  }
+  abstract actions(): Promise<MenuAction[]>;
 }
 
 export type Menu = Type<BaseMenu> | DynamicMenu;

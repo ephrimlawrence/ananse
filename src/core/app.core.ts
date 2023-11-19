@@ -47,8 +47,8 @@ class App {
     return this.currentState.menu;
   }
 
-  private get menuType(): "class" | "dynamic" {
-    if (this.currentMenu instanceof BaseMenu) {
+  private menuType(val?: Menu): "class" | "dynamic" {
+    if (!/DynamicMenu$/i.test((val || this.currentMenu).constructor.name)) {
       return "class";
     }
 
@@ -87,9 +87,7 @@ class App {
 
     await this.resolveMenuOption();
 
-    await this.lookupNextMenu();
-
-    await this.buildResponse();
+    this.response.data = await this.buildResponse();
     // TODO: cache current state
 
     // Resolve middlewares
@@ -103,40 +101,79 @@ class App {
     // this.response.end("Hello, World!");
   }
 
-  private async resolveMenuOption() {
-    const option = this.currentState.action;
-    // TODO:add action?
-    if (option?.display != null) {
-      this.response.data = option.display;
+  private async buildResponse() {
+    if (this.menuType() == "class") {
+      const menu = this.currentMenu as unknown as BaseMenu;
+      let message = await menu.message();
+
+      for await (const action of await menu.actions()) {
+        if (typeof action.display == "function") {
+          message += "\n" + (await action.display(this.request, this.response));
+        } else {
+          message += "\n" + action.display || "";
+        }
+      }
+      return message;
     }
 
-    // TODO: resolve acoitn & validation
+    let message = await (this.currentMenu as DynamicMenu).getMessage(
+      this.request,
+      this.response
+    );
+
+    for await (const action of await (
+      this.currentMenu as DynamicMenu
+    ).getActions()) {
+      if (typeof action.display == "function") {
+        message += "\n" + (await action.display(this.request, this.response));
+      } else {
+        message += "\n" + action.display || "";
+      }
+    }
+    return message;
   }
 
-  private async lookupNextMenu() {
-    // TODO: handle next menu/option
+  private async resolveMenuOption() {
     const action = this.currentState.action;
 
-    if (action?.next_menu == null) {
+    // if (this.currentState.isStart) {
+    //   return;
+    // }
+
+    if (action == null) {
+      throw new Error(
+        `No action found for menu ${this.currentMenu.toString()}`
+      );
+    }
+
+    // Resolve next menu and make it the current menu
+    if (action.next_menu == null) {
       this.currentState.mode = "end";
       return this.currentState;
     }
 
+    let _menu: Menu | undefined = undefined;
     if (typeof action.next_menu == "string") {
-      this.currentState.nextMenu = action.next_menu;
+      _menu = this.router.getMenu(action.next_menu);
     } else {
-      // TODO: verify that the next menu is exists
-      this.currentState.nextMenu = await action.next_menu(
-        this.request,
-        this.response
+      _menu = this.router.getMenu(
+        await action.next_menu(this.request, this.response)
       );
     }
+
+    if (this.menuType(_menu) == "class") {
+      // @ts-ignore
+      this.currentState.menu = new _menu(this.request, this.response);
+      return this.currentState.menu;
+    }
+
+    this.currentState.menu = _menu;
   }
 
   private async lookupMenuOptions() {
     let actions: MenuAction[] = [];
 
-    if (this.menuType == "class") {
+    if (this.menuType() == "class") {
       actions = await (this.currentMenu as unknown as BaseMenu).actions();
     } else {
       actions = (this.currentMenu as DynamicMenu).getActions();
@@ -156,15 +193,35 @@ class App {
     // Loop through the actions, and find the one that matches the user input
     const input = this.currentState.userData;
     for (const action of actions) {
-      if (action.choice != null && action.choice == input) {
-        this.currentState.action = action;
-        return this.currentState.action;
+      if (typeof action.choice == "function") {
+        const result = await action.choice(input, this.request, this.response);
+        if (result == input) {
+          this.currentState.action = action;
+          break;
+        }
+      }
+
+      try {
+        const regex = new RegExp(action.choice.toString());
+        if (regex.test(input)) {
+          this.currentState.action = action;
+          break;
+        }
+      } catch (e) {}
+
+      if (typeof action.choice == "string") {
+        if (action.choice == input || action.choice == "*") {
+          this.currentState.action = action;
+          break;
+        }
       }
     }
 
-    throw new Error(
-      `No action found for input ${input} in menu ${this.currentMenu.toString()}`
-    );
+    // if (this.currentState.action == null) {
+    //   throw new Error(
+    //     `No action found for input ${input} in menu ${this.currentMenu.toString()}`
+    //   );
+    // }
   }
 
   private async lookupMenu() {
@@ -176,17 +233,24 @@ class App {
     if (this.currentState.isStart) {
       menu = this.router.getStartMenu(this.request, this.response);
     } else {
-      if (this.currentState.nextMenu == null) {
+      if (this.currentState.menu == null) {
         throw new Error(
-          `Next menu for #${this.currentState.sessionId} is not defined`
+          `Menu for #${this.currentState.sessionId} is not defined`
         );
       }
 
+      // if (this.currentState.nextMenu == null) {
+      //   throw new Error(
+      //     `Next menu for #${this.currentState.sessionId} is not defined`
+      //   );
+      // }
+
       // If the request is not a start request, we need to lookup the current menu
-      menu = this.router.getMenu(this.currentState.nextMenu);
+      // menu = this.router.getMenu(this.currentState.menu);
+      menu = this.currentState.menu;
     }
 
-    if (menu instanceof BaseMenu) {
+    if (this.menuType(menu) == "class") {
       // @ts-ignore
       this.currentState.menu = new menu(this.request, this.response);
       return this.currentState.menu;
