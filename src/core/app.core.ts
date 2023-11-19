@@ -220,19 +220,15 @@ class App {
       this.request,
       this.response
     );
-    if (_next == null) {
-      this.currentState.mode = "end";
-      return;
+
+    if (_next != null) {
+      this.currentState.menu = this.instantiateMenu(
+        this.router.getMenu(_next!)
+      );
     }
+    this.currentState.mode = this.currentState.isStart ? "more" : "end";
 
-    this.currentState.menu = this.instantiateMenu(this.router.getMenu(_next));
     return;
-
-    // if (action?.next_menu == null) {
-    //   this.currentState.mode = "end";
-    //   return this.currentState;
-    // }
-    // this.currentState.menu = this.instantiateMenu(_menu);
   }
 
   private instantiateMenu(menu: Menu) {
@@ -294,18 +290,10 @@ class App {
         }
       } catch (e) {}
     }
-
-    // if (this.currentState.action == null) {
-    //   throw new Error(
-    //     `No action found for input ${input} in menu ${this.currentMenu.toString()}`
-    //   );
-    // }
   }
 
   private async lookupMenu() {
     let menu: Menu | undefined = undefined;
-
-    console.log(this.currentState);
 
     // If the request is a start request, we need to lookup the start menu
     if (this.currentState.isStart) {
@@ -317,14 +305,6 @@ class App {
         );
       }
 
-      // if (this.currentState.nextMenu == null) {
-      //   throw new Error(
-      //     `Next menu for #${this.currentState.sessionId} is not defined`
-      //   );
-      // }
-
-      // If the request is not a start request, we need to lookup the current menu
-      // menu = this.router.getMenu(this.currentState.menu);
       menu = this.currentState.menu;
     }
 
