@@ -24,7 +24,9 @@ export class MenuAction {
   // TODO: change return type to response
   // TODO: or link to action class
   // action?: Type<BaseAction>;
-  display?: string | ((req: Request, res: Response) => Promise<string>); // text to display. or function? text?
+  display?:
+    | string
+    | ((req: Request, res: Response) => Promise<string> | string); // text to display. or function? text?
   // validation?: string | RegExp | ((req: Request) => boolean); //FIXME: move to action class
   // error_message?: string;
   next_menu?: string | ((req: Request, resp: Response) => Promise<string>); // TODO: links to next menu
@@ -44,11 +46,21 @@ export class DynamicMenu {
   private _action?: Type<BaseMenu> | undefined = undefined;
   private _message?:
     | string
-    | ((req: Request, res: Response) => Promise<string>) = undefined;
+    | ((req: Request, res: Response) => Promise<string> | string) = undefined;
+  private _nextMenu?:
+    | string
+    | ((req: Request, res: Response) => Promise<string> | string) = undefined;
 
   constructor(id: string, action?: Type<BaseMenu>) {
     this._id = id;
     this._action = action;
+  }
+
+  defaultNextMenu(
+    menu: string | ((req: Request, res: Response) => Promise<string> | string)
+  ): DynamicMenu {
+    this._nextMenu = menu;
+    return this;
   }
 
   actions(items: MenuAction[]): DynamicMenu {
@@ -102,6 +114,16 @@ export class DynamicMenu {
       return this._message(req, res);
     }
     return this._message || "";
+  }
+
+  async getDefaultNextMenu(
+    req: Request,
+    res: Response
+  ): Promise<string | undefined> {
+    if (typeof this._nextMenu == "function") {
+      return this._nextMenu(req, res);
+    }
+    return this._nextMenu;
   }
 
   get action() {

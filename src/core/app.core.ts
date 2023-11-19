@@ -139,35 +139,70 @@ class App {
     // if (this.currentState.isStart) {
     //   return;
     // }
+    // if (action == null) {
+    // let _menu = this.instantiateMenu(this.currentMenu);
 
-    if (action == null) {
-      throw new Error(
-        `No action found for menu ${this.currentMenu.toString()}`
-      );
-    }
+    // }
 
     // Resolve next menu and make it the current menu
-    if (action.next_menu == null) {
-      this.currentState.mode = "end";
-      return this.currentState;
-    }
+    let _menu: Menu;
 
-    let _menu: Menu | undefined = undefined;
-    if (typeof action.next_menu == "string") {
-      _menu = this.router.getMenu(action.next_menu);
-    } else {
-      _menu = this.router.getMenu(
-        await action.next_menu(this.request, this.response)
+    if (typeof action?.next_menu == "string") {
+      this.currentState.menu = this.instantiateMenu(
+        this.router.getMenu(action.next_menu!)
       );
-    }
-
-    if (this.menuType(_menu) == "class") {
-      // @ts-ignore
-      this.currentState.menu = new _menu(this.request, this.response);
+      return this.currentState.menu;
+    } else if (typeof action?.next_menu == "function") {
+      this.currentState.menu = this.instantiateMenu(
+        this.router.getMenu(await action.next_menu(this.request, this.response))
+      );
       return this.currentState.menu;
     }
 
-    this.currentState.menu = _menu;
+    // Fallback to default next menu
+    _menu = this.instantiateMenu(this.currentMenu);
+    if (this.menuType(_menu) == "class") {
+      const _next = await (_menu as unknown as BaseMenu).nextMenu();
+      if (_next == null) {
+        this.currentState.mode = "end";
+        return;
+      }
+
+      this.currentState.menu = this.instantiateMenu(this.router.getMenu(_next));
+      return;
+    }
+
+    const _next = await (_menu as DynamicMenu).getDefaultNextMenu(
+      this.request,
+      this.response
+    );
+    if (_next == null) {
+      this.currentState.mode = "end";
+      return;
+    }
+
+    this.currentState.menu = this.instantiateMenu(this.router.getMenu(_next));
+    return;
+
+    // if (action?.next_menu == null) {
+    //   this.currentState.mode = "end";
+    //   return this.currentState;
+    // }
+    // this.currentState.menu = this.instantiateMenu(_menu);
+  }
+
+  private instantiateMenu(menu: Menu) {
+    if (this.menuType(menu) == "class") {
+      if (menu instanceof BaseMenu) {
+        return menu;
+      }
+
+      // @ts-ignore
+      this.currentState.menu = new menu(this.request, this.response);
+      return this.currentState.menu;
+    }
+
+    return menu;
   }
 
   private async lookupMenuOptions() {
@@ -251,9 +286,13 @@ class App {
     }
 
     if (this.menuType(menu) == "class") {
-      // @ts-ignore
-      this.currentState.menu = new menu(this.request, this.response);
-      return this.currentState.menu;
+      if (menu instanceof BaseMenu) {
+        return (this.currentState.menu = menu);
+      } else {
+        // @ts-ignore
+        this.currentState.menu = new menu(this.request, this.response);
+        return this.currentState.menu;
+      }
     }
 
     this.currentState.menu = menu;
