@@ -87,16 +87,17 @@ class App {
 
     await this.resolveMenuOption();
 
-    await this.handleNextOption();
+    await this.lookupNextMenu();
 
+    await this.buildResponse();
     // TODO: cache current state
 
     // Resolve middlewares
     await this.resolveMiddlewares("response");
 
-    console.log(this.currentMenu);
+    // console.log(this.currentMenu);
 
-    console.log(this.request.state);
+    // console.log(this.request.state);
     // this.response.setHeader("Content-Type", "application/json");
     // this.response.writeHead(200);
     // this.response.end("Hello, World!");
@@ -112,7 +113,7 @@ class App {
     // TODO: resolve acoitn & validation
   }
 
-  private async handleNextOption() {
+  private async lookupNextMenu() {
     // TODO: handle next menu/option
     const action = this.currentState.action;
 
@@ -169,6 +170,8 @@ class App {
   private async lookupMenu() {
     let menu: Menu | undefined = undefined;
 
+    console.log(this.currentState);
+
     // If the request is a start request, we need to lookup the start menu
     if (this.currentState.isStart) {
       menu = this.router.getStartMenu(this.request, this.response);
@@ -195,7 +198,7 @@ class App {
   private async resolveMiddlewares(stage: "request" | "response") {
     if (stage == "request") {
       for (const middleware of this.middlewares) {
-        const item = new middleware(this.currentState);
+        const item = new middleware(this.request, this.response);
         await item.handleRequest(this.request, this.response);
 
         this.states[item.sessionId] = this.request.state;
@@ -205,7 +208,7 @@ class App {
 
     if (stage == "response") {
       for (const middleware of this.middlewares) {
-        const item = new middleware(this.currentState);
+        const item = new middleware(this.request, this.response);
         await item.handleResponse(this.request, this.response);
         // this.states[this.request.state.msisdn] = this.request.state;
       }
@@ -215,7 +218,6 @@ class App {
   }
 
   private async requestListener(req: IncomingMessage, res: ServerResponse) {
-    console.log("hellow");
     const request = new Request(parse(req.url!, true), req);
 
     if (req.method == "POST" || req.method == "PUT" || req.method == "PATCH") {

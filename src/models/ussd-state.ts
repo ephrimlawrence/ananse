@@ -13,6 +13,7 @@ export class State {
 
   action?: MenuAction;
   previous?: State | undefined;
+  // sessionData: Record<string, any> = {};
 
   get isStart(): boolean {
     return this.mode === "start";

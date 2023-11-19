@@ -33,7 +33,7 @@ router
 
 router.add(TestAction, "second");
 
-console.log(JSON.stringify(router, null, 2));
+// console.log(JSON.stringify(router, null, 2));
 
 app.listen(3000, "localhost", () => {
   console.log("Server listening on port 3000");
