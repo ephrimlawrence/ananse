@@ -1,4 +1,4 @@
-import { Type } from "@src/types";
+import { Type, ValidationResponse } from "@src/types";
 import { Request, Response } from "@src/types/request";
 import { Middleware } from "@src/middlewares/base.middleware";
 import { DefaultMiddleware } from "@src/middlewares/default.middleware";
@@ -14,6 +14,7 @@ import router, {
   MenuAction,
   Menus,
 } from "@src/models/menus.model";
+import { Session } from "./session.core";
 
 // TODO: change to project name
 class App {
@@ -28,10 +29,12 @@ class App {
 
   private middlewares: Type<Middleware>[] = [];
 
+  private errorMessage: string | undefined = undefined;
+
   /**
    * Track the state of the USSD session
    */
-  private readonly states: { [msisdn: string]: State } = {};
+  // private readonly states: { [msisdn: string]: State } = {};
 
   configure(opts: { middlewares?: Type<Middleware>[] }) {
     if ((opts.middlewares || []).length == 0) {
@@ -41,6 +44,10 @@ class App {
     }
 
     return this;
+  }
+
+  private get session(): Session {
+    return Session.getInstance();
   }
 
   private get currentMenu(): Menu {
@@ -87,26 +94,68 @@ class App {
 
     await this.resolveMenuOption();
 
-    this.response.data = await this.buildResponse();
+    // Validate user data
+    const status = await this.validateUserData();
+
+    // If there's validation error, the user cannot be moved to the next menu (error source),
+    // the user must still be on the current menu until the input passes validation
+    if (status != true) {
+      this.response.data = await this.buildResponse(
+        this.currentState.previousMenu!
+      );
+    } else {
+      this.response.data = await this.buildResponse(this.currentMenu);
+    }
     // TODO: cache current state
+
+    // Reset temp fields
+    this.currentState.action = undefined;
+    this.errorMessage = undefined;
 
     // Resolve middlewares
     await this.resolveMiddlewares("response");
-
-    // console.log(this.currentMenu);
-
-    // console.log(this.request.state);
-    // this.response.setHeader("Content-Type", "application/json");
-    // this.response.writeHead(200);
-    // this.response.end("Hello, World!");
   }
 
-  private async buildResponse() {
+  private async validateUserData(): Promise<ValidationResponse> {
+    let status: ValidationResponse = true;
     if (this.menuType() == "class") {
-      const menu = this.currentMenu as unknown as BaseMenu;
-      let message = await menu.message();
+      status = await (this.currentMenu as unknown as BaseMenu).validate(
+        this.currentState.userData
+      );
+    }
+    status = await (this.currentMenu as DynamicMenu).validateInput(
+      this.request,
+      this.response
+    );
 
-      for await (const action of await menu.actions()) {
+    if (typeof status == "string" || status == false) {
+      this.errorMessage = status || "Invalid input";
+    }
+    return status;
+  }
+
+  private async buildResponse(menu: Menu) {
+    let message = "";
+
+    // If error message is not empty, we simply show that instead of calling
+    // menu handler function. However, we append the actions to the response
+    if (this.errorMessage == null) {
+      if (this.menuType() == "class") {
+        message = await (menu as unknown as BaseMenu).message();
+      } else {
+        message = await (menu as DynamicMenu).getMessage(
+          this.request,
+          this.response
+        );
+      }
+    } else {
+      message = this.errorMessage;
+    }
+
+    if (this.menuType() == "class") {
+      for await (const action of await (
+        menu as unknown as BaseMenu
+      ).actions()) {
         if (typeof action.display == "function") {
           message += "\n" + (await action.display(this.request, this.response));
         } else {
@@ -115,11 +164,6 @@ class App {
       }
       return message;
     }
-
-    let message = await (this.currentMenu as DynamicMenu).getMessage(
-      this.request,
-      this.response
-    );
 
     for await (const action of await (
       this.currentMenu as DynamicMenu
@@ -236,20 +280,19 @@ class App {
         }
       }
 
-      try {
-        const regex = new RegExp(action.choice.toString());
-        if (regex.test(input)) {
-          this.currentState.action = action;
-          break;
-        }
-      } catch (e) {}
-
       if (typeof action.choice == "string") {
         if (action.choice == input || action.choice == "*") {
           this.currentState.action = action;
           break;
         }
       }
+
+      try {
+        if ((action.choice as RegExp).test(input)) {
+          this.currentState.action = action;
+          break;
+        }
+      } catch (e) {}
     }
 
     // if (this.currentState.action == null) {
@@ -274,6 +317,14 @@ class App {
         );
       }
 
+      // if (this.currentState.nextMenu == null) {
+      //   throw new Error(
+      //     `Next menu for #${this.currentState.sessionId} is not defined`
+      //   );
+      // }
+
+      // If the request is not a start request, we need to lookup the current menu
+      // menu = this.router.getMenu(this.currentState.menu);
       menu = this.currentState.menu;
     }
 
@@ -286,8 +337,8 @@ class App {
         const item = new middleware(this.request, this.response);
         await item.handleRequest(this.request, this.response);
 
-        this.states[item.sessionId] = this.request.state;
-        this.currentState = this.states[item.sessionId];
+        this.session.setState(item.sessionId, this.request.state);
+        this.currentState = this.session.getState(item.sessionId)!;
       }
     }
 

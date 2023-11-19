@@ -126,6 +126,25 @@ export class DynamicMenu {
     return this._nextMenu;
   }
 
+  async validateInput(
+    req: Request,
+    res: Response
+  ): Promise<ValidationResponse> {
+    if (this._validation == null) {
+      return true;
+    }
+
+    if (typeof this._validation == "function") {
+      return this._validation(req, res);
+    }
+
+    try {
+      return this._validation.test(req.state.userData);
+    } catch {}
+
+    return false;
+  }
+
   get action() {
     return this._action;
   }

@@ -1,6 +1,9 @@
 import { Menu, MenuAction } from "./menus.model";
 
 export class State {
+  private _menu: Menu;
+  private _previousMenu?: Menu | undefined = undefined;
+
   // private _trackedMenus: {previous: string, current: string}[] = [];
   // network: string;
   sessionId: string;
@@ -8,10 +11,10 @@ export class State {
   msisdn: string;
   userData: string;
   // currentRoute: Route;
-  menu: Menu;
+
   nextMenu?: string | undefined;
 
-  action?: MenuAction;
+  action?: MenuAction | undefined;
   previous?: State | undefined;
   // sessionData: Record<string, any> = {};
 
@@ -23,6 +26,18 @@ export class State {
     return this.mode === "end";
   }
 
+  set menu(val: Menu) {
+    this._previousMenu = this._menu;
+    this._menu = val;
+  }
+
+  get menu(): Menu {
+    return this._menu;
+  }
+
+  get previousMenu(): Menu | undefined {
+    return this._previousMenu;
+  }
   // other?: string;
 
   // constructor(opts: USSDState) {

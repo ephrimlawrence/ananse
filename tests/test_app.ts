@@ -71,7 +71,7 @@ router
 
 router
   .menu("verify_pin")
-  .validation(/[a-zA-Z1-9]{4}/)
+  .validation(/\d{4}/)
   .message("Your account balance is GHS12.000");
 // TODO: add .end() function
 
