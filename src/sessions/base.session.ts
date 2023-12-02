@@ -5,13 +5,7 @@ export abstract class Session {
   protected readonly data: { [key: string]: any } = {};
 
   // TODO: change this to a proper configuration based on the session type
-  configure(opts?: {
-    host?: string;
-    port?: number;
-    url?: string;
-    username?: string;
-    password?: string;
-  }): void {
+  async configure(options?: SessionOptions): Promise<void> {
     throw new Error("Method not implemented.");
   }
 
@@ -24,4 +18,15 @@ export abstract class Session {
   abstract set(key: string, value: any): Session;
 
   abstract get<T = unknown>(key: string, defaultValue: T): T | unknown;
+}
+
+export interface SessionOptions {
+  type: "redis" | "mongo" | "postgres";
+  keyPrefix?: string;
+  host?: string | undefined;
+  port?: number | undefined;
+  url?: string;
+  username?: string | undefined;
+  password?: string | undefined;
+  database?: string | number | undefined;
 }

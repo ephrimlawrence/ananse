@@ -11,6 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {},
+  "optionalDependencies": {
+    "redis": "^4.6.11"
+  },
   "devDependencies": {
     "@japa/api-client": "^2.0.0-1",
     "@japa/assert": "^2.0.0-2",

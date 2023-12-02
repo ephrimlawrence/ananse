@@ -1,6 +1,6 @@
 Pending features:
-    ☐ rewrite cli simulator to support all provider modes
-
+    ✔ rewrite cli simulator to support all provider modes @done(23-12-02 15:23)
+    ☐ redis session management
     ☐ session management
         ☐ set
         ☐ get

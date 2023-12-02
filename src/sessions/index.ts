@@ -26,4 +26,4 @@
 //   abstract get<T = unknown>(key: string, defaultValue: T): T | unknown;
 // }
 
-export { Session } from "./base.session";
+export { Session, SessionOptions } from "./base.session";

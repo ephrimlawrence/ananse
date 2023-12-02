@@ -1,7 +1,8 @@
 import { Middleware } from "./middlewares/base.middleware";
 import { DefaultMiddleware } from "./middlewares/default.middleware";
-import { Session } from "./sessions";
+import { Session, SessionOptions } from "./sessions";
 import { MemcacheSession } from "./sessions/memcache.session";
+import { RedisSession } from "./sessions/redis.session";
 import { Type } from "./types";
 
 export class Config {
@@ -42,12 +43,15 @@ export class Config {
       this._session = MemcacheSession.getInstance();
       return this;
     }
+
     if (typeof _session === "object") {
       // Configure is provided, so we need to create a new instance of the session
       if (_session?.type != null) {
         switch (_session.type) {
           case "redis":
-            throw new Error("Redis session not implemented yet");
+            this._session = RedisSession.getInstance();
+            this._session.configure(_session);
+            break;
           case "mongo":
             throw new Error("Mongo session not implemented yet");
           case "postgres":
@@ -76,13 +80,4 @@ export class Config {
 export interface ConfigOptions {
   middlewares?: Type<Middleware>[];
   session?: "memory" | SessionOptions | Type<Session>;
-}
-
-interface SessionOptions {
-  type: "redis" | "mongo" | "postgres";
-  host?: string;
-  port?: number;
-  url?: string;
-  username?: string;
-  password?: string;
 }
