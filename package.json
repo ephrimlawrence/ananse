@@ -9,14 +9,11 @@
     "tsc": "tsc",
     "dev": "tsx --watch --trace-warnings tests/test_app.ts",
     "test": "tsx --watch --trace-warnings tests/test_app.ts",
-    "simulate": "ts-node src/simulator.ts"
+    "simulate": "ts-node src/cli/simulator.ts"
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "axios": "^1.6.2",
-    "dotenv": "^16.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@japa/api-client": "^2.0.0-1",
     "@japa/assert": "^2.0.0-2",
