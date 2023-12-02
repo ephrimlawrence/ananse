@@ -15,13 +15,15 @@ export abstract class Session {
 
   abstract removeState(id: string): void | State;
 
-  abstract set(sessionId: string, key: string, value: any): Session;
+  abstract set(sessionId: string, key: string, value: any): Promise<void>;
 
   abstract get<T = unknown>(
     sessionId: string,
     key: string,
     defaultValue?: T
   ): T | unknown;
+
+  abstract getAll<T = unknown>(sessionId: string): T | unknown;
 }
 
 export interface SessionOptions {

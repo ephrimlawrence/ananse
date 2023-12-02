@@ -2,6 +2,7 @@ import { Config } from "@src/config";
 import { Session } from "@src/sessions";
 import { ValidationResponse } from "@src/types";
 import { MenuAction } from "./action.menu";
+import { Request, Response } from "@src/types/request";
 
 export abstract class BaseMenu {
   constructor(
@@ -17,12 +18,29 @@ export abstract class BaseMenu {
 
   abstract nextMenu(): Promise<string | undefined>;
 
+  get sessionId(): string {
+    return this.request.query?.sessionid!;
+  }
+
   get isStart(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
-  get session(): Session {
-    return Config.getInstance().session!;
+  get session() {
+    return {
+      get: <T>(key: string, defaultValue?: any) =>
+        Config.getInstance().session?.get<T>(
+          this.sessionId!,
+          key,
+          defaultValue
+        ),
+
+      getAll: <T>() => {
+        return Config.getInstance().session?.getAll<T>(this.sessionId!);
+      },
+      set: (key: string, val: any) =>
+        Config.getInstance().session?.set(this.sessionId!, key, val),
+    };
   }
 
   async back(): Promise<string | undefined> {

@@ -31,20 +31,23 @@ export class MemcacheSession extends Session {
     return _state;
   }
 
-  set(sessionId: string, key: string, value: any): Session {
+  async set(sessionId: string, key: string, value: any) {
     if (this.data[sessionId] == null) {
       this.data[sessionId] = {};
     }
 
     this.data[sessionId][key] = value;
-    return this;
   }
 
-  get<T = unknown>(sessionId: string, key: string, defaultValue: T): unknown {
+  get<T = unknown>(sessionId: string, key: string, defaultValue: T): T {
     if (this.data[sessionId] == null) {
       return defaultValue;
     }
 
-    return this.data[sessionId][key] || defaultValue;
+    return (this.data[sessionId][key] || defaultValue) as T;
+  }
+
+  getAll<T = unknown>(sessionId: string): T | unknown {
+    return this.data[sessionId];
   }
 }

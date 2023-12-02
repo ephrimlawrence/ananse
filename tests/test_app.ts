@@ -5,10 +5,15 @@ import { BaseMenu } from "../src/menus";
 
 class SelfService extends BaseMenu {
   async nextMenu() {
+    console.log(this.session.get("account_number"));
     return undefined;
   }
 
   async message() {
+    this.session.set("account_number", "1234567890");
+
+    console.log(this.session.getAll());
+
     return "Self Service";
   }
 

@@ -24,8 +24,6 @@ class App {
 
   private errorMessage: string | undefined = undefined;
 
-  private _sessionId: string | undefined = undefined;
-
   /**
    * Track the state of the USSD session
    */
@@ -43,19 +41,7 @@ class App {
   }
 
   private get session() {
-    return {
-      get: <T>(key: string, defaultValue?: any) =>
-        this.config.session?.get<T>(this._sessionId!, key, defaultValue),
-
-      set: (key: string, val: any) =>
-        this.config.session?.set(this._sessionId!, key, val),
-
-      setState: (id: string, state: State) =>
-        this.config.session?.setState(id, state),
-
-      getState: (id: string) => this.config.session?.getState(id),
-    };
-    // return this.config.session!;
+    return this.config.session!;
   }
 
   private get currentMenu(): Menu {
@@ -63,11 +49,10 @@ class App {
   }
 
   private menuType(val?: Menu): "class" | "dynamic" {
-    if (!/DynamicMenu$/i.test((val || this.currentMenu).constructor.name)) {
-      return "class";
+    if (/^DynamicMenu$/i.test((val || this.currentMenu).constructor.name)) {
+      return "dynamic";
     }
-
-    return "dynamic";
+    return "class";
   }
 
   listen(port?: number, hostname?: string, listeningListener?: () => void) {
@@ -130,13 +115,15 @@ class App {
       status = await (this.currentMenu as unknown as BaseMenu).validate(
         this.currentState.userData
       );
+    } else {
+      status = await (this.currentMenu as DynamicMenu).validateInput(
+        this.request,
+        this.response
+      );
     }
-    status = await (this.currentMenu as DynamicMenu).validateInput(
-      this.request,
-      this.response
-    );
 
     if (typeof status == "string" || status == false) {
+      // TODO: if no text is provided, return the current text
       this.errorMessage = status || "Invalid input";
     }
     return status;
@@ -318,7 +305,6 @@ class App {
         await item.handleRequest(this.request, this.response);
 
         this.session.setState(item.sessionId, this.request.state);
-        this._sessionId = item.sessionId;
         this.currentState = this.session.getState(item.sessionId)!;
       }
     }

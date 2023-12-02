@@ -73,17 +73,28 @@ export class RedisSession extends Session {
     return _state;
   }
 
-  set(key: string, value: any): Session {
-    this.data[key] = value;
+  async set(sessionId: string, key: string, value: any): Promise<void> {
+    if (this.data[sessionId] == null) {
+      this.data[sessionId] = {};
+    }
+
+    this.data[sessionId][key] = value;
 
     this.redisClient().then((client) =>
-      client.set(this.keyPrefix, JSON.stringify(this.data))
+      client.set(sessionId, JSON.stringify(this.data))
     );
-    return this;
   }
 
-  get<T = unknown>(key: string, defaultValue: T): unknown {
-    return this.data[key] || defaultValue;
+  get<T = unknown>(sessionId: string, key: string, defaultValue: T): T {
+    if (this.data[sessionId] == null) {
+      return defaultValue;
+    }
+
+    return (this.data[sessionId][key] || defaultValue) as T;
+  }
+
+  getAll<T = unknown>(sessionId: string): T {
+    return this.data[sessionId] as T;
   }
 
   private async redisClient() {
