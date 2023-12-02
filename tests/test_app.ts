@@ -39,6 +39,31 @@ class SelfService extends BaseMenu {
     ];
   }
 }
+class CloseAccount extends BaseMenu {
+  async nextMenu() {
+    return undefined;
+  }
+
+  async message() {
+    console.log(this.session.get("account_number"));
+    return "Are you sure you want to close your account?";
+  }
+
+  async actions() {
+    return [
+      {
+        choice: "1",
+        display: "1. No",
+        name: "no",
+      },
+      {
+        choice: "2",
+        display: "2. Yes",
+        name: "self_service.close_account.confirmed",
+      },
+    ];
+  }
+}
 
 const app = new App().configure({
   middlewares: [DefaultMiddleware],
@@ -83,6 +108,7 @@ router
 // TODO: add .end() function
 
 router.add(SelfService, "self_service");
+router.add(CloseAccount, "self_service.close_account");
 
 // console.log(JSON.stringify(router, null, 2));
 
