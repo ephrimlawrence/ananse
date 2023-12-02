@@ -77,27 +77,43 @@ export class RedisSession extends Session {
   }
 
   async set(sessionId: string, key: string, value: any): Promise<void> {
-    if (this.data[sessionId] == null) {
-      this.data[sessionId] = {};
-    }
+    // if (this.data[sessionId] == null) {
+    //   this.data[sessionId] = {};
+    // }
 
-    this.data[sessionId][key] = value;
+    // this.data[sessionId][key] = value;
+    const data = this.get(sessionId, key, value) || {};
 
     this.redisClient().then((client) =>
-      client.set(sessionId, JSON.stringify(this.data))
+      client.set(`${sessionId}:data`, JSON.stringify(data))
     );
   }
 
-  get<T = unknown>(sessionId: string, key: string, defaultValue: T): T {
-    if (this.data[sessionId] == null) {
+  async get<T>(
+    sessionId: string,
+    key: string,
+    defaultValue?: T
+  ): Promise<T | undefined> {
+    await this.redisClient();
+    const val = await this.CLIENT.get(`${sessionId}:data`);
+
+    if (val == null) {
       return defaultValue;
     }
 
-    return (this.data[sessionId][key] || defaultValue) as T;
+    return (JSON.parse(val)[key] || defaultValue) as T;
   }
 
-  getAll<T = unknown>(sessionId: string): T {
-    return this.data[sessionId] as T;
+  async getAll<T>(sessionId: string): Promise<T | undefined> {
+    const val = await this.redisClient().then((client) =>
+      client.get(`${sessionId}:data`)
+    );
+
+    if (val == null) {
+      return undefined;
+    }
+
+    return JSON.parse(val) as T;
   }
 
   private async redisClient() {

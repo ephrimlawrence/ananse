@@ -1,7 +1,7 @@
 import { Request, Response } from "@src/types/request";
 
 export class MenuAction {
-  name: string; // FIXME: relevant? should be removed?
+  // name: string; // FIXME: relevant? should be removed?
 
   /**
    * The choice that the user should enter to select this option

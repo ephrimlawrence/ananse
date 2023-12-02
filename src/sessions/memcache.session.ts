@@ -39,7 +39,11 @@ export class MemcacheSession extends Session {
     this.data[sessionId][key] = value;
   }
 
-  get<T = unknown>(sessionId: string, key: string, defaultValue: T): T {
+  async get<T = unknown>(
+    sessionId: string,
+    key: string,
+    defaultValue?: T
+  ): Promise<T | undefined> {
     if (this.data[sessionId] == null) {
       return defaultValue;
     }
@@ -47,7 +51,7 @@ export class MemcacheSession extends Session {
     return (this.data[sessionId][key] || defaultValue) as T;
   }
 
-  getAll<T = unknown>(sessionId: string): T | unknown {
-    return this.data[sessionId];
+  async getAll<T>(sessionId: string): Promise<T | undefined> {
+    return this.data[sessionId] as T;
   }
 }

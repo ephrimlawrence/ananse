@@ -28,8 +28,8 @@ export abstract class BaseMenu {
 
   get session() {
     return {
-      get: <T>(key: string, defaultValue?: any) =>
-        Config.getInstance().session?.get<T>(
+      get: async <T>(key: string, defaultValue?: any) =>
+        await Config.getInstance().session?.get<T>(
           this.sessionId!,
           key,
           defaultValue

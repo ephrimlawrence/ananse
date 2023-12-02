@@ -5,14 +5,14 @@ import { BaseMenu } from "../src/menus";
 
 class SelfService extends BaseMenu {
   async nextMenu() {
-    console.log(this.session.get("account_number"));
+    // console.log(this.session.get("account_number"));
     return undefined;
   }
 
   async message() {
     this.session.set("account_number", "1234567890");
 
-    console.log(this.session.getAll());
+    // console.log(this.session.getAll());
 
     return "Self Service";
   }
@@ -34,7 +34,7 @@ class SelfService extends BaseMenu {
       {
         choice: "3",
         display: "3. Close Account",
-        name: "self_service.close_account",
+        next_menu: "self_service.close_account",
       },
     ];
   }
@@ -45,7 +45,7 @@ class CloseAccount extends BaseMenu {
   }
 
   async message() {
-    console.log(this.session.get("account_number"));
+    console.log(await this.session.get("account_number"));
     return "Are you sure you want to close your account?";
   }
 
@@ -67,7 +67,7 @@ class CloseAccount extends BaseMenu {
 
 const app = new App().configure({
   middlewares: [DefaultMiddleware],
-  session: { type: "redis" },
+  // session: { type: "redis" },
 });
 
 router

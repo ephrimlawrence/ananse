@@ -17,13 +17,13 @@ export abstract class Session {
 
   abstract set(sessionId: string, key: string, value: any): Promise<void>;
 
-  abstract get<T = unknown>(
+  abstract get<T>(
     sessionId: string,
     key: string,
     defaultValue?: T
-  ): T | unknown;
+  ): Promise<T | undefined>;
 
-  abstract getAll<T = unknown>(sessionId: string): T | unknown;
+  abstract getAll<T = unknown>(sessionId: string): Promise<T | undefined>;
 }
 
 export interface SessionOptions {
