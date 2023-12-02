@@ -1,6 +1,6 @@
 import { Middleware } from "./middlewares/base.middleware";
 import { DefaultMiddleware } from "./middlewares/default.middleware";
-import { Session } from "./sessions/base.session";
+import { Session } from "./sessions";
 import { MemcacheSession } from "./sessions/memcache.session";
 import { Type } from "./types";
 

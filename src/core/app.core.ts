@@ -7,16 +7,11 @@ import { State } from "@src/models/ussd-state";
 import { ServerResponse, IncomingMessage, IncomingHttpHeaders } from "http";
 import { createServer } from "http";
 import { parse } from "url";
-import router, {
-  BaseMenu,
-  DynamicMenu,
-  Menu,
-  MenuAction,
-  Menus,
-} from "@src/models/menus.model";
+import router, { DynamicMenu, Menu, Menus } from "@src/models/menus.model";
 // import { Session } from "./session.core";
 import { Config, ConfigOptions } from "@src/config";
-import { Session } from "@src/sessions/index.session";
+import { Session } from "@src/sessions";
+import { BaseMenu, MenuAction } from "@src/menus";
 
 // TODO: change to project name
 class App {
@@ -50,7 +45,7 @@ class App {
   }
 
   private get session(): Session {
-    return this.config.session!
+    return this.config.session!;
   }
 
   private get currentMenu(): Menu {

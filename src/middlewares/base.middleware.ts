@@ -1,7 +1,7 @@
 import { Request, Response } from "@src/types/request";
 import { State } from "@src/models/ussd-state";
 import { Config } from "@src/config";
-import { Session } from "@src/sessions/index.session";
+import { Session } from "@src/sessions";
 
 export abstract class Middleware {
   constructor(

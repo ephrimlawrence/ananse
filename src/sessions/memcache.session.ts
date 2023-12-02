@@ -1,5 +1,5 @@
 import { State } from "@src/models/ussd-state";
-import { Session } from "./index.session";
+import { Session } from "./base.session";
 
 export class MemcacheSession extends Session {
   private static instance: MemcacheSession;
