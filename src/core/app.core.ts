@@ -14,7 +14,9 @@ import router, {
   MenuAction,
   Menus,
 } from "@src/models/menus.model";
-import { Session } from "./session.core";
+// import { Session } from "./session.core";
+import { Config, ConfigOptions } from "@src/config";
+import { Session } from "@src/sessions/index.session";
 
 // TODO: change to project name
 class App {
@@ -27,7 +29,7 @@ class App {
   private currentState: State;
   // private currentMenu: Menu;
 
-  private middlewares: Type<Middleware>[] = [];
+  // private middlewares: Type<Middleware>[] = [];
 
   private errorMessage: string | undefined = undefined;
 
@@ -36,18 +38,19 @@ class App {
    */
   // private readonly states: { [msisdn: string]: State } = {};
 
-  configure(opts: { middlewares?: Type<Middleware>[] }) {
-    if ((opts.middlewares || []).length == 0) {
-      this.middlewares = [DefaultMiddleware];
-    } else {
-      this.middlewares = opts.middlewares!;
-    }
+  configure(opts: ConfigOptions) {
+    const instance = Config.getInstance();
+    instance.init(opts);
 
     return this;
   }
 
+  private get config(): Config {
+    return Config.getInstance();
+  }
+
   private get session(): Session {
-    return Session.getInstance();
+    return this.config.session!
   }
 
   private get currentMenu(): Menu {
@@ -313,7 +316,7 @@ class App {
 
   private async resolveMiddlewares(stage: "request" | "response") {
     if (stage == "request") {
-      for (const middleware of this.middlewares) {
+      for (const middleware of this.config.middlewares) {
         const item = new middleware(this.request, this.response);
         await item.handleRequest(this.request, this.response);
 
@@ -323,7 +326,7 @@ class App {
     }
 
     if (stage == "response") {
-      for (const middleware of this.middlewares) {
+      for (const middleware of this.config.middlewares) {
         const item = new middleware(this.request, this.response);
         await item.handleResponse(this.request, this.response);
         // this.states[this.request.state.msisdn] = this.request.state;

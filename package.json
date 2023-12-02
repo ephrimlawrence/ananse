@@ -4,11 +4,11 @@
   "description": "",
   "scripts": {
     "watch": "nodemon --ext ts,js --watch . --exec npm run test",
-    "dev": "ts-node src/server",
     "nodemon": "nodemon",
     "tsnode": "ts-node",
     "tsc": "tsc",
-    "test": "ts-node ./tests/test_app.ts",
+    "dev": "tsx --watch --trace-warnings tests/test_app.ts",
+    "test": "tsx --watch --trace-warnings tests/test_app.ts",
     "simulate": "ts-node src/simulator.ts"
   },
   "author": "",
@@ -25,6 +25,7 @@
     "@japa/snapshot": "^2.0.0-2",
     "@types/node": "^20.4.5",
     "nodemon": "^3.0.1",
+    "tsx": "^4.2.0",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^4.8.4"

@@ -1,4 +1,6 @@
 Pending features:
+    ☐ rewrite cli simulator to support all provider modes
+
     ☐ session management
         ☐ set
         ☐ get
