@@ -1,6 +1,7 @@
 import { Request, Response } from "@src/types/request";
 import { State } from "@src/models/ussd-state";
-import { Session } from "@src/core/session.core";
+import { Config } from "@src/config";
+import { Session } from "@src/sessions/index.session";
 
 export abstract class Middleware {
   constructor(
@@ -9,11 +10,11 @@ export abstract class Middleware {
   ) {}
 
   get state(): State | undefined {
-    return Session.getInstance().getState(this.sessionId);
+    return Config.getInstance().session!.getState(this.sessionId);
   }
 
   get session(): Session {
-    return Session.getInstance();
+    return Config.getInstance().session!;
   }
 
   abstract get sessionId(): string;
