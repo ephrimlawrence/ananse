@@ -24,6 +24,8 @@ class App {
 
   private errorMessage: string | undefined = undefined;
 
+  private _sessionId: string | undefined = undefined;
+
   /**
    * Track the state of the USSD session
    */
@@ -40,8 +42,20 @@ class App {
     return Config.getInstance();
   }
 
-  private get session(): Session {
-    return this.config.session!;
+  private get session() {
+    return {
+      get: <T>(key: string, defaultValue?: any) =>
+        this.config.session?.get<T>(this._sessionId!, key, defaultValue),
+
+      set: (key: string, val: any) =>
+        this.config.session?.set(this._sessionId!, key, val),
+
+      setState: (id: string, state: State) =>
+        this.config.session?.setState(id, state),
+
+      getState: (id: string) => this.config.session?.getState(id),
+    };
+    // return this.config.session!;
   }
 
   private get currentMenu(): Menu {
@@ -304,6 +318,7 @@ class App {
         await item.handleRequest(this.request, this.response);
 
         this.session.setState(item.sessionId, this.request.state);
+        this._sessionId = item.sessionId;
         this.currentState = this.session.getState(item.sessionId)!;
       }
     }

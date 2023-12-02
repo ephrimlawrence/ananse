@@ -1,8 +1,8 @@
 import { State } from "@src/models/ussd-state";
 
 export abstract class Session {
-  protected readonly states: { [key: string]: State } = {};
-  protected readonly data: { [key: string]: any } = {};
+  protected readonly states: { [sessionId: string]: State } = {};
+  protected readonly data: { [sessionId: string]: Record<string, any> } = {};
 
   // TODO: change this to a proper configuration based on the session type
   async configure(options?: SessionOptions): Promise<void> {
@@ -15,9 +15,13 @@ export abstract class Session {
 
   abstract removeState(id: string): void | State;
 
-  abstract set(key: string, value: any): Session;
+  abstract set(sessionId: string, key: string, value: any): Session;
 
-  abstract get<T = unknown>(key: string, defaultValue: T): T | unknown;
+  abstract get<T = unknown>(
+    sessionId: string,
+    key: string,
+    defaultValue?: T
+  ): T | unknown;
 }
 
 export interface SessionOptions {
