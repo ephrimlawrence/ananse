@@ -1,17 +1,10 @@
 import { randomUUID } from "crypto";
 import * as readline from "readline";
 
-const APP_URL = "http://localhost:3000";
-
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
-
-// const args = parseArguments();
-// console.log(args);
-
-// const APP_URL = process.env.APP_URL;
 
 class Simulator {
   args: {
@@ -39,8 +32,6 @@ class Simulator {
 
     throw new Error(`${this.provider} is not implemented`);
   }
-
-  //   url: string = `${APP_URL}?network=wigal_tigo_gh&sessionid=12345&mode=start&msisdn=233558331258&userdata&username=stevkky&trafficid=adc62161-05b2-4af5-98b1-a66c67f85c9d&other=first_menu`;
 
   async init() {
     this.parseArguments();
@@ -73,8 +64,6 @@ class Simulator {
 
       let wigal = this.parseResponse(data);
 
-      // console.log(`\n${data}\n`);
-      // console.log(data);
       console.log("");
       console.log(this.displayText(wigal));
       console.log("");
@@ -141,10 +130,6 @@ class Simulator {
 
     return text.replace(/\^/g, "\n");
   }
-
-  //   toUrlString(data: any): string {
-  //     return `network=${data.network}&sessionid=${data.sessionid}&mode=${data.mode}&msisdn=${data.msisdn}&userdata=${data.userdata}&username=${data.username}&trafficid=${data.trafficid}&other=${data.other}`;
-  //   }
 
   log(data: any) {
     if (this.args.debug == true || this.args.debug == "true") {
