@@ -2,7 +2,7 @@ import App from "../src/core/app.core";
 import { DefaultMiddleware } from "../src/middlewares/default.middleware";
 // import router from "../src/models/router";
 // import { BaseAction } from "../src/models/action";
-import router from "../src/models/menus.model";
+import router from "../src/menus";
 import { BaseMenu } from "../src/menus";
 
 class SelfService extends BaseMenu {

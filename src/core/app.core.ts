@@ -1,14 +1,10 @@
 import { Type, ValidationResponse } from "@src/types";
 import { Request, Response } from "@src/types/request";
-import { Middleware } from "@src/middlewares/base.middleware";
-import { DefaultMiddleware } from "@src/middlewares/default.middleware";
-// import router, { Route } from "@src/models/router";
 import { State } from "@src/models/ussd-state";
-import { ServerResponse, IncomingMessage, IncomingHttpHeaders } from "http";
+import { ServerResponse, IncomingMessage } from "http";
 import { createServer } from "http";
 import { parse } from "url";
-import router, { DynamicMenu, Menu, Menus } from "@src/models/menus.model";
-// import { Session } from "./session.core";
+import router, { DynamicMenu, Menu, Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
 import { Session } from "@src/sessions";
 import { BaseMenu, MenuAction } from "@src/menus";
@@ -177,14 +173,6 @@ class App {
 
   private async resolveMenuOption() {
     const action = this.currentState.action;
-
-    // if (this.currentState.isStart) {
-    //   return;
-    // }
-    // if (action == null) {
-    // let _menu = this.instantiateMenu(this.currentMenu);
-
-    // }
 
     // Resolve next menu and make it the current menu
     let _menu: Menu;

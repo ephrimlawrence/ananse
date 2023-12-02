@@ -1,4 +1,4 @@
-import { Menu, MenuAction } from "./menus.model";
+import { Menu, MenuAction } from "../menus";
 
 export class State {
   private _menu: Menu;
