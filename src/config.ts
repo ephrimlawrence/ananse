@@ -62,7 +62,7 @@ export class Config {
       }
       console.log(typeof _session);
       // A session class is provided, so we need to create a new instance of the session
-      this._session = _session as unknown as Session;
+      // this._session = _session as unknown as Session;
     }
 
     return this;
@@ -77,7 +77,8 @@ export class Config {
   }
 }
 
+type CustomSession = Type<Session>;
 export interface ConfigOptions {
   middlewares?: Type<Middleware>[];
-  session?: "memory" | SessionOptions | Type<Session>;
+  session?: "memory" | SessionOptions | CustomSession;
 }

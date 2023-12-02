@@ -40,7 +40,10 @@ class SelfService extends BaseMenu {
   }
 }
 
-const app = new App().configure({ middlewares: [DefaultMiddleware] });
+const app = new App().configure({
+  middlewares: [DefaultMiddleware],
+  session: { type: "redis" },
+});
 
 router
   .menu("first")

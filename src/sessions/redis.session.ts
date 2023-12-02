@@ -39,35 +39,38 @@ export class RedisSession extends Session {
     //
 
     // Load all the states from redis
-    const keys = await this.CLIENT.keys(`${this.keyPrefix}*`);
-    const states = await this.CLIENT.mGet(keys);
+    // const keys = await this.CLIENT.keys(`${this.keyPrefix}*`);
+    // const states = await this.CLIENT.mGet(keys);
 
-    states.forEach((state) => {
-      console.log(state);
+    // states.forEach((state) => {
+    //   console.log(state);
 
-      const _state = JSON.parse(state!);
-      this.states[_state.sessionId] = _state;
-    });
+    //   const _state = JSON.parse(state!);
+    //   this.states[_state.sessionId] = _state;
+    // });
 
-    // Load all the data from redis
-    const data = await this.CLIENT.mGet(keys);
-    data.forEach((data) => {
-      console.log(data);
-      const _data = JSON.parse(data!);
-      this.data[_data.key] = _data.value;
-    });
+    // // Load all the data from redis
+    // const data = await this.CLIENT.mGet(keys);
+    // data.forEach((data) => {
+    //   console.log(data);
+    //   const _data = JSON.parse(data!);
+    //   this.data[_data.key] = _data.value;
+    // });
   }
 
   setState(id: string, state: State) {
     this.states[id] = state;
+    // TODO: Save the state to redis
     return state;
   }
 
   getState(id: string): State | undefined {
+    // TODO: Save the state to redis
     return this.states[id];
   }
 
   removeState(id: string): void | State {
+    // TODO: remove the state to redis
     const _state = this.states[id];
     delete this.states[id];
     return _state;
