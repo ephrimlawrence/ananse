@@ -58,33 +58,37 @@ export class RedisSession extends Session {
     // });
   }
 
-  setState(id: string, state: State) {
-    this.states[id] = state;
-    // TODO: Save the state to redis
+  async setState(sessionId: string, state: State) {
+    this.states[sessionId] = state;
+
+    await this.redisClient().then((client) =>
+      client.set(`${sessionId}:state`, JSON.stringify(state.toJSON()))
+    );
     return state;
   }
 
-  getState(id: string): State | undefined {
+  async getState(sessionId: string) {
+    await this.redisClient();
+    const val = await this.CLIENT.get(`${sessionId}:state`);
+
     // TODO: Save the state to redis
-    return this.states[id];
+    return val == null ? undefined : State.fromJSON(JSON.parse(val));
   }
 
-  removeState(id: string): void | State {
+  removeState(sessionId: string): void | State {
     // TODO: remove the state to redis
-    const _state = this.states[id];
-    delete this.states[id];
+    const _state = this.states[sessionId];
+    delete this.states[sessionId];
+
+    this.redisClient().then((client) => client.del(`${sessionId}:state`));
+
     return _state;
   }
 
   async set(sessionId: string, key: string, value: any): Promise<void> {
-    // if (this.data[sessionId] == null) {
-    //   this.data[sessionId] = {};
-    // }
+    const data = (await this.get(sessionId, key, value)) || {};
 
-    // this.data[sessionId][key] = value;
-    const data = this.get(sessionId, key, value) || {};
-
-    this.redisClient().then((client) =>
+    await this.redisClient().then((client) =>
       client.set(`${sessionId}:data`, JSON.stringify(data))
     );
   }
@@ -138,10 +142,10 @@ export class RedisSession extends Session {
       if (!this.CLIENT?.isOpen) {
         await this.CLIENT.connect();
       }
+
+      return this.CLIENT;
     } catch (error) {
       throw error;
     }
-
-    return this.CLIENT;
   }
 }

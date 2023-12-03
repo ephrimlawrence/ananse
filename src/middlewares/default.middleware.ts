@@ -8,7 +8,7 @@ export class DefaultMiddleware extends Middleware {
   }
 
   async handleRequest(): Promise<void> {
-    let _state = this.state;
+    let _state = await this.state;
 
     if (this.isVendorWigal()) {
       _state ??= new State();
@@ -22,15 +22,15 @@ export class DefaultMiddleware extends Middleware {
       // state.trafficid = req.query?.trafficid;
       // state.other = req.query?.other;
 
-      this.session.setState(this.sessionId, _state);
-      this.request.state = this.state!;
+      await this.session.setState(this.sessionId, _state);
+      this.request.state = (await this.state)!;
     }
   }
 
   async handleResponse(req: Request, res: Response): Promise<void> {
     if (this.isVendorWigal()) {
       res.writeHead(200, { "Content-Type": "text/plain" });
-      res.end(this.wigalResponse());
+      res.end(await this.wigalResponse());
       return;
     }
 
@@ -39,12 +39,13 @@ export class DefaultMiddleware extends Middleware {
     res.end(res.data);
   }
 
-  private wigalResponse(): string {
-    return `${this.request.query?.network}|${this.state?.mode}|${
-      this.state?.msisdn
-    }|${this.state?.sessionId}|${this.response.data}|${
-      this.request.query?.username
-    }|${this.request.query?.trafficid}|${this.state?.nextMenu || ""}`;
+  private async wigalResponse(): Promise<string> {
+    const data = (await this.state)!;
+    return `${this.request.query?.network}|${data?.mode}|${data?.msisdn}|${
+      data?.sessionId
+    }|${this.response.data}|${this.request.query?.username}|${
+      this.request.query?.trafficid
+    }|${data?.nextMenu || ""}`;
   }
 
   private isVendorWigal(): boolean {

@@ -304,8 +304,8 @@ class App {
         const item = new middleware(this.request, this.response);
         await item.handleRequest(this.request, this.response);
 
-        this.session.setState(item.sessionId, this.request.state);
-        this.currentState = this.session.getState(item.sessionId)!;
+        await this.session.setState(item.sessionId, this.request.state);
+        this.currentState = (await this.session.getState(item.sessionId))!;
       }
     }
 

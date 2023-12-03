@@ -9,9 +9,9 @@ export abstract class Session {
     throw new Error("Method not implemented.");
   }
 
-  abstract setState(id: string, state: State): State;
+  abstract setState(id: string, state: State): Promise<State>;
 
-  abstract getState(id: string): State | undefined;
+  abstract getState(id: string): Promise<State | undefined>;
 
   abstract removeState(id: string): void | State;
 

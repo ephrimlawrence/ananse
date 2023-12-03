@@ -67,7 +67,7 @@ class CloseAccount extends BaseMenu {
 
 const app = new App().configure({
   middlewares: [DefaultMiddleware],
-  // session: { type: "redis" },
+  session: { type: "redis" },
 });
 
 router

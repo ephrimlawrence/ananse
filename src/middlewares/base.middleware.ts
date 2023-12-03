@@ -9,7 +9,7 @@ export abstract class Middleware {
     protected readonly response: Response
   ) {}
 
-  get state(): State | undefined {
+  get state(): Promise<State | undefined> {
     return Config.getInstance().session!.getState(this.sessionId);
   }
 

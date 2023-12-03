@@ -16,12 +16,12 @@ export class MemcacheSession extends Session {
     return MemcacheSession.instance;
   }
 
-  setState(id: string, state: State) {
+  async setState(id: string, state: State): Promise<State> {
     this.states[id] = state;
     return state;
   }
 
-  getState(id: string): State | undefined {
+  async getState(id: string): Promise<State | undefined> {
     return this.states[id];
   }
 
