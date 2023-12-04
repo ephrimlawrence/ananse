@@ -8,6 +8,7 @@ import router, { DynamicMenu, Menu, Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
 import { Session } from "@src/sessions";
 import { BaseMenu, MenuAction } from "@src/menus";
+import { MENU_CACHE } from "./state.core";
 
 // TODO: change to project name
 class App {
@@ -17,8 +18,8 @@ class App {
   private router: Menus;
   // private current_route: Route;
 
-  private currentState: State;
-  // private currentMenu: Menu;
+  // private currentState: State;
+  private _currentMenu: Menu;
 
   // private middlewares: Type<Middleware>[] = [];
 
@@ -36,6 +37,19 @@ class App {
     return this;
   }
 
+  private get currentMenu(): Menu {
+    return this._currentMenu;
+  }
+
+  private async setCurrentMenu(id: string, val: Menu, state?: State) {
+    this._currentMenu = val;
+
+    if (state != null) {
+      state.menu = id;
+      await this.session.setState(state.sessionId, state);
+    }
+  }
+
   private get config(): Config {
     return Config.getInstance();
   }
@@ -44,9 +58,9 @@ class App {
     return this.config.session!;
   }
 
-  private get currentMenu(): Menu {
-    return this.currentState.menu;
-  }
+  // private get currentMenu(): Menu {
+  //   return this.currentState.menu;
+  // }
 
   private menuType(val?: Menu): "class" | "dynamic" {
     if (/^DynamicMenu$/i.test((val || this.currentMenu).constructor.name)) {
@@ -64,9 +78,11 @@ class App {
     );
   }
 
-  // get currentState() {
-  //   return this.states[this.request.state?.msisdn];
-  // }
+  get currentState() {
+    return Config.getInstance().session?.getState(
+      this.request.state?.sessionId
+    )!;
+  }
 
   private async handle() {
     this.router = router;
@@ -90,11 +106,12 @@ class App {
     // Validate user data
     const status = await this.validateUserData();
 
+    const _tempState = (await this.currentState)!;
     // If there's validation error, the user cannot be moved to the next menu (error source),
     // the user must still be on the current menu until the input passes validation
     if (status != true) {
       this.response.data = await this.buildResponse(
-        this.currentState.previousMenu!
+        MENU_CACHE[_tempState.previousMenu!]
       );
     } else {
       this.response.data = await this.buildResponse(this.currentMenu);
@@ -102,8 +119,9 @@ class App {
     // TODO: cache current state
 
     // Reset temp fields
-    this.currentState.action = undefined;
+    _tempState.action = undefined;
     this.errorMessage = undefined;
+    await this.session.setState(_tempState.sessionId, _tempState);
 
     // Resolve middlewares
     await this.resolveMiddlewares("response");
@@ -113,7 +131,9 @@ class App {
     let status: ValidationResponse = true;
     if (this.menuType() == "class") {
       status = await (this.currentMenu as unknown as BaseMenu).validate(
-        this.currentState.userData
+        (
+          await this.currentState
+        )?.userData
       );
     } else {
       status = await (this.currentMenu as DynamicMenu).validateInput(
@@ -173,21 +193,29 @@ class App {
   }
 
   private async resolveMenuOption() {
-    const action = this.currentState.action;
+    const _state = (await this.currentState)!;
+    const action = _state.action;
 
     // Resolve next menu and make it the current menu
     let _menu: Menu;
 
     if (typeof action?.next_menu == "string") {
-      this.currentState.menu = this.instantiateMenu(
-        this.router.getMenu(action.next_menu!)
+      await this.setCurrentMenu(
+        action.next_menu!,
+        this.instantiateMenu(this.router.getMenu(action.next_menu!)),
+        _state
       );
-      return this.currentState.menu;
+      return this.currentMenu;
     } else if (typeof action?.next_menu == "function") {
-      this.currentState.menu = this.instantiateMenu(
-        this.router.getMenu(await action.next_menu(this.request, this.response))
+      const id = await action.next_menu(this.request, this.response);
+
+      await this.setCurrentMenu(
+        id,
+        this.instantiateMenu(this.router.getMenu(id)),
+        _state
       );
-      return this.currentState.menu;
+
+      return this.currentMenu;
     }
 
     // Fallback to default next menu
@@ -195,11 +223,17 @@ class App {
     if (this.menuType(_menu) == "class") {
       const _next = await (_menu as unknown as BaseMenu).nextMenu();
       if (_next == null) {
-        this.currentState.mode = "end";
+        _state.mode = "end";
+        await this.session.setState(_state.sessionId, _state);
         return;
       }
 
-      this.currentState.menu = this.instantiateMenu(this.router.getMenu(_next));
+      await this.setCurrentMenu(
+        _next,
+        this.instantiateMenu(this.router.getMenu(_next)),
+        _state
+      );
+
       return;
     }
 
@@ -209,11 +243,15 @@ class App {
     );
 
     if (_next != null) {
-      this.currentState.menu = this.instantiateMenu(
-        this.router.getMenu(_next!)
+      await this.setCurrentMenu(
+        _next,
+        this.instantiateMenu(this.router.getMenu(_next)),
+        _state
       );
     }
-    this.currentState.mode = this.currentState.isStart ? "more" : "end";
+
+    _state.mode = _state.isStart ? "more" : "end";
+    await this.session.setState(_state.sessionId, _state);
 
     return;
   }
@@ -225,8 +263,8 @@ class App {
       }
 
       // @ts-ignore
-      this.currentState.menu = new menu(this.request, this.response);
-      return this.currentState.menu;
+      this._currentMenu = new menu(this.request, this.response);
+      return this.currentMenu;
     }
 
     return menu;
@@ -253,59 +291,66 @@ class App {
     // }
 
     // Loop through the actions, and find the one that matches the user input
-    const input = this.currentState.userData;
+    const _state = (await this.currentState)!;
+    const input = _state.userData;
     for (const action of actions) {
       if (typeof action.choice == "function") {
         const result = await action.choice(input, this.request, this.response);
         if (result == input) {
-          this.currentState.action = action;
+          _state.action = action;
           break;
         }
       }
 
       if (typeof action.choice == "string") {
         if (action.choice == input || action.choice == "*") {
-          this.currentState.action = action;
+          _state.action = action;
           break;
         }
       }
 
       try {
         if ((action.choice as RegExp).test(input)) {
-          this.currentState.action = action;
+          _state.action = action;
           break;
         }
       } catch (e) {}
     }
+
+    this.session.setState(_state.sessionId, _state);
   }
 
   private async lookupMenu() {
-    let menu: Menu | undefined = undefined;
+    let menu: Menu | undefined = undefined,
+      id: string | undefined = undefined,
+      _state = (await this.currentState)!;
 
     // If the request is a start request, we need to lookup the start menu
-    if (this.currentState.isStart) {
-      menu = this.router.getStartMenu(this.request, this.response);
+    if (_state.isStart) {
+      const _value = this.router.getStartMenu(this.request, this.response);
+      id = _value.id;
+      menu = _value.obj;
     } else {
-      if (this.currentState.menu == null) {
-        throw new Error(
-          `Menu for #${this.currentState.sessionId} is not defined`
-        );
+      if (_state.menu == null) {
+        throw new Error(`Menu for #${_state.sessionId} is not defined`);
       }
 
-      menu = this.currentState.menu;
+      menu = this.currentMenu;
+      // menu = this.currentState.menu;
     }
 
-    this.currentState.menu = this.instantiateMenu(menu);
+    this.setCurrentMenu(id!, this.instantiateMenu(menu), _state);
   }
 
   private async resolveMiddlewares(stage: "request" | "response") {
     if (stage == "request") {
       for (const middleware of this.config.middlewares) {
         const item = new middleware(this.request, this.response);
-        await item.handleRequest(this.request, this.response);
+        const _state = (await item.handleRequest(this.request, this.response))!;
+        await this.session.setState(_state.sessionId, _state)!;
 
-        await this.session.setState(item.sessionId, this.request.state);
-        this.currentState = (await this.session.getState(item.sessionId))!;
+        // await this.session.setState(item.sessionId, this.request.state);
+        // this.currentState = (await this.session.getState(item.sessionId))!;
       }
     }
 

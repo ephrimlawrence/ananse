@@ -86,7 +86,11 @@ export class RedisSession extends Session {
   }
 
   async set(sessionId: string, key: string, value: any): Promise<void> {
-    const data = (await this.get(sessionId, key, value)) || {};
+    await this.redisClient();
+    const val = await this.CLIENT.get(`${sessionId}:data`);
+
+    const data = JSON.parse(val || "{}");
+    data[key] = value;
 
     await this.redisClient().then((client) =>
       client.set(`${sessionId}:data`, JSON.stringify(data))

@@ -1,8 +1,8 @@
 import { Menu, MenuAction } from "../menus";
 
 export class State {
-  private _menu: Menu;
-  private _previousMenu?: Menu | undefined = undefined;
+  private _menu: string; //TODO: use menue id/name instead of class
+  private _previousMenu?: string | undefined = undefined;
 
   // private _trackedMenus: {previous: string, current: string}[] = [];
   // network: string;
@@ -15,38 +15,41 @@ export class State {
   previous?: State | undefined;
 
   get isStart(): boolean {
-    return this.mode === "start";
+    return this.mode == "start";
   }
 
   get isEnd(): boolean {
-    return this.mode === "end";
+    return this.mode == "end";
   }
 
-  set menu(val: Menu) {
+  set menu(val: string) {
     this._previousMenu = this._menu;
     this._menu = val;
   }
 
-  get menu(): Menu {
+  get menu(): string {
     return this._menu;
   }
 
-  get previousMenu(): Menu | undefined {
+  get previousMenu(): string | undefined {
     return this._previousMenu;
   }
 
+  set previousMenu(val: string | undefined) {
+    this._previousMenu = val;
+  }
+
   static fromJSON(json: Record<string, any>): State {
-    const state = new State();
+    return Object.assign(new State(), json);
+    // state.sessionId = json.sessionId;
+    // state.mode = json.mode;
+    // state.msisdn = json.msisdn;
+    // state.userData = json.userData;
+    // state.nextMenu = json.nextMenu;
+    // state.action = json.action;
+    // state.previous = json.previous;
 
-    state.sessionId = json.sessionId;
-    state.mode = json.mode;
-    state.msisdn = json.msisdn;
-    state.userData = json.userData;
-    state.nextMenu = json.nextMenu;
-    state.action = json.action;
-    state.previous = json.previous;
-
-    return state;
+    // return state;
   }
 
   toJSON(): Record<string, any> {
@@ -56,6 +59,8 @@ export class State {
       msisdn: this.msisdn,
       userData: this.userData,
       nextMenu: this.nextMenu,
+      previousMenu: this.previousMenu,
+      menu: this.menu,
       action: this.action,
       previous: this.previous?.toJSON(),
     };

@@ -7,11 +7,12 @@ import { Request, Response } from "@src/types/request";
 import { Type } from "@src/types";
 import { BaseMenu } from "@src/menus/base.menu";
 import { DynamicMenu } from "@src/menus";
+import { MENU_CACHE } from "@src/core/state.core";
 
 export class Menus {
   private static instance: Menus;
 
-  private items: Record<string, Type<BaseMenu> | DynamicMenu> = {};
+  // private items: { [menuId: string]: Type<BaseMenu> | DynamicMenu } = {};
 
   private constructor() {}
 
@@ -25,30 +26,34 @@ export class Menus {
 
   name(value: string): DynamicMenu {
     const _menu = new DynamicMenu(value);
-    this.items[value] = _menu;
+    MENU_CACHE[value] = _menu;
     return _menu;
   }
 
   add(cls: Type<BaseMenu>, name: string): void {
     // const _menu = new cls(cls.name, cls);
-    this.items[name] = cls;
+    MENU_CACHE[name] = cls;
 
     // return _menu;
   }
 
   menu(id: string) {
     const _menu = new DynamicMenu(id);
-    this.items[id] = _menu;
+    MENU_CACHE[id] = _menu;
 
     return _menu;
   }
 
   get menus() {
-    return this.items;
+    return MENU_CACHE;
   }
 
-  getStartMenu(req: Request, res: Response): DynamicMenu | Type<BaseMenu> {
-    const start = Object.values(this.items).find((menu) => {
+  getStartMenu(
+    req: Request,
+    res: Response
+  ): { id: string; obj: DynamicMenu | Type<BaseMenu> } {
+    const start = Object.keys(MENU_CACHE).find((id) => {
+      const menu = MENU_CACHE[id];
       if (menu instanceof BaseMenu) {
         // @ts-ignore
         return new menu(req, res).isStart;
@@ -61,11 +66,11 @@ export class Menus {
       throw new Error("No start menu defined. Please define a start menu");
     }
 
-    return start;
+    return { id: start, obj: MENU_CACHE[start] };
   }
 
   getMenu(id: string): DynamicMenu | Type<BaseMenu> {
-    const menu = this.items[id];
+    const menu = MENU_CACHE[id];
 
     if (menu == undefined) {
       throw new Error(`Menu #${id} not found`);

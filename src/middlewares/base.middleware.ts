@@ -23,7 +23,10 @@ export abstract class Middleware {
 
   // # extract ussd params from request body/parameters/json/form-data
   // # extract session from redis
-  abstract handleRequest(req: Request, resp: Response): Promise<void>;
+  abstract handleRequest(
+    req: Request,
+    resp: Response
+  ): Promise<State | undefined>;
 
   abstract handleResponse(req: Request, resp: Response): Promise<void>;
   // # pick data from session, eg. req.session

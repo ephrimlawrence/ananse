@@ -132,6 +132,7 @@ class Simulator {
   }
 
   log(data: any) {
+    this.args.debug = true;
     if (this.args.debug == true || this.args.debug == "true") {
       console.log("");
       console.log(data);

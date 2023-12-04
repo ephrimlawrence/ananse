@@ -7,7 +7,7 @@ export class DefaultMiddleware extends Middleware {
     return this.request.query?.sessionid!;
   }
 
-  async handleRequest(): Promise<void> {
+  async handleRequest(): Promise<State | undefined> {
     let _state = await this.state;
 
     if (this.isVendorWigal()) {
@@ -23,8 +23,10 @@ export class DefaultMiddleware extends Middleware {
       // state.other = req.query?.other;
 
       await this.session.setState(this.sessionId, _state);
-      this.request.state = (await this.state)!;
+      this.request.state = _state;
     }
+
+    return _state;
   }
 
   async handleResponse(req: Request, res: Response): Promise<void> {
