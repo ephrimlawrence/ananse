@@ -22,7 +22,7 @@ export class DefaultMiddleware extends Middleware {
       // state.trafficid = req.query?.trafficid;
       // state.other = req.query?.other;
 
-      await this.session.setState(this.sessionId, _state);
+      // await this.session.setState(this.sessionId, _state);
       this.request.state = _state;
     }
 
