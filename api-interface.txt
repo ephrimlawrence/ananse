@@ -118,3 +118,31 @@ class Middleware {
 class AfricasTalkingMiddleware extends Middleware {
     # basically all usefull hooks from rejoice framework
 }
+
+
+
+Japap Plugin
+==============
+* use macros
+
+scorpionClient({url, config: {..same config}, provider?, phone?, sessionId?})
+
+scorpion.config({..same config})
+
+scorpion.setProvider()
+.setSessionId()
+.setPhone()
+.setUrl()
+.setSession()
+
+scorpion.input(1).input(2)
+
+scorpion.steps([1, 3, 4, 3324454, 4434])
+
+.text() -> return response text visible to the user
+.rawResponse -> return raw response
+
+-> assertions
+.assertStatus
+.assertText
+.assertTextIncludes
