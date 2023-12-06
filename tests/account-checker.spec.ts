@@ -6,10 +6,10 @@ import { promisify } from "util";
 
 test.group("Maths.add", () => {
   test("ussd test 1", async ({ ussd, assert }) => {
-    const resp = await ussd.send();
+    const resp = await ussd.steps(3, 3).send();
     console.log(await resp.text())
 
-    assert.include(await resp.text(), "Check Balance");
+    assert.include(await resp.text(), "Yes");
     // console.log(ussd.setProvider("mtn").config);
   });
 

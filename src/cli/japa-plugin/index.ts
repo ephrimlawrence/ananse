@@ -20,10 +20,6 @@ class UssdTestRunner {
     this.#provider = val.provider;
   }
 
-  // url(val: string) {
-  //   this.#config.url = val;
-  // }
-
   gateway(val: Gateway | keyof typeof Gateway) {
     if (typeof val == "string") {
       val = Gateway[val];
@@ -77,16 +73,6 @@ class UssdTestRunner {
         const data = await resp.text();
 
         await this.parseResponse(data);
-
-        // console.log("");
-        // console.log(this.displayText(wigal));
-        // console.log("");
-
-        // if (wigal.isEndSession) process.exit(0);
-
-        // rl.question("Response: ", async (input) => {
-        //   return await this.start(this.reply(wigal, input));
-        // });
       } catch (e) {
         if (this.#debug == true) {
           throw e;
@@ -116,30 +102,6 @@ class UssdTestRunner {
         return this.#rawResponse;
       },
     };
-
-    // try {
-    //   let resp = await fetch(this.#url);
-
-    //   const data = await resp.text();
-
-    //   await this.parseResponse(data);
-
-    //   // console.log("");
-    //   // console.log(this.displayText(wigal));
-    //   // console.log("");
-
-    //   // if (wigal.isEndSession) process.exit(0);
-
-    //   // rl.question("Response: ", async (input) => {
-    //   //   return await this.start(this.reply(wigal, input));
-    //   // });
-    // } catch (e) {
-    //   if (this.#debug == true) {
-    //     throw e;
-    //   } else {
-    //     console.log("Simulator error: ", e.message);
-    //   }
-    // }
   }
 
   // TODO
@@ -149,8 +111,6 @@ class UssdTestRunner {
 
   get #url(): string {
     let val: string = TEST_CONFIG.url || "http://localhost:3000";
-
-    // if (url != null) return url;
 
     if (val.startsWith("localhost")) {
       val = "http://" + val;
@@ -188,8 +148,6 @@ class UssdTestRunner {
     let url = "";
     if (this.#provider == Gateway.wigal) {
       data ??= {};
-      // data.userdata = input != null ? input : data.userdata;
-
       const sessionId = data.sessionid || this.#sessionId || randomUUID();
 
       url = `${this.#url}?network=${
@@ -219,11 +177,6 @@ class UssdTestRunner {
 
 export function scorpionPlugin(config: Config) {
   const obj = new UssdTestRunner(config);
-  // TEST_CONFIG.url = config.url || "http://localhost:3000";
-  // TEST_CONFIG.provider = config.provider;
-  // TEST_CONFIG.phone = config.phone; //TODO: generate one from faker
-  // TEST_CONFIG.session = config.session || randomUUID();
-  // TEST_CONFIG.app = config.app || null;
 
   return function ({ emitter, runner, cliArgs, config }) {
     emitter.on("test:start", function () {
@@ -233,22 +186,6 @@ export function scorpionPlugin(config: Config) {
 
     TestContext.getter("ussd", function () {
       return obj;
-      // const { url, provider, phone, session } = TEST_CONFIG;
-
-      // return {
-      //   setProvider: (provider: string) => {
-      //     TEST_CONFIG.provider = provider;
-
-      //     console.log("here", TEST_CONFIG);
-      //     return this;
-      //   },
-      //   config: () => {
-      //     return TEST_CONFIG;
-      //   },
-      // };
-      // return new Promise((resolve) => {
-      //   setTimeout(resolve, milliseconds);
-      // });
     });
 
     console.log("hello world from myCustomPlugin");
