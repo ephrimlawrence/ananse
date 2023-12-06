@@ -115,3 +115,6 @@ router.add(CloseAccount, "self_service.close_account");
 app.listen(3000, "localhost", () => {
   console.log("Server listening on port 3000");
 });
+
+
+export default app;

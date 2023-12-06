@@ -9,3 +9,8 @@ export type Validation =
 export interface Type<T = any> extends Function {
   new (...args: any[]): T;
 }
+
+export enum Gateway {
+  wigal = "wigal",
+  hubtel = "hubtel",
+}

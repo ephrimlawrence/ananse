@@ -25,13 +25,13 @@ class Simulator {
     }`;
   }
 
-  get generateRequestUrl(): string {
-    if (this.provider == "wigal") {
-      return `${this.baseUrl}?network=wigal_tigo_gh&sessionid=12345&mode=start&msisdn=${this.args.phone}&userdata&username=stevkky&trafficid=adc62161-05b2-4af5-98b1-a66c67f85c9d&other=first_menu`;
-    }
+  // get generateRequestUrl(): string {
+  //   if (this.provider == "wigal") {
+  //     return `${this.baseUrl}?network=wigal_tigo_gh&sessionid=12345&mode=start&msisdn=${this.args.phone}&userdata&username=stevkky&trafficid=adc62161-05b2-4af5-98b1-a66c67f85c9d&other=first_menu`;
+  //   }
 
-    throw new Error(`${this.provider} is not implemented`);
-  }
+  //   throw new Error(`${this.provider} is not implemented`);
+  // }
 
   async init() {
     this.parseArguments();

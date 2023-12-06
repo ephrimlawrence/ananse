@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "tsc": "tsc",
+    "tsx": "tsx",
     "dev": "tsx --watch --trace-warnings tests/test_app.ts",
     "test": "tsx bin/test.ts",
     "simulate": "tsx src/cli/simulator.ts"
