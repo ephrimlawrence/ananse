@@ -23,12 +23,6 @@ class UssdTestRunner {
   // #currentStep: string | undefined = undefined;
 
   constructor(_config: Config) {
-    if (_config.app == null && _config.url == null) {
-      throw new Error(
-        "Please provide an app to start the server, or a url to make request to"
-      );
-    }
-
     this.#config = _config;
   }
 
@@ -85,7 +79,8 @@ class UssdTestRunner {
     // const server = createServer(callback)
     // try {
     const test = getActiveTest();
-    test?.cleanup(() => this.#server?.close());
+    test?.cleanup(() => this.stopServer());
+
     this.#server = this.#config.app?.listen(3000, "localhost", () => {
       this.#config.url = "http://localhost:3000";
 
@@ -97,18 +92,29 @@ class UssdTestRunner {
     // server.listen(somePort)
   }
 
-  stopServer() {
+  async stopServer() {
     // console.log(this.#server);
+    console.log("ending server");
     if (this.#server != null) {
-      this.#server.close(() => {
+      await this.#server.close(() => {
         console.log("Server stopped");
       });
       // this.#server.close();
       this.#server = undefined;
+
+      return;
     }
+
+    return;
   }
 
   async send(url?: string) {
+    if (this.#config.app == null && this.#config.url == null) {
+      throw new Error(
+        "Please provide an app to start the server, or a url to make request to"
+      );
+    }
+
     if (url != null) {
       this.#isRequestSent = true;
     }
@@ -239,24 +245,29 @@ export function scorpionPlugin(config: Config) {
   const obj = new UssdTestRunner(config);
 
   return function ({ emitter, runner, cliArgs, config }) {
-    obj.debug(true);
+    obj.debug(false);
 
-    // emitter.on("test:setup", async function () {
-    //   // await obj.startServer();
-    //   // TODO: stop server
-    //   console.log("setup initiated");
-    // });
+    emitter.on("test:cleanup", async function () {
+      // await obj.startServer();
+      // TODO: stop server
+      console.log("setup initiated");
+    });
+    emitter.on("group:cleanup", async function () {
+      // await obj.startServer();
+      // TODO: stop server
+      console.log("setup sdd");
+    });
     // emitter.on("test:start", async function () {
     //   await obj.startServer();
     //   // TODO: stop server
     //   console.log("test started");
     // });
 
-    // emitter.on("test:end", function () {
-    //   // obj.stopServer();
-    //   // TODO: stop server
-    //   console.log("test ended");
-    // });
+    emitter.on("group:end", function () {
+      obj.stopServer();
+      // TODO: stop server
+      console.log("test ended");
+    });
 
     TestContext.getter("ussd", function () {
       return obj;
