@@ -1,6 +1,7 @@
 export { MenuAction } from "./action.menu";
 export { BaseMenu } from "./base.menu";
 export { DynamicMenu } from "./dynamic_menu.menu";
+export { ValidationResponse } from "@src/types";
 
 // TODO: Keep list of menus cached in a map, globally
 import { Request, Response } from "@src/types/request";

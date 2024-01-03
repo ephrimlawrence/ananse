@@ -172,6 +172,8 @@ class App {
       for await (const action of await (
         menu as unknown as BaseMenu
       ).actions()) {
+        if (action.display == null) continue;
+
         if (typeof action.display == "function") {
           message += "\n" + (await action.display(this.request, this.response));
         } else {
@@ -184,6 +186,8 @@ class App {
     for await (const action of await (
       this.currentMenu as DynamicMenu
     ).getActions()) {
+      if (action.display == null) continue;
+
       if (typeof action.display == "function") {
         message += "\n" + (await action.display(this.request, this.response));
       } else {
