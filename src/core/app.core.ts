@@ -8,6 +8,8 @@ import router, { DynamicMenu, Menu, Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
 import { BaseMenu, MenuAction } from "@src/menus";
 import { MENU_CACHE } from "./state.core";
+import { menuType } from "@src/helpers/index.helper";
+import { FormMenuHandler } from "./form_handler";
 
 // TODO: change to project name
 class App {
@@ -57,6 +59,15 @@ class App {
     return this.config.session!;
   }
 
+  private async isFormMenu() {
+    if (menuType(this.currentMenu) == "class") {
+      return (
+        (await (this.currentMenu as unknown as BaseMenu).isForm()) || false
+      );
+    } else {
+      return await (this.currentMenu as DynamicMenu).isFormMenu;
+    }
+  }
   // private get currentMenu(): Menu {
   //   return this.currentState.menu;
   // }
@@ -96,29 +107,40 @@ class App {
 
     // Resolve middlewares
     const state = (await this.resolveMiddlewares("request"))!;
+    this.request.state = state;
 
     // Lookup menu
     await this.lookupMenu(state);
 
-    // Resolve menu options
-    await this.lookupMenuOptions(state);
-
-    await this.resolveMenuOption(state);
-
-    // Validate user data
-    const status = await this.validateUserData(state);
-
-    // const _tempState = (await this.currentState)!;
-    // If there's validation error, the user cannot be moved to the next menu (error source),
-    // the user must still be on the current menu until the input passes validation
-    if (status != true) {
-      this.response.data = await this.buildResponse(
-        MENU_CACHE[state.previousMenu!]
+    // If menu is a form, use form handler
+    if (await this.isFormMenu()) {
+      const formHandler = new FormMenuHandler(
+        this.request,
+        this.response,
+        this.currentMenu
       );
+      await formHandler.handle();
     } else {
-      this.response.data = await this.buildResponse(this.currentMenu);
+      // Resolve menu options
+      await this.lookupMenuOptions(state);
+
+      await this.resolveMenuOption(state);
+
+      // Validate user data
+      const status = await this.validateUserData(state);
+
+      // const _tempState = (await this.currentState)!;
+      // If there's validation error, the user cannot be moved to the next menu (error source),
+      // the user must still be on the current menu until the input passes validation
+      if (status != true) {
+        this.response.data = await this.buildResponse(
+          MENU_CACHE[state.previousMenu!]
+        );
+      } else {
+        this.response.data = await this.buildResponse(this.currentMenu);
+      }
+      // TODO: cache current state
     }
-    // TODO: cache current state
 
     // Reset temp fields
     state.action = undefined;
@@ -199,6 +221,11 @@ class App {
   private async resolveMenuOption(state: State) {
     // const _state = (await this.currentState)!;
     const action = state.action;
+
+    // Execute the action handler
+    if (action?.handler != null) {
+      await action.handler(this.request, this.session);
+    }
 
     // Resolve next menu and make it the current menu
     let _menu: Menu;
@@ -306,7 +333,10 @@ class App {
         }
       }
 
-      if (typeof action.choice == "string") {
+      if (
+        typeof action.choice == "string" ||
+        typeof action.choice == "number"
+      ) {
         if (action.choice == input || action.choice == "*") {
           state.action = action;
           break;

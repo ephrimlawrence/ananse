@@ -60,7 +60,7 @@ Router.menu("my_wallet")
 # Form Syntax
 Router.menu("my_wallet")
     .back("goodbye_route)
-    .isForm()
+    .isForm("my_wallet_form")
     .option([
         # 'method' field for directly calling a function in a class
         # 'validation' field for validating user input

@@ -1,3 +1,5 @@
+import { BaseSession } from "@src/sessions";
+import { Session } from "@src/types";
 import { Request, Response } from "@src/types/request";
 
 export class MenuAction {
@@ -28,4 +30,29 @@ export class MenuAction {
   next_menu?: string | ((req: Request, resp: Response) => Promise<string>); // TODO: links to next menu
 
   // TODO: validate that either route or action is provided
+  // suggest a name for a method that will be called when this option is selected by the user
+  handler: (req: Request, session: BaseSession) => Promise<void>;
+  // handler: (get: () => void, set: (val: any) => Promise<void>) => void = (
+  //   get,
+  //   set
+  // ) => {
+  //   return;
+  // };
+
+  // get session(): Session {
+  //   return {
+  //     get: async <T>(key: string, defaultValue?: any) => {
+  //       return await Config.getInstance().session?.get<T>(
+  //         this.sessionId!,
+  //         key,
+  //         defaultValue
+  //       );
+  //     },
+  //     getAll: <T>() => {
+  //       return Config.getInstance().session?.getAll<T>(this.sessionId!);
+  //     },
+  //     set: (key: string, val: any) =>
+  //       Config.getInstance().session?.set(this.sessionId!, key, val),
+  //   };
+  // }
 }

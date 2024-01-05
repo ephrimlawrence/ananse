@@ -38,7 +38,7 @@ export class Menus {
     // return _menu;
   }
 
-  menu(id: string) {
+  menu(id: string): DynamicMenu {
     const _menu = new DynamicMenu(id);
     MENU_CACHE[id] = _menu;
 

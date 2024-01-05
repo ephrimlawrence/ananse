@@ -1,4 +1,4 @@
-import { Type, Validation, ValidationResponse } from "@src/types";
+import { FormInput, Type, Validation, ValidationResponse } from "@src/types";
 import { MenuAction } from "./action.menu";
 import { BaseMenu } from "./base.menu";
 import { Request, Response } from "@src/types/request";
@@ -6,7 +6,10 @@ import { Request, Response } from "@src/types/request";
 export class DynamicMenu {
   // TODO: Look for better class name
 
-  private _id: string;
+  #id: string;
+  #formInputs: FormInput[] = [];
+  #isForm: boolean = false;
+
   private _validation?: Validation;
   private _actions: MenuAction[];
   private _back?: string; // TODO: links to previous menu/action
@@ -21,8 +24,13 @@ export class DynamicMenu {
     | ((req: Request, res: Response) => Promise<string> | string) = undefined;
 
   constructor(id: string, action?: Type<BaseMenu>) {
-    this._id = id;
+    this.#id = id;
     this._action = action;
+  }
+
+  isForm(): DynamicMenu {
+    this.#isForm = true;
+    return this;
   }
 
   defaultNextMenu(
@@ -41,6 +49,16 @@ export class DynamicMenu {
 
     this._actions = items;
 
+    return this;
+  }
+
+  inputs(items: FormInput[]): DynamicMenu {
+    this.#formInputs ??= [];
+    this.#formInputs = [...this.#formInputs, ...items];
+
+    if (this.#formInputs.length == 0) {
+      throw new Error(`Form menu #${this.id} must have at least one input!`);
+    }
     return this;
   }
 
@@ -76,6 +94,10 @@ export class DynamicMenu {
   // TODO: rename to getactiona
   getActions(): MenuAction[] {
     return this._actions || [];
+  }
+
+  getInputs(): FormInput[] {
+    return this.#formInputs || [];
   }
 
   async getMessage(req: Request, res: Response): Promise<string> {
@@ -114,12 +136,22 @@ export class DynamicMenu {
     return false;
   }
 
+  /**
+   * Whether the current menu is a form menu or not.
+   * Not to be confused with `isForm` which is used to set a menu as a form menu.
+   *
+   * **NOTE**: This is for internal use only!
+   */
+  get isFormMenu(): boolean {
+    return this.#isForm;
+  }
+
   get action() {
     return this._action;
   }
 
   get id(): string {
-    return this._id;
+    return this.#id;
   }
 
   get isStart(): boolean {

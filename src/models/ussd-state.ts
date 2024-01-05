@@ -13,6 +13,14 @@ export class State {
   nextMenu?: string | undefined;
   action?: MenuAction | undefined;
   previous?: State | undefined;
+  // formInputId?: string | undefined;
+  form?:
+    | {
+        id: string;
+        currentInput: string | undefined;
+        nextInput: string | undefined;
+      }
+    | undefined;
 
   get isStart(): boolean {
     return this.mode == "start";
@@ -39,6 +47,13 @@ export class State {
     this._previousMenu = val;
   }
 
+  /**
+   * Sets mode to "end"
+   */
+  end(): void {
+    this.mode = "end";
+  }
+
   static fromJSON(json: Record<string, any>): State {
     return Object.assign(new State(), json);
     // state.sessionId = json.sessionId;
@@ -63,6 +78,8 @@ export class State {
       menu: this.menu,
       action: this.action,
       previous: this.previous?.toJSON(),
+      // formInputId: this.formInputId,
+      form: this.form,
     };
   }
   // other?: string;

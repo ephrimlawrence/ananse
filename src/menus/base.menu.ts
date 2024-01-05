@@ -1,5 +1,5 @@
 import { Config } from "@src/config";
-import { Session, ValidationResponse } from "@src/types";
+import { FormInput, Session, ValidationResponse } from "@src/types";
 import { MenuAction } from "./action.menu";
 import { Request, Response } from "@src/types/request";
 
@@ -18,6 +18,7 @@ export abstract class BaseMenu {
   abstract nextMenu(): Promise<string | undefined>;
 
   get sessionId(): string {
+    // FIXME: this is not reliable, add to request object
     return this.request.query?.sessionid!;
   }
 
@@ -47,4 +48,12 @@ export abstract class BaseMenu {
   }
 
   abstract actions(): Promise<MenuAction[]>;
+
+  async inputs(): Promise<FormInput[]> {
+    return [];
+  }
+
+  isForm(): boolean {
+    return false;
+  }
 }
