@@ -219,7 +219,6 @@ class App {
   }
 
   private async resolveMenuOption(state: State) {
-    // const _state = (await this.currentState)!;
     const action = state.action;
 
     // Execute the action handler
@@ -310,19 +309,7 @@ class App {
       actions = (this.currentMenu as DynamicMenu).getActions();
     }
 
-    // if (actions.length == 0) {
-    //   throw new Error(
-    //     `Menu #${this.currentMenu.toString()} has no actions. At least one option must be defined`
-    //   );
-    // }
-
-    // if (this.currentState.isStart) {
-    //   this.currentState.action = actions[0];
-    //   return this.currentState.action;
-    // }
-
     // Loop through the actions, and find the one that matches the user input
-    // const _state = (await this.currentState)!;
     const input = state.userData;
     for (const action of actions) {
       if (typeof action.choice == "function") {
