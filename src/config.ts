@@ -1,6 +1,6 @@
 import { Middleware } from "./middlewares/base.middleware";
 import { DefaultMiddleware } from "./middlewares/default.middleware";
-import { Session, SessionOptions } from "./sessions";
+import { BaseSession, SessionOptions } from "./sessions";
 import { MemcacheSession } from "./sessions/memcache.session";
 import { RedisSession } from "./sessions/redis.session";
 import { Type } from "./types";
@@ -10,7 +10,7 @@ export class Config {
 
   private _middlewares: Type<Middleware>[] = [];
 
-  private _session: Session | undefined = undefined;
+  private _session: BaseSession | undefined = undefined;
 
   // private states: { [key: string]: State } = {};
 
@@ -35,7 +35,7 @@ export class Config {
     const _session = options.session || "memory";
 
     // If session is already an instance of Session, then we are good to go
-    if (this._session instanceof Session) {
+    if (this._session instanceof BaseSession) {
       return this;
     }
 
@@ -72,12 +72,13 @@ export class Config {
     return this._middlewares;
   }
 
-  get session(): Session | undefined {
+  get session(): BaseSession | undefined {
     return this._session;
   }
 }
 
-type CustomSession = Type<Session>;
+type CustomSession = Type<BaseSession>;
+
 export interface ConfigOptions {
   middlewares?: Type<Middleware>[];
   session?: "memory" | SessionOptions | CustomSession;

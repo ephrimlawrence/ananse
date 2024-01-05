@@ -1,7 +1,7 @@
 import { State } from "@src/models/ussd-state";
-import { Session } from "./base.session";
+import { BaseSession } from "./base.session";
 
-export class MemcacheSession extends Session {
+export class MemcacheSession extends BaseSession {
   private static instance: MemcacheSession;
 
   private constructor() {

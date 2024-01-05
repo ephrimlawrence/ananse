@@ -6,7 +6,6 @@ import { createServer } from "http";
 import { parse } from "url";
 import router, { DynamicMenu, Menu, Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
-import { Session } from "@src/sessions";
 import { BaseMenu, MenuAction } from "@src/menus";
 import { MENU_CACHE } from "./state.core";
 

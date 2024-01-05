@@ -1,6 +1,6 @@
 import { State } from "@src/models/ussd-state";
 
-export abstract class Session {
+export abstract class BaseSession {
   protected readonly states: { [sessionId: string]: State } = {};
   protected readonly data: { [sessionId: string]: Record<string, any> } = {};
 

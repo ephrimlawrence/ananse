@@ -14,3 +14,9 @@ export enum Gateway {
   wigal = "wigal",
   hubtel = "hubtel",
 }
+
+export type Session = {
+  get: <T>(key: string, defaultValue?: any) => Promise<T | undefined>;
+  getAll: <T>() => Promise<T | undefined> | undefined;
+  set: (key: string, val: any) => Promise<void> | undefined;
+};

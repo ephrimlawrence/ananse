@@ -1,8 +1,8 @@
 import { State } from "@src/models/ussd-state";
-import { Session, SessionOptions } from "./base.session";
+import { BaseSession, SessionOptions } from "./base.session";
 import { RedisClientType, createClient } from "redis";
 
-export class RedisSession extends Session {
+export class RedisSession extends BaseSession {
   private static instance: RedisSession;
   private keyPrefix: string = "";
 
