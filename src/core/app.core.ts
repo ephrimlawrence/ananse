@@ -295,8 +295,6 @@ class App {
 
     state.mode = state.isStart ? "more" : "end";
     await this.session.setState(state.sessionId, state);
-
-    return;
   }
 
   private instantiateMenu(menu: Menu) {

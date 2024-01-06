@@ -17,7 +17,6 @@ export class FormMenuHandler {
   #currentInput: FormInput | undefined = undefined;
   #nextInput: FormInput | undefined = undefined;
   #formInputs: FormInput[] = [];
-
   #errorMessage: string | undefined = undefined;
 
   get state(): State {
@@ -38,7 +37,15 @@ export class FormMenuHandler {
     return Config.getInstance().session!;
   }
 
-  async handle() {
+  private async endSession() {
+    this.state.end();
+    await this.session.removeState(this.state.sessionId);
+  }
+
+  // TODO: extract menu type to a separate type. is `any` for testing now
+  async handle(): Promise<
+    string | ((req: Request, resp: Response) => Promise<string>) | undefined
+  > {
     // Initialize state form object
     this.request.state.form ??= {
       id: this.state.menu,
@@ -64,9 +71,16 @@ export class FormMenuHandler {
       return this.response.data;
     }
 
-    if (this.state.form?.currentInput != null) {
+    // If the user has already entered an input, pick the next input
+    // or else fallback to the current input
+    if (
+      this.state.form?.nextInput != null ||
+      this.state.form.currentInput != null
+    ) {
       this.#currentInput = this.#formInputs.find(
-        (item) => item.name == this.state.form?.currentInput
+        (item) =>
+          item.name == this.state.form?.nextInput ||
+          item.name == this.state.form?.currentInput
       );
     }
 
@@ -75,10 +89,7 @@ export class FormMenuHandler {
     // TODO: check if next input is defined, if not, we terminate the session or navigate to the next menu
     this.response.data = await this.buildResponse(this.#nextInput!);
 
-    // Reset fields
-    this.#errorMessage = undefined;
-
-    return this.response.data;
+    return this.#currentInput?.next_menu;
   }
 
   private async handleInput() {
@@ -140,16 +151,13 @@ export class FormMenuHandler {
 
     // Terminate the session if necessary
     if (this.#currentInput.end != null) {
-      if (typeof this.#currentInput.end == "function") {
-        if (this.#currentInput.end(this.request)) {
-          this.state.end();
-          await this.session.removeState(this.state.sessionId);
-          return;
-        }
-      } else if (this.#currentInput.end == true) {
-        this.state.end();
-        await this.session.removeState(this.state.sessionId);
-        return;
+      let end =
+        typeof this.#currentInput.end == "function"
+          ? await this.#currentInput.end(this.request)
+          : this.#currentInput.end;
+
+      if (end && this.#currentInput.next_menu == null) {
+        return await this.endSession();
       }
     }
 
@@ -163,18 +171,34 @@ export class FormMenuHandler {
       nextInput: undefined,
     };
 
-    // No next input, we terminate the session
-    if (this.#currentInput?.next_input == null) {
-      this.state.end();
-      await this.session.removeState(this.state.sessionId);
+    if (
+      this.#currentInput?.next_input != null &&
+      this.#currentInput?.next_menu != null
+    ) {
+      throw new Error(
+        `Input #${this.state.form?.currentInput} has both next_input and next_menu defined. Please define only one`
+      );
+    }
+
+    // No next input & next menu, terminate the session
+    if (
+      this.#currentInput?.next_input == null &&
+      this.#currentInput?.next_menu == null
+    ) {
+      return await this.endSession();
+    }
+
+    // No next input, but next menu is defined, navigate to the next menu (logic in handler())
+    if (
+      this.#currentInput?.next_input == null &&
+      this.#currentInput?.next_menu != null
+    ) {
       return;
     }
 
     if (typeof this.#currentInput.next_input == "string") {
       this.state.form.nextInput = this.#currentInput.next_input;
-    }
-
-    if (typeof this.#currentInput.next_input == "function") {
+    } else if (typeof this.#currentInput.next_input == "function") {
       this.state.form.nextInput = await this.#currentInput.next_input(
         this.request
       );
@@ -185,11 +209,8 @@ export class FormMenuHandler {
       (item) => item.name == this.state.form?.nextInput
     );
     if (this.#nextInput == null) {
-      this.state.end();
-      await this.session.removeState(this.state.sessionId);
+      await this.endSession();
 
-      // TODO: check if next menu is defined, if not, we terminate the session
-      // FIXME: we're terminating the session for now
       throw new Error(
         `Input #${this.state.form?.nextInput} is not defined in form/menu #${this.state.menu}`
       );
@@ -216,9 +237,9 @@ export class FormMenuHandler {
   }
 
   private async getDisplayText(input: FormInput) {
-    if (typeof input.display == "function") {
+    if (typeof input?.display == "function") {
       return await input.display(this.request);
     }
-    return input.display;
+    return input?.display;
   }
 }

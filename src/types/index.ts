@@ -34,5 +34,7 @@ export type FormInput = {
   handler: (req: Request, session: Session) => Promise<void>;
   next_input?: string | ((req: Request) => Promise<string>);
   end?: boolean | ((req: Request) => boolean);
+  next_menu?: string | ((req: Request, resp: Response) => Promise<string>);
+
   // TODO: add new next menu
 };
