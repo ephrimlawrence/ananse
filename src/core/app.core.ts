@@ -1,4 +1,4 @@
-import { Type, ValidationResponse } from "@src/types";
+import { NextMenu, Type, ValidationResponse } from "@src/types";
 import { Request, Response } from "@src/types/request";
 import { State } from "@src/models/ussd-state";
 import { ServerResponse, IncomingMessage } from "http";
@@ -114,12 +114,18 @@ class App {
 
     // If current menu is a form, use form handler
     if (await this.isFormMenu()) {
+      state.menu = state.menu || state.previousMenu!;
+      this.navigateToNextMenu(state, state.menu);
       const formHandler = new FormMenuHandler(
         this.request,
         this.response,
         this.currentMenu
       );
-      await formHandler.handle();
+      const nextMenu = await formHandler.handle();
+      if (nextMenu != null) {
+        this.navigateToNextMenu(state, nextMenu);
+      }
+      // TODO: redirect to next menu if exists by setting currentMenu to this
     } else {
       // Resolve menu options
       await this.lookupMenuOptions(state);
@@ -141,12 +147,16 @@ class App {
         // This is necessary because if the selected option leads to a form menu,
         // form handler has to be used to build the response
         if (await this.isFormMenu()) {
+          this.navigateToNextMenu(state, state.menu);
           const formHandler = new FormMenuHandler(
             this.request,
             this.response,
             this.currentMenu
           );
-          await formHandler.handle();
+          const nextMenu = await formHandler.handle();
+          if (nextMenu != null) {
+            this.navigateToNextMenu(state, nextMenu);
+          }
         } else {
           this.response.data = await this.buildResponse(this.currentMenu);
         }
@@ -240,29 +250,12 @@ class App {
     }
 
     // Resolve next menu and make it the current menu
-    let _menu: Menu;
-
-    if (typeof action?.next_menu == "string") {
-      await this.setCurrentMenu(
-        action.next_menu!,
-        this.instantiateMenu(this.router.getMenu(action.next_menu!)),
-        state
-      );
-      return this.currentMenu;
-    } else if (typeof action?.next_menu == "function") {
-      const id = await action.next_menu(this.request, this.response);
-
-      await this.setCurrentMenu(
-        id,
-        this.instantiateMenu(this.router.getMenu(id)),
-        state
-      );
-
+    if (await this.navigateToNextMenu(state, action?.next_menu)) {
       return this.currentMenu;
     }
 
     // Fallback to default next menu
-    _menu = this.instantiateMenu(this.currentMenu);
+    let _menu: Menu = this.instantiateMenu(this.currentMenu);
     if (this.menuType(_menu) == "class") {
       const _next = await (_menu as unknown as BaseMenu).nextMenu();
       if (_next == null) {
@@ -295,6 +288,36 @@ class App {
 
     state.mode = state.isStart ? "more" : "end";
     await this.session.setState(state.sessionId, state);
+  }
+
+  /**
+   * Resolve next menu and make it the current menu.
+   *
+   * @return  {boolean}              `true` if the next menu is resolved, `false` otherwise
+   */
+  private async navigateToNextMenu(state: State, next_menu?: NextMenu) {
+    if (next_menu == null) return false;
+
+    if (typeof next_menu == "string") {
+      await this.setCurrentMenu(
+        next_menu!,
+        this.instantiateMenu(this.router.getMenu(next_menu!)),
+        state
+      );
+      return true;
+    } else if (typeof next_menu == "function") {
+      const id = await next_menu(this.request, this.response);
+
+      await this.setCurrentMenu(
+        id,
+        this.instantiateMenu(this.router.getMenu(id)),
+        state
+      );
+
+      return true;
+    }
+
+    return false;
   }
 
   private instantiateMenu(menu: Menu) {

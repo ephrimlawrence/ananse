@@ -1,5 +1,5 @@
 import { BaseSession } from "@src/sessions";
-import { Session } from "@src/types";
+import { NextMenu, Session } from "@src/types";
 import { Request, Response } from "@src/types/request";
 
 export class MenuAction {
@@ -27,7 +27,7 @@ export class MenuAction {
     | ((req: Request, res: Response) => Promise<string> | string); // text to display. or function? text?
   // validation?: string | RegExp | ((req: Request) => boolean); //FIXME: move to action class
   // error_message?: string;
-  next_menu?: string | ((req: Request, resp: Response) => Promise<string>); // TODO: links to next menu
+  next_menu?: NextMenu; // TODO: links to next menu
 
   // TODO: validate that either route or action is provided
   // suggest a name for a method that will be called when this option is selected by the user

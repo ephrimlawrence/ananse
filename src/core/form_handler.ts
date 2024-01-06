@@ -1,4 +1,4 @@
-import { FormInput, Type, ValidationResponse } from "@src/types";
+import { FormInput, NextMenu, Type, ValidationResponse } from "@src/types";
 import { Request, Response } from "@src/types/request";
 import { State } from "@src/models/ussd-state";
 import router, { DynamicMenu, Menu, Menus } from "@src/menus";
@@ -43,9 +43,7 @@ export class FormMenuHandler {
   }
 
   // TODO: extract menu type to a separate type. is `any` for testing now
-  async handle(): Promise<
-    string | ((req: Request, resp: Response) => Promise<string>) | undefined
-  > {
+  async handle(): Promise<NextMenu | undefined> {
     // Initialize state form object
     this.request.state.form ??= {
       id: this.state.menu,
@@ -67,8 +65,9 @@ export class FormMenuHandler {
     ) {
       this.#currentInput = this.#formInputs[0];
       this.state.form!.currentInput = this.#currentInput.name;
+      this.state.form!.nextInput = this.#currentInput.name;
       this.response.data = await this.buildResponse(this.#currentInput);
-      return this.response.data;
+      return this.#currentInput?.next_menu;
     }
 
     // If the user has already entered an input, pick the next input
@@ -78,9 +77,7 @@ export class FormMenuHandler {
       this.state.form.currentInput != null
     ) {
       this.#currentInput = this.#formInputs.find(
-        (item) =>
-          item.name == this.state.form?.nextInput ||
-          item.name == this.state.form?.currentInput
+        (item) => item.name == this.state.form?.nextInput
       );
     }
 
@@ -89,6 +86,9 @@ export class FormMenuHandler {
     // TODO: check if next input is defined, if not, we terminate the session or navigate to the next menu
     this.response.data = await this.buildResponse(this.#nextInput!);
 
+    if (this.#errorMessage != null) {
+      this.state.form.currentInput = undefined;
+    }
     return this.#currentInput?.next_menu;
   }
 

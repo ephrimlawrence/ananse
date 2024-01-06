@@ -92,28 +92,48 @@ router
   .inputs([
     {
       name: "first_name",
-      validate: /.*/,
-      // choice: /\w{1,}/,
-      display: "Please Enter Name",
+      validate: /[\w\s]{2,}/,
+      display: "Enter first name",
       handler: async (req, session) => {
         session.set("name", req.input); //TODO: add session to request object
-        // return MenuType.customer_new_policy;
       },
-      // next_input: string/function(req,response), // next input to be displayed
+      next_input: "last_name",
     },
-    // {
-    //   name: 'Please enter date of birth name',
-    //   validate: Regex/function,
-    //   // choice: /\w{1,}/,
-    //   display: "Please Enter Name",
-    //   handler: async (req, session) => {
-    //     session.set("name", req.input); //TODO: add session to request object
-    //     return MenuType.customer_new_policy;
-    //   },
-    //   next_input: string/function(req,response), // next input to be displayed
-    //   end?: boolean/function(req),
-    // },
+    {
+      name: "last_name",
+      validate: /.*/,
+      display: "Enter last name",
+      handler: async (req, session) => {
+        session.set("last", req.input);
+      },
+      next_input: "age",
+    },
+    {
+      name: "age",
+      validate: /\d{1,2}/,
+      display: "Enter age (minium 18)",
+      handler: async (req, session) => {
+        session.set("age", req.input);
+      },
+      next_input: "pin",
+    },
+    {
+      name: "pin",
+      validate: /\d{4}/,
+      display: "Enter PIN",
+      handler: async (req, session) => {
+        session.set("pin", req.input);
+      },
+      end: true,
+      next_menu: "policy_created",
+    },
   ]);
+
+router
+  .menu("policy_created")
+  .message(
+    "Thank you for registering as customer with Star M Kindly dial short code again to register a policy"
+  );
 
 app.listen(3000, "localhost", () => {
   console.log("Server listening on port 3000");
