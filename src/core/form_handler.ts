@@ -1,13 +1,9 @@
 import { FormInput, Type, ValidationResponse } from "@src/types";
 import { Request, Response } from "@src/types/request";
 import { State } from "@src/models/ussd-state";
-import { ServerResponse, IncomingMessage } from "http";
-import { createServer } from "http";
-import { parse } from "url";
 import router, { DynamicMenu, Menu, Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
 import { BaseMenu, MenuAction } from "@src/menus";
-import { MENU_CACHE } from "./state.core";
 import { menuType, validateInput } from "@src/helpers/index.helper";
 
 // TODO: change to project name
@@ -22,7 +18,6 @@ export class FormMenuHandler {
   #nextInput: FormInput | undefined = undefined;
   #formInputs: FormInput[] = [];
 
-  // #displayText: string | undefined = undefined;
   #errorMessage: string | undefined = undefined;
 
   get state(): State {
@@ -44,17 +39,6 @@ export class FormMenuHandler {
   }
 
   async handle() {
-    await this.handleInput();
-
-    this.response.data = await this.buildResponse();
-
-    return this.response.data;
-  }
-
-  private async handleInput() {
-    // let inputs: FormInput[] = [];
-    // let currentInput: FormInput | undefined = undefined;
-
     // Initialize state form object
     this.request.state.form ??= {
       id: this.state.menu,
@@ -68,15 +52,37 @@ export class FormMenuHandler {
       this.#formInputs = (this.menu as DynamicMenu).getInputs();
     }
 
-    // TODO: check if state has input id, if not pick the first input
+    // First time the form menu is called, we pick the first input and display it
+    if (
+      (this.state.form?.currentInput == null &&
+        this.state.form?.nextInput == null) ||
+      this.state.form?.currentInput == null
+    ) {
+      this.#currentInput = this.#formInputs[0];
+      this.state.form!.currentInput = this.#currentInput.name;
+      this.response.data = await this.buildResponse(this.#currentInput);
+      return this.response.data;
+    }
+
     if (this.state.form?.currentInput != null) {
       this.#currentInput = this.#formInputs.find(
         (item) => item.name == this.state.form?.currentInput
       );
-    } else {
-      // Pick the first input
-      this.#currentInput = this.#formInputs[0];
     }
+
+    await this.handleInput();
+
+    // TODO: check if next input is defined, if not, we terminate the session or navigate to the next menu
+    this.response.data = await this.buildResponse(this.#nextInput!);
+
+    // Reset fields
+    this.#errorMessage = undefined;
+
+    return this.response.data;
+  }
+
+  private async handleInput() {
+    // TODO: check if state has input id, if not pick the first input
 
     if (this.#currentInput == null) {
       throw new Error(
@@ -199,14 +205,14 @@ export class FormMenuHandler {
     }
 
     // Otherwise, we show the display text
-    if (this.#nextInput == null) {
-      // TODO: build response for next menu if exists!
-      this.state.end();
-      await this.session.removeState(this.state.sessionId);
-      return;
-    }
+    // if (this.#nextInput == null) {
+    //   // TODO: build response for next menu if exists!
+    //   this.state.end();
+    //   await this.session.removeState(this.state.sessionId);
+    //   return message
+    // }
 
-    return await this.getDisplayText(this.#nextInput);
+    return await this.getDisplayText(input);
   }
 
   private async getDisplayText(input: FormInput) {

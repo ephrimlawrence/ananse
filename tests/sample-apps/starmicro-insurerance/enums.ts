@@ -1,7 +1,7 @@
 export enum MenuType {
   account_type = "account_type",
   sales_executive = "sales_executive",
-  customer_new_policy = "customer_main_menu",
+  customer_new_policy = "customer_new_policy",
   account_login = "account_login",
   client_premium_payment = "client.premium_payment",
   client_balance = "client.balance",

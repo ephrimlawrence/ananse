@@ -112,7 +112,7 @@ class App {
     // Lookup menu
     await this.lookupMenu(state);
 
-    // If menu is a form, use form handler
+    // If current menu is a form, use form handler
     if (await this.isFormMenu()) {
       const formHandler = new FormMenuHandler(
         this.request,
@@ -137,7 +137,19 @@ class App {
           MENU_CACHE[state.previousMenu!]
         );
       } else {
-        this.response.data = await this.buildResponse(this.currentMenu);
+        // Again, we have to recheck if the menu is a form
+        // This is necessary because if the selected option leads to a form menu,
+        // form handler has to be used to build the response
+        if (await this.isFormMenu()) {
+          const formHandler = new FormMenuHandler(
+            this.request,
+            this.response,
+            this.currentMenu
+          );
+          await formHandler.handle();
+        } else {
+          this.response.data = await this.buildResponse(this.currentMenu);
+        }
       }
       // TODO: cache current state
     }
@@ -172,6 +184,7 @@ class App {
   }
 
   private async buildResponse(menu: Menu) {
+    // FIXME: simply response builder. If error message is not empty, we simply show else fallback to menu message/display
     let message = "";
 
     // If error message is not empty, we simply show that instead of calling
