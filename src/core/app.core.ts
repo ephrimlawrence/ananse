@@ -12,7 +12,7 @@ import { menuType } from "@src/helpers/index.helper";
 import { FormMenuHandler } from "./form_handler";
 
 // TODO: change to project name
-class App {
+export class App {
   private request: Request;
   private response: Response;
 

@@ -1,5 +1,4 @@
 import { Request, Response } from "./request";
-
 /**
  * The validation response can be a boolean or a string.
  *
@@ -40,3 +39,5 @@ export type FormInput = {
 export type NextMenu =
   | string
   | ((req: Request, resp: Response) => Promise<string>);
+
+export { Request, Response };

@@ -1,0 +1,18 @@
+{
+  "name": "starmicro-insurerance",
+  "version": "1.0.0",
+  "description": "A sample app to demonstrate how to create USSD application using the scorpion library",
+  "main": "dist/starmicro_ussd.ts",
+  "scripts": {
+    "dev": "tsx watch starmicro_ussd.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mongoose": "^8.0.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.2.0"
+  }
+}

@@ -1,7 +1,7 @@
 {
-  "name": "thesis",
+  "name": "scorpion",
   "version": "1.0.0",
-  "description": "",
+  "description": "Scorpion is a simple, fast and powerful library for creating USSD applications with NodeJS/Typescript",
   "scripts": {
     "tsc": "tsc",
     "tsx": "tsx",

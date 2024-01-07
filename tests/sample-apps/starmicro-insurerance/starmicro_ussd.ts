@@ -1,4 +1,4 @@
-import App from "../../../src/core/app.core";
+import { App, Request, Response } from "../../../src";
 import router from "../../../src/menus";
 import { DefaultMiddleware } from "../../../src/middlewares/default.middleware";
 import { MenuType } from "./enums";
@@ -6,7 +6,7 @@ import { AccountLogin } from "./login.menu";
 
 const app = new App().configure({
   middlewares: [DefaultMiddleware],
-  session: { type: "redis" },
+  session: { type: "redis" }, // TODO: implement mongodb session
 });
 
 // Account selection
@@ -19,9 +19,14 @@ router
       choice: "1",
       display: "1. Customer",
       next_menu: MenuType.customer,
-      next_input: async (req, res) => {
-        // Return customer registration menu, if customer does not exist
-        // else, return to customer login menu
+      next_input: async (req: Request, res) => {
+        const exists = await Customer.exists({
+          phone_number: req.state.msisdn,
+        });
+        if (!exists) {
+          return MenuType.customer_registration;
+        }
+        return MenuType.customer_login;
       },
     },
     {
@@ -35,6 +40,7 @@ router
 router.add(AccountLogin, MenuType.account_login);
 
 import "./menus/client/index";
+import { Customer } from "./models/customer";
 
 app.listen(3000, "localhost", () => {
   console.log("Server listening on port 3000");
