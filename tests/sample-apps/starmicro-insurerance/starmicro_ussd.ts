@@ -95,7 +95,7 @@ router
       validate: /[\w\s]{2,}/,
       display: "Enter first name",
       handler: async (req, session) => {
-        session.set("name", req.input); //TODO: add session to request object
+        // session.set("name", req.input); //TODO: add session to request object
       },
       next_input: "last_name",
     },
@@ -104,7 +104,7 @@ router
       validate: /.*/,
       display: "Enter last name",
       handler: async (req, session) => {
-        session.set("last", req.input);
+        // session.set("last", req.input);
       },
       next_input: "age",
     },
@@ -113,7 +113,7 @@ router
       validate: /\d{1,2}/,
       display: "Enter age (minium 18)",
       handler: async (req, session) => {
-        session.set("age", req.input);
+        // session.set("age", req.input);
       },
       next_input: "pin",
     },
@@ -122,7 +122,8 @@ router
       validate: /\d{4}/,
       display: "Enter PIN",
       handler: async (req, session) => {
-        session.set("pin", req.input);
+        // session.set("pin", req.input);
+        console.log(await session.get(MenuType.customer_new_policy));
       },
       end: true,
       next_menu: "policy_created",

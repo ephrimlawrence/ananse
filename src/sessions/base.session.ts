@@ -13,7 +13,9 @@ export abstract class BaseSession {
 
   abstract getState(id: string): Promise<State | undefined>;
 
-  abstract removeState(id: string): void | State;
+  abstract clear(id: string): void | State;
+
+  // TODO: add delete for data
 
   abstract set(sessionId: string, key: string, value: any): Promise<void>;
 

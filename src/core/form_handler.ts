@@ -43,7 +43,7 @@ export class FormMenuHandler {
 
   private async endSession() {
     this.state.end();
-    await this.session.removeState(this.state.sessionId);
+    await this.session.clear(this.state.sessionId);
   }
 
   // TODO: extract menu type to a separate type. is `any` for testing now
@@ -51,7 +51,6 @@ export class FormMenuHandler {
     // Initialize state form object
     this.request.state.form ??= {
       id: this.state.menu,
-      // currentInput: undefined,
       nextInput: undefined,
       submitted: {},
     };
@@ -89,9 +88,6 @@ export class FormMenuHandler {
     // TODO: check if next input is defined, if not, we terminate the session or navigate to the next menu
     this.response.data = await this.buildResponse(this.#nextInput!);
 
-    // if (this.#errorMessage != null) {
-    //   this.state.form!.currentInput = undefined;
-    // }
     return this.#errorMessage != null
       ? undefined
       : this.#currentInput?.next_menu;
@@ -121,9 +117,19 @@ export class FormMenuHandler {
           result.error || (await this.getDisplayText(this.#currentInput));
         return;
       }
+
+      // Validation passed, Save the input to the session
+      const temp =
+        (await this.session.get<Record<string, string>>(
+          this.state.sessionId,
+          this.state.menu
+        )) ?? {};
+
+      temp[this.#currentInput.name] = this.state.userData;
+      await this.session.set(this.state.sessionId, this.state.menu, temp);
     }
 
-    // Validation passed, call handler to allow the user to process the input
+    // Call handler to allow the user to process the input
     if (this.#currentInput.handler != null) {
       await this.#currentInput.handler(this.request, {
         get: async <T>(key: string, defaultValue?: any) => {
@@ -147,13 +153,6 @@ export class FormMenuHandler {
       });
     }
 
-    // Save the input to the session
-    await this.session.set(
-      this.state.sessionId,
-      this.getInputKey(this.#currentInput.name),
-      this.state.userData
-    );
-
     // Track input as submitted
     this.state.form!.submitted[this.#currentInput.name] = true;
 
@@ -173,12 +172,6 @@ export class FormMenuHandler {
   }
 
   private async resolveNextInput() {
-    // this.state.form ??= {
-    //   id: this.state.menu,
-    //   currentInput: this.#currentInput?.name,
-    //   nextInput: undefined,
-    // };
-
     if (
       this.#currentInput?.next_input != null &&
       this.#currentInput?.next_menu != null
@@ -234,14 +227,6 @@ export class FormMenuHandler {
     if (this.#errorMessage != null) {
       return this.#errorMessage;
     }
-
-    // Otherwise, we show the display text
-    // if (this.#nextInput == null) {
-    //   // TODO: build response for next menu if exists!
-    //   this.state.end();
-    //   await this.session.removeState(this.state.sessionId);
-    //   return message
-    // }
 
     return await this.getDisplayText(input);
   }

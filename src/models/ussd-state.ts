@@ -18,11 +18,6 @@ export class State {
     | {
         id: string;
         /**
-         * @deprecated Use submittedInputs instead
-         */
-        currentInput: string | undefined;
-
-        /**
          * Tracks submitted inputs. Key is the input name, and value must be `true`.
          * If an input is submitted, it is added to this object.
          * If the input is revisited, it is first removed from this object and

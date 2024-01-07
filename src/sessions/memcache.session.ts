@@ -25,9 +25,10 @@ export class MemcacheSession extends BaseSession {
     return this.states[id];
   }
 
-  removeState(id: string): void | State {
+  clear(id: string): void | State {
     const _state = this.states[id];
     delete this.states[id];
+    delete this.data[id];
     return _state;
   }
 

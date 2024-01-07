@@ -168,7 +168,11 @@ class App {
     // Reset temp fields
     state.action = undefined;
     this.errorMessage = undefined;
-    await this.session.setState(state.sessionId, state);
+
+    // TODO: don't do this if session is end
+    if (!state.isEnd) {
+      await this.session.setState(state.sessionId, state);
+    }
 
     // Resolve middlewares
     await this.resolveMiddlewares("response");
