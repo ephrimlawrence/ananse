@@ -68,24 +68,7 @@ router
     },
   ]);
 
-// New policy registration
-// router.menu(MenuType.customer_new_policy)
-// .isForm("sign_up")
-// .actions([
-//   {
-//     name: 'ssss',
-//     choice: /\w{1,}/,
-//     display: "Please Enter Name",
-//     handler: async (req, session) => {
-//       session.set("name", req.input);
-//       return MenuType.customer_new_policy;
-//     },
-//     next_menu: MenuType.customer_new_policy,
-//     next_input: "ssss2", // next input to be displayed
-//   },
-// ]);
-
-// New policy registration
+// New policy registration, using forms feature
 router
   .menu(MenuType.customer_new_policy) // menu name becomes form name
   .isForm()
@@ -94,27 +77,18 @@ router
       name: "first_name",
       validate: /[\w\s]{2,}/,
       display: "Enter first name",
-      handler: async (req, session) => {
-        // session.set("name", req.input); //TODO: add session to request object
-      },
       next_input: "last_name",
     },
     {
       name: "last_name",
       validate: /.*/,
       display: "Enter last name",
-      handler: async (req, session) => {
-        // session.set("last", req.input);
-      },
       next_input: "age",
     },
     {
       name: "age",
       validate: /\d{1,2}/,
       display: "Enter age (minium 18)",
-      handler: async (req, session) => {
-        // session.set("age", req.input);
-      },
       next_input: "pin",
     },
     {
@@ -122,10 +96,11 @@ router
       validate: /\d{4}/,
       display: "Enter PIN",
       handler: async (req, session) => {
-        // session.set("pin", req.input);
-        console.log(await session.get(MenuType.customer_new_policy));
+        //TODO: add session to request object
+        const form = await session.get(MenuType.customer_new_policy);
+        console.log(form); // Save form to database
       },
-      end: true,
+      end: true, // Ends the form, and navigates to next menu
       next_menu: "policy_created",
     },
   ]);

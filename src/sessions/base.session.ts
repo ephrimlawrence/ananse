@@ -6,7 +6,7 @@ export abstract class BaseSession {
 
   // TODO: change this to a proper configuration based on the session type
   async configure(options?: SessionOptions): Promise<void> {
-    throw new Error("Method not implemented.");
+    // throw new Error("Method not implemented.");
   }
 
   abstract setState(id: string, state: State): Promise<State>;
