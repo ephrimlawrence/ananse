@@ -103,12 +103,12 @@ export class FormMenuHandler {
 
     // Validate input
     if (this.#currentInput.validate != null) {
-      let result = await validateInput(
-        this.state,
-        this.menu,
-        this.request,
-        this.response
-      );
+      let result = await validateInput({
+        state: this.state,
+        formInput: this.#currentInput,
+        request: this.request,
+        response: this.response,
+      });
 
       // If input is invalid, stop processing and return the error message
       if (!result.valid) {

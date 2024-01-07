@@ -19,6 +19,7 @@ export class State {
         id: string;
         currentInput: string | undefined;
         nextInput: string | undefined;
+        // TODO: track submitted inputs
       }
     | undefined;
 

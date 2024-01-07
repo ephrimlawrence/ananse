@@ -76,12 +76,6 @@ export class DynamicMenu {
   }
 
   validation(val: Validation) {
-    // if (this._validation != null) {
-    //   throw Error(
-    //     `Menu #${this._id} already has a validation function defined!`
-    //   );
-    // }
-
     this._validation = val;
     return this;
   }

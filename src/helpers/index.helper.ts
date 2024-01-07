@@ -1,5 +1,6 @@
 import { BaseMenu, DynamicMenu, Menu, ValidationResponse } from "@src/menus";
 import { State } from "@src/models/ussd-state";
+import { FormInput } from "@src/types";
 import { Request, Response } from "@src/types/request";
 
 export function menuType(val: Menu): "class" | "dynamic" {
@@ -23,22 +24,43 @@ export function instantiateMenu(menu: Menu) {
   return menu;
 }
 
-export async function validateInput(
-  state: State,
-  menu: Menu,
-  request: Request,
-  response: Response
-): Promise<{ error: string | undefined; valid: boolean }> {
+export async function validateInput(opts: {
+  state: State;
+  menu?: Menu;
+  formInput?: FormInput;
+  request: Request;
+  response: Response;
+}): Promise<{ error: string | undefined; valid: boolean }> {
+  const { state, menu, formInput: input, request, response } = opts;
+
+  if (menu == null && input == null) {
+    throw new Error("Either menu or input must be defined");
+  }
+
   let resp: { error: string | undefined; valid: boolean } = {
       valid: true,
       error: undefined,
     },
     status: ValidationResponse = true;
 
-  if (menuType(menu) == "class") {
-    status = await (menu as unknown as BaseMenu).validate(state?.userData);
-  } else {
-    status = await (menu as DynamicMenu).validateInput(request, response);
+  if (menu != null) {
+    if (menuType(menu) == "class") {
+      status = await (menu as unknown as BaseMenu).validate(state?.userData);
+    } else {
+      status = await (menu as DynamicMenu).validateInput(request, response);
+    }
+  }
+
+  if (input != null) {
+    if (input.validate == null) {
+      status = true;
+    } else if (typeof input.validate == "function") {
+      status = await input.validate(request, response);
+    } else {
+      try {
+        status = (input.validate as RegExp).test(state?.userData);
+      } catch (error) {}
+    }
   }
 
   if (typeof status == "string") {

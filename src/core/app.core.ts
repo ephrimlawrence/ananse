@@ -124,6 +124,7 @@ class App {
       const nextMenu = await formHandler.handle();
       if (nextMenu != null) {
         this.navigateToNextMenu(state, nextMenu);
+        this.response.data = await this.buildResponse(this.currentMenu);
       }
       // TODO: redirect to next menu if exists by setting currentMenu to this
     } else {
@@ -145,7 +146,7 @@ class App {
       } else {
         // Again, we have to recheck if the menu is a form
         // This is necessary because if the selected option leads to a form menu,
-        // form handler has to be used to build the response
+        // form handler has to be used to build the response of the first input
         if (await this.isFormMenu()) {
           this.navigateToNextMenu(state, state.menu);
           const formHandler = new FormMenuHandler(
