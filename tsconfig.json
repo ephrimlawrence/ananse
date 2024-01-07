@@ -51,4 +51,7 @@
     "public",
     "views"
   ],
+  "exclude": [
+    "src/cli"
+  ]
 }

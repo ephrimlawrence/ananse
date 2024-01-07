@@ -5,8 +5,6 @@ import { Gateway } from "@src/types";
 import { randomUUID } from "crypto";
 import { promisify } from "util";
 
-const TEST_CONFIG = {} as Config;
-
 class UssdTestRunner {
   #inputs: string[] = [];
   // #provider: Gateway;

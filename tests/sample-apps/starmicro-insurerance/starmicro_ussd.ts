@@ -20,8 +20,8 @@ router
       display: "1. Customer",
       next_menu: MenuType.customer,
       next_input: async (req, res) => {
-        // Redirect to customer registration menu, if customer does not exist
-        // else, redirect to customer login menu
+        // Return customer registration menu, if customer does not exist
+        // else, return to customer login menu
       },
     },
     {
