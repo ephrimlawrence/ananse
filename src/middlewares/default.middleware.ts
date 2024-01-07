@@ -18,12 +18,14 @@ export class DefaultMiddleware extends Middleware {
       _state.msisdn = this.request.query?.msisdn!;
       _state.sessionId = this.request.query?.sessionid!;
       _state.userData = this.request.query?.userdata!;
+
       // state.username = req.query?.username;
       // state.trafficid = req.query?.trafficid;
       // state.other = req.query?.other;
 
       // await this.session.setState(this.sessionId, _state);
       this.request.state = _state;
+      this.request.input = this.request.query?.userdata!;
     }
 
     return _state;

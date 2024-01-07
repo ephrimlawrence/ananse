@@ -1,9 +1,46 @@
 import router from "../../../../../src/menus";
 import { MenuType } from "../../enums";
 
+// Client main menu
+router
+  .menu(MenuType.customer)
+  .message("Welcome to Star MicroInsurance. Choose an Option")
+  .actions([
+    {
+      choice: "1",
+      display: "1. New Policy Registration",
+      next_menu: MenuType.customer_new_policy,
+    },
+    {
+      choice: "2",
+      display: "2. Pay Policy Premium",
+      next_menu: MenuType.client_premium_payment,
+    },
+    {
+      choice: "3",
+      display: "3. Collection Balance",
+      next_menu: MenuType.client_balance,
+    },
+    {
+      choice: "4",
+      display: "4. Set up Direct Debit",
+      next_menu: MenuType.client_debit_setup,
+    },
+    {
+      choice: "5",
+      display: "5. Claims Request",
+      next_menu: MenuType.client_claim_request,
+    },
+    {
+      choice: "6",
+      display: "6. Reset Pin",
+      next_menu: MenuType.client_reset_pin,
+    },
+  ]);
+
 // New policy registration, using forms feature
 router
-  .menu(MenuType.customer_new_policy) // menu name becomes form name
+  .menu(MenuType.client_new) // menu name becomes form name
   .isForm()
   .inputs([
     {
@@ -28,18 +65,20 @@ router
       name: "pin",
       validate: /\d{4}/,
       display: "Enter PIN",
-      handler: async (req, session) => {
+      handler: async (_req, session) => {
         //TODO: add session to request object
         const form = await session.get(MenuType.customer_new_policy);
         console.log(form); // Save form to database
       },
       end: true, // Ends the form, and navigates to next menu
-      next_menu: "policy_created",
+      next_menu: "client_created",
     },
   ]);
 
 router
-  .menu("policy_created")
+  .menu("client_created")
   .message(
     "Thank you for registering as customer with Star M Kindly dial short code again to register a policy"
   );
+
+import "./new_policy";

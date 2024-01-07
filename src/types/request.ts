@@ -19,6 +19,11 @@ export class Request {
 
   url: string;
 
+  /**
+   * The input from the user
+   */
+  input?: string;
+
   headers: IncomingHttpHeaders;
 
   body: any;
