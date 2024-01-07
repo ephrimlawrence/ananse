@@ -19,6 +19,10 @@ export class FormMenuHandler {
   #formInputs: FormInput[] = [];
   #errorMessage: string | undefined = undefined;
 
+  get submittedInputs(): string[] {
+    return Object.keys(this.state.form?.submitted ?? {}) || [];
+  }
+
   get state(): State {
     return this.request.state;
   }
@@ -47,8 +51,9 @@ export class FormMenuHandler {
     // Initialize state form object
     this.request.state.form ??= {
       id: this.state.menu,
-      currentInput: undefined,
+      // currentInput: undefined,
       nextInput: undefined,
+      submitted: {},
     };
 
     if (menuType(this.menu) == "class") {
@@ -59,23 +64,21 @@ export class FormMenuHandler {
 
     // First time the form menu is called, we pick the first input and display it
     if (
-      (this.state.form?.currentInput == null &&
-        this.state.form?.nextInput == null) ||
-      this.state.form?.currentInput == null
+      this.submittedInputs.length == 0 &&
+      this.state.form?.nextInput == null
     ) {
       this.#currentInput = this.#formInputs[0];
-      this.state.form!.currentInput = this.#currentInput.name;
+      // this.state.form!.currentInput = this.#currentInput.name;
       this.state.form!.nextInput = this.#currentInput.name;
       this.response.data = await this.buildResponse(this.#currentInput);
-      return this.#currentInput?.next_menu;
+      return this.#errorMessage != null
+        ? undefined
+        : this.#currentInput?.next_menu;
     }
 
     // If the user has already entered an input, pick the next input
     // or else fallback to the current input
-    if (
-      this.state.form?.nextInput != null ||
-      this.state.form.currentInput != null
-    ) {
+    if (this.state.form?.nextInput != null) {
       this.#currentInput = this.#formInputs.find(
         (item) => item.name == this.state.form?.nextInput
       );
@@ -86,10 +89,12 @@ export class FormMenuHandler {
     // TODO: check if next input is defined, if not, we terminate the session or navigate to the next menu
     this.response.data = await this.buildResponse(this.#nextInput!);
 
-    if (this.#errorMessage != null) {
-      this.state.form.currentInput = undefined;
-    }
-    return this.#currentInput?.next_menu;
+    // if (this.#errorMessage != null) {
+    //   this.state.form!.currentInput = undefined;
+    // }
+    return this.#errorMessage != null
+      ? undefined
+      : this.#currentInput?.next_menu;
   }
 
   private async handleInput() {
@@ -149,6 +154,9 @@ export class FormMenuHandler {
       this.state.userData
     );
 
+    // Track input as submitted
+    this.state.form!.submitted[this.#currentInput.name] = true;
+
     // Terminate the session if necessary
     if (this.#currentInput.end != null) {
       let end =
@@ -165,18 +173,20 @@ export class FormMenuHandler {
   }
 
   private async resolveNextInput() {
-    this.state.form ??= {
-      id: this.state.menu,
-      currentInput: this.#currentInput?.name,
-      nextInput: undefined,
-    };
+    // this.state.form ??= {
+    //   id: this.state.menu,
+    //   currentInput: this.#currentInput?.name,
+    //   nextInput: undefined,
+    // };
 
     if (
       this.#currentInput?.next_input != null &&
       this.#currentInput?.next_menu != null
     ) {
       throw new Error(
-        `Input #${this.state.form?.currentInput} has both next_input and next_menu defined. Please define only one`
+        `Input #${
+          this.#currentInput
+        } has both next_input and next_menu defined. Please define only one`
       );
     }
 
@@ -197,9 +207,9 @@ export class FormMenuHandler {
     }
 
     if (typeof this.#currentInput.next_input == "string") {
-      this.state.form.nextInput = this.#currentInput.next_input;
+      this.state.form!.nextInput = this.#currentInput.next_input;
     } else if (typeof this.#currentInput.next_input == "function") {
-      this.state.form.nextInput = await this.#currentInput.next_input(
+      this.state.form!.nextInput = await this.#currentInput.next_input(
         this.request
       );
     }

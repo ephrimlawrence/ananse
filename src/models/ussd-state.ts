@@ -17,7 +17,19 @@ export class State {
   form?:
     | {
         id: string;
+        /**
+         * @deprecated Use submittedInputs instead
+         */
         currentInput: string | undefined;
+
+        /**
+         * Tracks submitted inputs. Key is the input name, and value must be `true`.
+         * If an input is submitted, it is added to this object.
+         * If the input is revisited, it is first removed from this object and
+         * then added back when it is submitted again.
+         *
+         */
+        submitted: Record<string, true>; // Can be array but a map for O(1) lookup
         nextInput: string | undefined;
         // TODO: track submitted inputs
       }
