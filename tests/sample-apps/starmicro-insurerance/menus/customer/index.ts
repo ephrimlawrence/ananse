@@ -1,5 +1,10 @@
 import router from "../../../../../src/menus";
 import { MenuType } from "../../enums";
+import { Customer } from "../../models/customer";
+import { ClientLogin } from "./login.customer";
+
+// Account login
+router.add(ClientLogin, MenuType.customer_login);
 
 // Client main menu
 router
@@ -38,9 +43,9 @@ router
     },
   ]);
 
-// New policy registration, using forms feature
+// New customer registration, using forms feature
 router
-  .menu(MenuType.client_new) // menu name becomes form name
+  .menu(MenuType.customer_registration) // menu name becomes form name
   .isForm()
   .inputs([
     {
@@ -67,8 +72,15 @@ router
       display: "Enter PIN",
       handler: async (_req, session) => {
         //TODO: add session to request object
-        const form = await session.get(MenuType.customer_new_policy);
-        console.log(form); // Save form to database
+        const form = await session.get(MenuType.customer_registration);
+        const customer = new Customer({
+          first_name: form.first_name,
+          phone_number: _req.state.msisdn,
+          last_name: form.last_name,
+          age: form.age,
+          pin: form.pin, // !NOTE: Should be hashed with tools like bcrypt
+        });
+        await customer.save();
       },
       end: true, // Ends the form, and navigates to next menu
       next_menu: "client_created",
@@ -81,4 +93,4 @@ router
     "Thank you for registering as customer with Star M Kindly dial short code again to register a policy"
   );
 
-import "./new_policy";
+import "./new_policy.customer";

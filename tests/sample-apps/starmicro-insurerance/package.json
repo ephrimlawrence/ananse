@@ -5,6 +5,7 @@
   "main": "dist/starmicro_ussd.ts",
   "scripts": {
     "dev": "tsx watch starmicro_ussd.ts",
+    "simulate": "tsx ../../../src/cli/simulator.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

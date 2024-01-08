@@ -1,8 +1,13 @@
+import { connect } from "mongoose";
 import { App, Request, Response } from "../../../src";
 import router from "../../../src/menus";
 import { DefaultMiddleware } from "../../../src/middlewares/default.middleware";
 import { MenuType } from "./enums";
-import { AccountLogin } from "./login.menu";
+import { ClientLogin } from "./menus/customer/login.customer";
+
+connect("mongodb://127.0.0.1:27017/starmicro-ussd").catch((err) =>
+  console.error(err)
+);
 
 const app = new App().configure({
   middlewares: [DefaultMiddleware],
@@ -18,8 +23,7 @@ router
     {
       choice: "1",
       display: "1. Customer",
-      next_menu: MenuType.customer,
-      next_input: async (req: Request, res) => {
+      next_menu: async (req: Request, _res: Response) => {
         const exists = await Customer.exists({
           phone_number: req.state.msisdn,
         });
@@ -36,10 +40,7 @@ router
     },
   ]);
 
-// Account login
-router.add(AccountLogin, MenuType.account_login);
-
-import "./menus/client/index";
+import "./menus/customer/index";
 import { Customer } from "./models/customer";
 
 app.listen(3000, "localhost", () => {
