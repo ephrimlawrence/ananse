@@ -12,22 +12,13 @@ import { menuType, validateInput } from "@src/helpers/index.helper";
 import { FormMenuHandler } from "./form_handler";
 
 // TODO: change to project name
-export class App {
-  private request: Request;
-  private response: Response;
 
-  private router: Menus;
-
-  configure(opts: ConfigOptions) {
-    const instance = Config.getInstance();
-    instance.init(opts);
-
-    return this;
-  }
-
-  getVisitedMenus(state: State): string[] {
-    return Object.keys(state.form?.submitted ?? {}) || [];
-  }
+class RequestHandler {
+  constructor(
+    private request: Request,
+    private response: Response,
+    private router: Menus
+  ) {}
 
   private async setCurrentMenu(id: string, val: Menu, state: State) {
     state.menu ??= {
@@ -54,15 +45,6 @@ export class App {
     }
   }
 
-  listen(port?: number, hostname?: string, listeningListener?: () => void) {
-    // TODO: Resolve all menu naming conflicts and other sanity checks before starting the server
-    return createServer((req, res) => this.requestListener(req, res)).listen(
-      port,
-      hostname,
-      listeningListener
-    );
-  }
-
   private async formHandler(currentMenu: Menu, state: State) {
     const formHandler = new FormMenuHandler(
       this.request,
@@ -87,7 +69,7 @@ export class App {
     return this.response;
   }
 
-  private async handle() {
+  async processRequest() {
     this.router = router;
 
     let currentMenu: Menu | undefined = undefined;
@@ -404,6 +386,31 @@ export class App {
     return;
   }
 
+  private async endSession(state: State) {
+    state.end();
+    await this.session.clear(state.sessionId);
+  }
+}
+
+export class App {
+  private router: Menus;
+
+  configure(opts: ConfigOptions) {
+    const instance = Config.getInstance();
+    instance.init(opts);
+
+    return this;
+  }
+
+  listen(port?: number, hostname?: string, listeningListener?: () => void) {
+    // TODO: Resolve all menu naming conflicts and other sanity checks before starting the server
+    return createServer((req, res) => this.requestListener(req, res)).listen(
+      port,
+      hostname,
+      listeningListener
+    );
+  }
+
   private async requestListener(req: IncomingMessage, res: ServerResponse) {
     const request = new Request(parse(req.url!, true), req);
 
@@ -432,15 +439,8 @@ export class App {
       // TODO: Handle request/response
     }
 
-    // TODO: make request, and response local in handler, instead of global
-    this.request = request;
-    this.response = res as Response;
-    await this.handle();
-  }
-
-  private async endSession(state: State) {
-    state.end();
-    await this.session.clear(state.sessionId);
+    const handler = new RequestHandler(request, res as Response, this.router);
+    await handler.processRequest();
   }
 }
 
