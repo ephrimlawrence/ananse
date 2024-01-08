@@ -27,16 +27,6 @@ export class FormMenuHandler {
     return this.request.state;
   }
 
-  /**
-   * Generate a key for the form input in the format `[menu_name]_[input_name]`
-   * The key is used to store/retrieve the input in/from the session
-   *
-   * @example registration_first_name
-   */
-  getInputKey(input: string) {
-    return `${this.state.menu}_${input}`;
-  }
-
   private get session() {
     return Config.getInstance().session!;
   }
@@ -50,7 +40,7 @@ export class FormMenuHandler {
   async handle(): Promise<NextMenu | undefined> {
     // Initialize state form object
     this.request.state.form ??= {
-      id: this.state.menu,
+      id: this.state.menu?.nextMenu!,
       nextInput: undefined,
       submitted: {},
     };
@@ -122,11 +112,11 @@ export class FormMenuHandler {
       const temp =
         (await this.session.get<Record<string, string>>(
           this.state.sessionId,
-          this.state.menu
+          this.state.form!.id!
         )) ?? {};
 
       temp[this.#currentInput.name] = this.state.userData;
-      await this.session.set(this.state.sessionId, this.state.menu, temp);
+      await this.session.set(this.state.sessionId, this.state!.form?.id!, temp);
     }
 
     // Call handler to allow the user to process the input

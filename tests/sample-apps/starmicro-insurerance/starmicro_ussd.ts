@@ -27,6 +27,7 @@ router
         const exists = await Customer.exists({
           phone_number: req.state.msisdn,
         });
+        console.group(exists);
         if (!exists) {
           return MenuType.customer_registration;
         }

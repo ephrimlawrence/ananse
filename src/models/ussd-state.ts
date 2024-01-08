@@ -30,6 +30,26 @@ export class State {
       }
     | undefined;
 
+  /**
+   * Tracks visited menus/next to be visited menus.
+   */
+  menu?:
+    | {
+        /**
+         * Tracks visited menus.
+         *
+         * Key is the menu name, and value must be `true`.
+         * If a menu is visited, it is added to this object. If the menu is to
+         * be revisited, it is first removed from this object and then added back
+         * after input validation.
+         *
+         */
+        visited: Record<string, true>; // Can be array but a map for O(1) lookup
+        nextMenu: string | undefined;
+        // TODO: track submitted inputs
+      }
+    | undefined;
+
   get isStart(): boolean {
     return this.mode == "start";
   }
@@ -38,14 +58,14 @@ export class State {
     return this.mode == "end";
   }
 
-  set menu(val: string) {
-    this._previousMenu = this._menu;
-    this._menu = val;
-  }
+  // set menu(val: string) {
+  //   this._previousMenu = this._menu;
+  //   this._menu = val;
+  // }
 
-  get menu(): string {
-    return this._menu;
-  }
+  // get menu(): string {
+  //   return this._menu;
+  // }
 
   get previousMenu(): string | undefined {
     return this._previousMenu;

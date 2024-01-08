@@ -8,7 +8,7 @@ import router, { DynamicMenu, Menu, Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
 import { BaseMenu, MenuAction } from "@src/menus";
 import { MENU_CACHE } from "./state.core";
-import { menuType } from "@src/helpers/index.helper";
+import { menuType, validateInput } from "@src/helpers/index.helper";
 import { FormMenuHandler } from "./form_handler";
 
 // TODO: change to project name
@@ -38,17 +38,21 @@ export class App {
     return this;
   }
 
-  private get currentMenu(): Menu {
-    return this._currentMenu;
+  getVisitedMenus(state: State): string[] {
+    return Object.keys(state.form?.submitted ?? {}) || [];
   }
 
-  private async setCurrentMenu(id: string, val: Menu, state?: State) {
-    this._currentMenu = val;
+  // private get currentMenu(): Menu {
+  //   return this._currentMenu;
+  // }
 
-    if (state != null) {
-      state.menu = id;
-      await this.session.setState(state.sessionId, state);
-    }
+  private async setCurrentMenu(id: string, val: Menu, state: State) {
+    state.menu ??= {
+      nextMenu: undefined,
+      visited: {},
+    };
+    state.menu.nextMenu = id;
+    await this.session.setState(state.sessionId, state);
   }
 
   private get config(): Config {
@@ -59,25 +63,20 @@ export class App {
     return this.config.session!;
   }
 
-  private async isFormMenu() {
-    if (menuType(this.currentMenu) == "class") {
-      return (
-        (await (this.currentMenu as unknown as BaseMenu).isForm()) || false
-      );
+  private async isFormMenu(menu: Menu) {
+    if (menuType(menu) == "class") {
+      return (await (menu as unknown as BaseMenu).isForm()) || false;
     } else {
-      return await (this.currentMenu as DynamicMenu).isFormMenu;
+      return (await (menu as DynamicMenu).isFormMenu) || false;
     }
   }
-  // private get currentMenu(): Menu {
-  //   return this.currentState.menu;
-  // }
 
-  private menuType(val?: Menu): "class" | "dynamic" {
-    if (/^DynamicMenu$/i.test((val || this.currentMenu).constructor.name)) {
-      return "dynamic";
-    }
-    return "class";
-  }
+  // private menuType(val?: Menu): "class" | "dynamic" {
+  //   if (/^DynamicMenu$/i.test((val || this.currentMenu).constructor.name)) {
+  //     return "dynamic";
+  //   }
+  //   return "class";
+  // }
 
   listen(port?: number, hostname?: string, listeningListener?: () => void) {
     // TODO: Resolve all menu naming conflicts and other sanity checks before starting the server
@@ -96,6 +95,9 @@ export class App {
 
   private async handle() {
     this.router = router;
+
+    let currentMenu: Menu | undefined = undefined;
+
     // TODO: implement framework logic
     // 1. Process request via middleware
     // 2. Lookup route
@@ -107,120 +109,164 @@ export class App {
 
     // Resolve middlewares
     const state = (await this.resolveMiddlewares("request"))!;
+
+    // Initialize state menu object
+    state.menu ??= {
+      nextMenu: undefined,
+      visited: {},
+    };
     this.request.state = state;
 
-    // Lookup menu
-    await this.lookupMenu(state);
+    // Each menu is visited at least twice,
+    // (1) to get the menu options and display message to the, and
+    // (2) then get the user input and validate it
+    // (3) repeat (1) and (2) until the user input is valid or session is terminated
+    //
+    // If next menu is null, it means the menu is yet to be visited. Get options and display message
+    // else, validate user input and add the menu to the visited list
+    if (state.menu?.nextMenu == null) {
+      currentMenu = await this.lookupMenu(state);
+      this.response.data = await this.buildResponse(currentMenu, state);
 
-    // If current menu is a form, use form handler
-    if (await this.isFormMenu()) {
-      state.menu = state.menu || state.previousMenu!;
-      this.navigateToNextMenu(state, state.menu);
-      const formHandler = new FormMenuHandler(
-        this.request,
-        this.response,
-        this.currentMenu
-      );
-      const nextMenu = await formHandler.handle();
-      if (nextMenu != null) {
-        this.navigateToNextMenu(state, nextMenu);
-        this.response.data = await this.buildResponse(this.currentMenu);
-      }
-      // TODO: redirect to next menu if exists by setting currentMenu to this
+      await this.resolveMiddlewares("response");
+      return this.response;
     } else {
-      // Resolve menu options
-      await this.lookupMenuOptions(state);
-
-      await this.resolveMenuOption(state);
-
-      // Validate user data
-      const status = await this.validateUserData(state);
-
-      // const _tempState = (await this.currentState)!;
-      // If there's validation error, the user cannot be moved to the next menu (error source),
-      // the user must still be on the current menu until the input passes validation
-      if (status != true) {
-        this.response.data = await this.buildResponse(
-          MENU_CACHE[state.previousMenu!]
-        );
-      } else {
-        // Again, we have to recheck if the menu is a form
-        // This is necessary because if the selected option leads to a form menu,
-        // form handler has to be used to build the response of the first input
-        if (await this.isFormMenu()) {
-          this.navigateToNextMenu(state, state.menu);
-          const formHandler = new FormMenuHandler(
-            this.request,
-            this.response,
-            this.currentMenu
-          );
-          const nextMenu = await formHandler.handle();
-          if (nextMenu != null) {
-            this.navigateToNextMenu(state, nextMenu);
-          }
-        } else {
-          this.response.data = await this.buildResponse(this.currentMenu);
-        }
-      }
-      // TODO: cache current state
+      currentMenu = await this.lookupMenu(state);
     }
 
-    // Reset temp fields
-    state.action = undefined;
-    this.errorMessage = undefined;
+    // Resolve menu options
+    await this.lookupMenuOptions(state, currentMenu);
 
-    // TODO: don't do this if session is end
-    if (!state.isEnd) {
-      await this.session.setState(state.sessionId, state);
+    const error = await this.validateUserData(state, currentMenu);
+
+    if (error != null) {
+      this.response.data = error;
+      await this.resolveMiddlewares("response");
+
+      return this.response;
     }
 
-    // Resolve middlewares
+    currentMenu = await this.resolveNextMenu(state, currentMenu);
+    this.response.data = await this.buildResponse(currentMenu, state);
+
     await this.resolveMiddlewares("response");
+    return this.response;
+
+    // // If current menu is a form, use form handler
+    // if (await this.isFormMenu(currentMenu)) {
+    //   state.menu = state.menu || state.previousMenu!;
+    //   this.navigateToNextMenu(state, state.menu);
+    //   const formHandler = new FormMenuHandler(
+    //     this.request,
+    //     this.response,
+    //     this.currentMenu
+    //   );
+    //   const nextMenu = await formHandler.handle();
+    //   if (nextMenu != null) {
+    //     this.navigateToNextMenu(state, nextMenu);
+    //     this.response.data = await this.buildResponse(this.currentMenu);
+    //   }
+    //   // TODO: redirect to next menu if exists by setting currentMenu to this
+    // } else {
+    //   // Resolve menu options
+    //   // await this.lookupMenuOptions(state, currentMenu);
+
+    //   // await this.resolveMenuOption(state);
+
+    //   // Validate user data
+    //   // const status = await this.validateUserData(state);
+
+    //   // const _tempState = (await this.currentState)!;
+    //   // If there's validation error, the user cannot be moved to the next menu (error source),
+    //   // the user must still be on the current menu until the input passes validation
+    //   if (error != true) {
+    //     this.response.data = await this.buildResponse(
+    //       MENU_CACHE[state.previousMenu!]
+    //     );
+    //   } else {
+    //     // Again, we have to recheck if the menu is a form
+    //     // This is necessary because if the selected option leads to a form menu,
+    //     // form handler has to be used to build the response of the first input
+    //     if (await this.isFormMenu()) {
+    //       this.navigateToNextMenu(state, state.menu);
+    //       const formHandler = new FormMenuHandler(
+    //         this.request,
+    //         this.response,
+    //         this.currentMenu
+    //       );
+    //       const nextMenu = await formHandler.handle();
+    //       if (nextMenu != null) {
+    //         this.navigateToNextMenu(state, nextMenu);
+    //       }
+    //     } else {
+    //       this.response.data = await this.buildResponse(this.currentMenu);
+    //     }
+    //   }
+    //   // TODO: cache current state
+    // }
+
+    // // Reset temp fields
+    // state.action = undefined;
+    // this.errorMessage = undefined;
+
+    // // TODO: don't do this if session is end
+    // if (!state.isEnd) {
+    //   await this.session.setState(state.sessionId, state);
+    // }
+
+    // // Resolve middlewares
+    // await this.resolveMiddlewares("response");
   }
 
-  private async validateUserData(state: State): Promise<ValidationResponse> {
-    let status: ValidationResponse = true;
-    if (this.menuType() == "class") {
-      status = await (this.currentMenu as unknown as BaseMenu).validate(
-        state?.userData
-      );
+  private async validateUserData(
+    state: State,
+    menu: Menu,
+    error?: string
+  ): Promise<string | undefined> {
+    let result = await validateInput({
+      state: state,
+      menu: menu,
+      request: this.request,
+      response: this.response,
+    });
+
+    // If input is invalid, stop processing and return the error message
+    if (!result.valid) {
+      error = result.error || (await this.buildResponse(menu, state));
+      return error;
+    }
+
+    return error;
+  }
+
+  private async buildResponse(
+    menu: Menu | undefined,
+    state: State,
+    errorMessage?: string
+  ) {
+    if (errorMessage != null) {
+      return errorMessage;
+    }
+
+    // No message to display, end session
+    if (menu == null && state.isEnd) {
+      return "";
+    }
+
+    let message = "";
+    if (menuType(menu!) == "class") {
+      message = await (menu as unknown as BaseMenu).message();
     } else {
-      status = await (this.currentMenu as DynamicMenu).validateInput(
+      message = await (menu as DynamicMenu).getMessage(
         this.request,
         this.response
       );
     }
 
-    if (typeof status == "string" || status == false) {
-      // TODO: if no text is provided, return the current text
-      this.errorMessage = status || "Invalid input";
-    }
-    return status;
-  }
-
-  private async buildResponse(menu: Menu) {
-    // FIXME: simply response builder. If error message is not empty, we simply show else fallback to menu message/display
-    let message = "";
-
-    // If error message is not empty, we simply show that instead of calling
-    // menu handler function. However, we append the actions to the response
-    if (this.errorMessage == null) {
-      if (this.menuType() == "class") {
-        message = await (menu as unknown as BaseMenu).message();
-      } else {
-        message = await (menu as DynamicMenu).getMessage(
-          this.request,
-          this.response
-        );
-      }
-    } else {
-      message = this.errorMessage;
-    }
-
-    if (this.menuType() == "class") {
-      for await (const action of await (
-        menu as unknown as BaseMenu
-      ).actions()) {
+    // Add options to the message
+    if (menuType(menu!) == "class") {
+      const _actions = (await (menu as unknown as BaseMenu).actions()) || [];
+      for await (const action of _actions) {
         if (action.display == null) continue;
 
         if (typeof action.display == "function") {
@@ -232,9 +278,7 @@ export class App {
       return message;
     }
 
-    for await (const action of await (
-      this.currentMenu as DynamicMenu
-    ).getActions()) {
+    for await (const action of await (menu as DynamicMenu).getActions()) {
       if (action.display == null) continue;
 
       if (typeof action.display == "function") {
@@ -246,7 +290,7 @@ export class App {
     return message;
   }
 
-  private async resolveMenuOption(state: State) {
+  private async resolveNextMenu(state: State, currentMenu: Menu) {
     const action = state.action;
 
     // Execute the action handler
@@ -255,44 +299,35 @@ export class App {
     }
 
     // Resolve next menu and make it the current menu
-    if (await this.navigateToNextMenu(state, action?.next_menu)) {
-      return this.currentMenu;
+    const resp = await this.navigateToNextMenu(state, action?.next_menu);
+    if (resp.status) {
+      return resp.menu!;
     }
 
-    // Fallback to default next menu
-    let _menu: Menu = this.instantiateMenu(this.currentMenu);
-    if (this.menuType(_menu) == "class") {
-      const _next = await (_menu as unknown as BaseMenu).nextMenu();
+    // Action doesn't have next menu defined, fallback to default next menu
+    if (menuType(currentMenu) == "class") {
+      const _next = await (currentMenu as unknown as BaseMenu).nextMenu();
+
+      // No next menu, end session
       if (_next == null) {
-        state.mode = "end";
-        await this.session.setState(state.sessionId, state);
-        return;
+        await this.endSession(state);
+        return undefined;
       }
 
-      await this.setCurrentMenu(
-        _next,
-        this.instantiateMenu(this.router.getMenu(_next)),
-        state
-      );
-
-      return;
+      return (await this.navigateToNextMenu(state, _next)).menu;
     }
 
-    const _next = await (_menu as DynamicMenu).getDefaultNextMenu(
+    const _next = await (currentMenu as DynamicMenu).getDefaultNextMenu(
       this.request,
       this.response
     );
 
     if (_next != null) {
-      await this.setCurrentMenu(
-        _next,
-        this.instantiateMenu(this.router.getMenu(_next)),
-        state
-      );
+      return (await this.navigateToNextMenu(state, _next)).menu;
     }
 
-    state.mode = state.isStart ? "more" : "end";
-    await this.session.setState(state.sessionId, state);
+    await this.endSession(state);
+    return undefined;
   }
 
   /**
@@ -301,51 +336,49 @@ export class App {
    * @return  {boolean}              `true` if the next menu is resolved, `false` otherwise
    */
   private async navigateToNextMenu(state: State, next_menu?: NextMenu) {
-    if (next_menu == null) return false;
+    let status = false,
+      menu: Menu | undefined = undefined,
+      id: string | undefined = undefined;
+
+    if (next_menu == null) return { status, menu };
 
     if (typeof next_menu == "string") {
-      await this.setCurrentMenu(
-        next_menu!,
-        this.instantiateMenu(this.router.getMenu(next_menu!)),
-        state
-      );
-      return true;
+      id = next_menu;
+      status = true;
     } else if (typeof next_menu == "function") {
-      const id = await next_menu(this.request, this.response);
-
-      await this.setCurrentMenu(
-        id,
-        this.instantiateMenu(this.router.getMenu(id)),
-        state
-      );
-
-      return true;
+      id = await next_menu(this.request, this.response);
+      status = true;
     }
 
-    return false;
+    if (status) {
+      menu = this.instantiateMenu(this.router.getMenu(id!));
+      state.menu!.visited[state.menu!.nextMenu!] = true;
+      this.setCurrentMenu(id!, menu!, state);
+    }
+
+    return { status, menu };
   }
 
-  private instantiateMenu(menu: Menu) {
-    if (this.menuType(menu) == "class") {
+  private instantiateMenu(menu: Menu): Menu {
+    if (menuType(menu) == "class") {
       if (menu instanceof BaseMenu) {
         return menu;
       }
 
       // @ts-ignore
-      this._currentMenu = new menu(this.request, this.response);
-      return this.currentMenu;
+      return new menu(this.request, this.response);
     }
 
     return menu;
   }
 
-  private async lookupMenuOptions(state: State) {
+  private async lookupMenuOptions(state: State, menu: Menu) {
     let actions: MenuAction[] = [];
 
-    if (this.menuType() == "class") {
-      actions = await (this.currentMenu as unknown as BaseMenu).actions();
+    if (menuType(menu) == "class") {
+      actions = await (menu as unknown as BaseMenu).actions();
     } else {
-      actions = (this.currentMenu as DynamicMenu).getActions();
+      actions = (menu as DynamicMenu).getActions();
     }
 
     // Loop through the actions, and find the one that matches the user input
@@ -382,23 +415,28 @@ export class App {
 
   private async lookupMenu(state: State) {
     let menu: Menu | undefined = undefined,
-      id: string | undefined = undefined;
+      id: string | undefined = state.menu?.nextMenu;
 
-    // If the request is a start request, we need to lookup the start menu
-    if (state.isStart) {
-      const _value = this.router.getStartMenu(this.request, this.response);
-      id = _value.id;
-      menu = _value.obj;
-    } else {
-      if (state.menu == null) {
-        throw new Error(`Menu for #${state.sessionId} is not defined`);
-      }
-
-      menu = this.currentMenu;
-      // menu = this.currentState.menu;
+    // The user already has unterminated session, return the last visited menu
+    if (id != null) {
+      menu = this.router.getMenu(id);
+    } else if (state.isStart) {
+      // If it is a start request, lookup for the start menu
+      const value = this.router.getStartMenu(this.request, this.response);
+      id = value.id;
+      menu = value.obj;
     }
 
-    this.setCurrentMenu(id!, this.instantiateMenu(menu), state);
+    if (menu == null) {
+      throw new Error(`Menu for #${state.sessionId} is not defined`);
+    }
+
+    const instance = this.instantiateMenu(menu);
+    this.setCurrentMenu(id!, instance, state);
+
+    // Update session mode
+    state.mode = "more";
+    return instance;
   }
 
   private async resolveMiddlewares(stage: "request" | "response") {
@@ -456,6 +494,11 @@ export class App {
     this.request = request;
     this.response = res as Response;
     await this.handle();
+  }
+
+  private async endSession(state: State) {
+    state.end();
+    await this.session.clear(state.sessionId);
   }
 }
 
