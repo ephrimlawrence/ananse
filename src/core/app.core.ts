@@ -360,6 +360,8 @@ export class App {
     if (status) {
       menu = this.instantiateMenu(this.router.getMenu(id!));
       state.menu!.visited[state.menu!.nextMenu!] = true;
+      delete state.menu!.visited[id!];
+
       this.setCurrentMenu(id!, menu!, state);
     }
 

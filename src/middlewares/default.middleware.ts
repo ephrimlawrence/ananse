@@ -49,7 +49,7 @@ export class DefaultMiddleware extends Middleware {
       data?.sessionId
     }|${this.response.data}|${this.request.query?.username}|${
       this.request.query?.trafficid
-    }|${data?.nextMenu || ""}`;
+    }|${data?.menu?.nextMenu || ""}`;
   }
 
   private isVendorWigal(): boolean {

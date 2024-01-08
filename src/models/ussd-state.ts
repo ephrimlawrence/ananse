@@ -1,8 +1,8 @@
 import { Menu, MenuAction } from "../menus";
 
 export class State {
-  private _menu: string; //TODO: use menue id/name instead of class
-  private _previousMenu?: string | undefined = undefined;
+  // private _menu: string; //TODO: use menue id/name instead of class
+  // private _previousMenu?: string | undefined = undefined;
 
   // private _trackedMenus: {previous: string, current: string}[] = [];
   // network: string;
@@ -10,7 +10,7 @@ export class State {
   mode: "start" | "more" | "end";
   msisdn: string;
   userData: string;
-  nextMenu?: string | undefined;
+  // nextMenu?: string | undefined;
   action?: MenuAction | undefined;
   previous?: State | undefined;
   // formInputId?: string | undefined;
@@ -67,13 +67,13 @@ export class State {
   //   return this._menu;
   // }
 
-  get previousMenu(): string | undefined {
-    return this._previousMenu;
-  }
+  // get previousMenu(): string | undefined {
+  //   return this._previousMenu;
+  // }
 
-  set previousMenu(val: string | undefined) {
-    this._previousMenu = val;
-  }
+  // set previousMenu(val: string | undefined) {
+  //   this._previousMenu = val;
+  // }
 
   /**
    * Sets mode to "end"
@@ -101,8 +101,7 @@ export class State {
       mode: this.mode,
       msisdn: this.msisdn,
       userData: this.userData,
-      nextMenu: this.nextMenu,
-      previousMenu: this.previousMenu,
+      // nextMenu: this.nextMenu,
       menu: this.menu,
       action: this.action,
       previous: this.previous?.toJSON(),
