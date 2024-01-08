@@ -17,19 +17,6 @@ export class App {
   private response: Response;
 
   private router: Menus;
-  // private current_route: Route;
-
-  // private currentState: State;
-  private _currentMenu: Menu;
-
-  // private middlewares: Type<Middleware>[] = [];
-
-  private errorMessage: string | undefined = undefined;
-
-  /**
-   * Track the state of the USSD session
-   */
-  // private readonly states: { [msisdn: string]: State } = {};
 
   configure(opts: ConfigOptions) {
     const instance = Config.getInstance();
@@ -41,10 +28,6 @@ export class App {
   getVisitedMenus(state: State): string[] {
     return Object.keys(state.form?.submitted ?? {}) || [];
   }
-
-  // private get currentMenu(): Menu {
-  //   return this._currentMenu;
-  // }
 
   private async setCurrentMenu(id: string, val: Menu, state: State) {
     state.menu ??= {
@@ -71,13 +54,6 @@ export class App {
     }
   }
 
-  // private menuType(val?: Menu): "class" | "dynamic" {
-  //   if (/^DynamicMenu$/i.test((val || this.currentMenu).constructor.name)) {
-  //     return "dynamic";
-  //   }
-  //   return "class";
-  // }
-
   listen(port?: number, hostname?: string, listeningListener?: () => void) {
     // TODO: Resolve all menu naming conflicts and other sanity checks before starting the server
     return createServer((req, res) => this.requestListener(req, res)).listen(
@@ -87,11 +63,29 @@ export class App {
     );
   }
 
-  // get currentState() {
-  //   return Config.getInstance().session?.getState(
-  //     this.request.state?.sessionId
-  //   )!;
-  // }
+  private async formHandler(currentMenu: Menu, state: State) {
+    const formHandler = new FormMenuHandler(
+      this.request,
+      this.response,
+      currentMenu
+    );
+    const nextMenu = await formHandler.handle();
+
+    if (!state.isEnd) {
+      await this.session.setState(state.sessionId, state);
+    }
+
+    if (nextMenu != null) {
+      currentMenu = (await this.navigateToNextMenu(state, nextMenu)).menu!;
+      this.response.data = await this.buildResponse(currentMenu, state);
+
+      await this.resolveMiddlewares("response");
+      return this.response;
+    }
+
+    await this.resolveMiddlewares("response");
+    return this.response;
+  }
 
   private async handle() {
     this.router = router;
@@ -134,6 +128,11 @@ export class App {
       currentMenu = await this.lookupMenu(state);
     }
 
+    // If current menu is a form, use form handler
+    if (await this.isFormMenu(currentMenu)) {
+      return this.formHandler(currentMenu, state);
+    }
+
     // Resolve menu options
     await this.lookupMenuOptions(state, currentMenu);
 
@@ -147,6 +146,14 @@ export class App {
     }
 
     currentMenu = await this.resolveNextMenu(state, currentMenu);
+
+    if (currentMenu != null) {
+      // Next menu is a form, use form handler to build response
+      if (await this.isFormMenu(currentMenu)) {
+        return this.formHandler(currentMenu, state);
+      }
+    }
+
     this.response.data = await this.buildResponse(currentMenu, state);
 
     await this.resolveMiddlewares("response");
@@ -447,8 +454,6 @@ export class App {
         await this.session.setState(_state.sessionId, _state)!;
 
         return _state;
-        // await this.session.setState(item.sessionId, this.request.state);
-        // this.currentState = (await this.session.getState(item.sessionId))!;
       }
     }
 
@@ -456,7 +461,6 @@ export class App {
       for (const middleware of this.config.middlewares) {
         const item = new middleware(this.request, this.response);
         await item.handleResponse(this.request, this.response);
-        // this.states[this.request.state.msisdn] = this.request.state;
       }
     }
 
@@ -491,6 +495,7 @@ export class App {
       // TODO: Handle request/response
     }
 
+    // TODO: make request, and response local in handler, instead of global
     this.request = request;
     this.response = res as Response;
     await this.handle();
