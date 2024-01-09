@@ -94,3 +94,4 @@ router
   );
 
 import "./new_policy.customer";
+import "./pay_policy.customer";
