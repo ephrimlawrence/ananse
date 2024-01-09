@@ -24,6 +24,7 @@ export class ClientLogin extends BaseMenu {
       // TODO: add termination of session from here. Possible this.end()
       return "Wrong PIN. Enter PIN";
     }
+    await this.session.set("customer", exists._id.toString());
     return true;
   }
 

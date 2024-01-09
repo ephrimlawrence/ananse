@@ -1,5 +1,6 @@
 import router from "../../../../../src/menus";
 import { MenuType } from "../../enums";
+import { Policy } from "../../models/policy";
 
 // New policy registration, using forms feature
 router
@@ -14,9 +15,9 @@ router
         "\n2. Child lifeline (Mma Anidaso)" +
         "\n3. Enhanced Abusua Nkyemfa" +
         "\n4. Micro Health Policy",
-      next_input: "monthly_premium",
+      next_input: "premium",
       validate: (req, _res) => {
-        if (["1", "2", "3", "4"].includes(req.input.toString())) {
+        if (["1", "2", "3", "4"].includes(req.state.userData.toString())) {
           return true;
         }
         return false;
@@ -34,18 +35,27 @@ router
         "\n5. GHS250.00" +
         "\n6. GHS300.00" +
         "\n7. Enter your preferred amount in multiples of 50.00",
-      handler: async (req, session) => {
-        const form = await session.get(MenuType.customer_new_policy);
-        console.log(form);
-      },
-      next_input: "policy_created",
+      next_menu: "policy_created",
       validate: (req, _res) => {
         if (
-          ["1", "2", "3", "4", "5", "6", "7"].includes(req.input.toString())
+          ["1", "2", "3", "4", "5", "6", "7"].includes(
+            req.state.userData.toString()
+          )
         ) {
           return true;
         }
         return false;
+      },
+      handler: async (req, session) => {
+        const form = await session.get(MenuType.customer_new_policy);
+        const policy = new Policy({
+          createdAt: new Date(),
+          name: form.product,
+          premium: +form.premium * 100, // Dummy premium amount
+          customer: await session.get("customer"),
+        });
+        await policy.save();
+        // TODO: what if the user wants to show error message/terminate session?
       },
     },
   ]);
