@@ -74,15 +74,6 @@ class RequestHandler {
 
     let currentMenu: Menu | undefined = undefined;
 
-    // TODO: implement framework logic
-    // 1. Process request via middleware
-    // 2. Lookup route
-    //  2a. Process request in route
-    // 3. Process response via middleware
-
-    // FIXME: optmize state access for persistent session.
-    // ! Pass state as args to the functions and update the state after the last function returns
-
     // Resolve middlewares
     const state = (await this.resolveMiddlewares("request"))!;
 
@@ -256,8 +247,6 @@ class RequestHandler {
 
   /**
    * Resolve next menu and make it the current menu.
-   *
-   * @return  {boolean}              `true` if the next menu is resolved, `false` otherwise
    */
   private async navigateToNextMenu(state: State, next_menu?: NextMenu) {
     let status = false,
@@ -403,7 +392,6 @@ export class App {
   }
 
   listen(port?: number, hostname?: string, listeningListener?: () => void) {
-    // TODO: Resolve all menu naming conflicts and other sanity checks before starting the server
     return createServer((req, res) => this.requestListener(req, res)).listen(
       port,
       hostname,
@@ -411,6 +399,7 @@ export class App {
     );
   }
 
+  // TODO: implement express wrapper
   private async requestListener(req: IncomingMessage, res: ServerResponse) {
     const request = new Request(parse(req.url!, true), req);
 
@@ -434,9 +423,6 @@ export class App {
           );
         }
       });
-
-      // res.end("Hello, World!");
-      // TODO: Handle request/response
     }
 
     const handler = new RequestHandler(request, res as Response, this.router);
