@@ -2,6 +2,7 @@ import { State } from "@src/models/ussd-state";
 import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
 import { ParsedUrlQuery } from "querystring";
 import { Url } from "url";
+import { Session } from ".";
 
 export class Request {
   method:
@@ -34,6 +35,7 @@ export class Request {
    * Current USSD state. Is null until the request is processed by the middlewares
    */
   state: State;
+  session: Session;
 
   constructor(_url: Url, req: IncomingMessage) {
     this.method = req.method as any;
