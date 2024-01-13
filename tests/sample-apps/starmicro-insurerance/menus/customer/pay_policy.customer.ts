@@ -1,6 +1,7 @@
 import { Request } from "../../../../../src";
 import router from "../../../../../src/menus";
 import { MenuType } from "../../enums";
+import { Payment } from "../../models/payment";
 import { Policy } from "../../models/policy";
 
 // New policy registration, using forms feature
@@ -9,7 +10,8 @@ router
   .isForm()
   .inputs([
     {
-      name: "product",
+      name: "policy",
+      next_input: "amount",
       display: async (req: Request) => {
         const policies = await Policy.find({
           customer: await req.session.get("customer"),
@@ -19,46 +21,57 @@ router
           .map((policy, index) => `${index + 1}. ${policy.name}`)
           .join("\n");
       },
+      validate: async (req, _res) => {
+        if (isNaN(+req.state.userData)) {
+          return false;
+        }
+
+        const policies = await Policy.find({
+          customer: await req.session.get("customer"),
+        });
+
+        return +req.state.userData >= policies.length;
+      },
+      handler: async (req: Request, session) => {
+        const form: Record<string, any> = (await req.session.get(
+          MenuType.customer_premium_payment
+        ))!;
+        const policies = await Policy.find({
+          customer: await req.session.get("customer"),
+        });
+        const policy = policies[+form.policy - 1];
+        await session.set("policy", policy._id.toString());
+      },
     },
     {
-      name: "premium",
-      display:
-        "Selecting Product 1, 2 and 3." +
-        "\nChoose Your Monthly Premium" +
-        "\n1. GHS50.00" +
-        "\n2. GHS100.00" +
-        "\n3. GHS150.00" +
-        "\n4. GHS200.00" +
-        "\n5. GHS250.00" +
-        "\n6. GHS300.00" +
-        "\n7. Enter your preferred amount in multiples of 50.00",
-      next_menu: "policy_created",
+      name: "amount",
+      display: "Please Enter Amount",
+      next_menu: "payment_confirmed",
       validate: (req, _res) => {
-        if (
-          ["1", "2", "3", "4", "5", "6", "7"].includes(
-            req.state.userData.toString()
-          )
-        ) {
-          return true;
+        // Check if amount is a number
+        if (isNaN(+req.state.userData)) {
+          return "Invalid input. Enter amount";
         }
-        return false;
+        return true;
       },
-      handler: async (req, session) => {
-        const form = await session.get(MenuType.customer_new_policy);
-        const policy = new Policy({
+      handler: async (req: Request, session) => {
+        const form = await session.get(MenuType.customer_premium_payment);
+        // TODO: add payment logic here. Any payment provider can be used, eg. hubtel, paystack, stripe, etc.
+
+        const payment = new Payment({
           createdAt: new Date(),
-          name: form.product,
-          premium: +form.premium * 100, // Dummy premium amount
-          customer: await session.get("customer"),
+          updatedAt: new Date(),
+          policy: await session.get("policy"),
+          amount: +form.amount,
         });
-        await policy.save();
-        // TODO: what if the user wants to show error message/terminate session?
+        await payment.save();
       },
     },
   ]);
 
+// TODO: add function to end session
 router
-  .menu("policy_created")
+  .menu("payment_confirmed")
   .message(
-    "Thank you for registering with star MicroInsurance Services Limited, you will receive your policy number via SMS"
+    "Your payment has been confirmed. Thank you for choosing Star Microinsurance"
   );
