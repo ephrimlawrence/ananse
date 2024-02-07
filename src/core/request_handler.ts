@@ -1,6 +1,6 @@
 import { NextMenu, Session, Type, ValidationResponse } from "@src/types";
 import { Request, Response } from "@src/types/request";
-import { State } from "@src/models/ussd-state";
+import { State, StateMode } from "@src/models/ussd-state";
 import router, { DynamicMenu, Menu, Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
 import { BaseMenu, MenuAction } from "@src/menus";
@@ -346,7 +346,7 @@ export class RequestHandler {
     this.setCurrentMenu(id!, instance, state);
 
     // Update session mode
-    state.mode = "more";
+    state.mode = StateMode.more
     return instance;
   }
 
