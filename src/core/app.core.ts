@@ -1,16 +1,12 @@
-import { NextMenu, Type, ValidationResponse } from "@src/types";
 import { Request, Response } from "@src/types/request";
-import { State } from "@src/models/ussd-state";
 import { ServerResponse, IncomingMessage } from "http";
 import { createServer } from "http";
 import { parse } from "url";
-import router, { DynamicMenu, Menu, Menus } from "@src/menus";
+import { Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
-import { BaseMenu, MenuAction } from "@src/menus";
-import { MENU_CACHE } from "./state.core";
-import { menuType, validateInput } from "@src/helpers/index.helper";
-import { FormMenuHandler } from "./form_handler";
 import { RequestHandler } from "./request_handler";
+// @ts-ignore
+import type { Request as ExpressRequest, Response as ExpressResponse } from "express";
 
 // TODO: change to project name
 
@@ -61,6 +57,36 @@ export class App {
     const handler = new RequestHandler(request, res as Response, this.router);
     await handler.processRequest();
   }
+
+  async express(req: ExpressRequest, res: ExpressResponse) {
+    const request = new Request(parse(req.url!, true), req);
+
+    if (req.method == "POST" || req.method == "PUT" || req.method == "PATCH") {
+      let data = req.body;
+
+      // req.on("data", (chunk) => {
+      //   data += chunk;
+      // });
+
+      // req.on("end", () => {
+      try {
+        if (req.headers["content-type"] == "application/json") {
+          request.body = data;
+
+          // request.body = JSON.parse(data);
+        }
+        // TODO: parse other content types
+      } catch (error) {
+        res.status(400).json({ error: "Invalid JSON format in the request body" })
+      }
+      // });
+    }
+
+    const handler = new RequestHandler(request, res as unknown as Response, this.router);
+    return await handler.processRequest();
+
+  }
+
 }
 
 export default App;
