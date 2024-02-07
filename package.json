@@ -13,7 +13,8 @@
   "license": "ISC",
   "optionalDependencies": {
     "express": "^4.18.2",
-    "redis": "^4.6.11"
+    "redis": "^4.6.11",
+    "pg-promise": "^11.5.4"
   },
   "devDependencies": {
     "@japa/api-client": "^2.0.0-1",
