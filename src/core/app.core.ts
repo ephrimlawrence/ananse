@@ -8,9 +8,8 @@ import { RequestHandler } from "./request_handler";
 // @ts-ignore
 import type { Request as ExpressRequest, Response as ExpressResponse } from "express";
 
-// TODO: change to project name
 
-export class App {
+export class Ananse {
   private router: Menus;
 
   configure(opts: ConfigOptions) {
@@ -80,4 +79,4 @@ export class App {
 
 }
 
-export default App;
+export default Ananse;

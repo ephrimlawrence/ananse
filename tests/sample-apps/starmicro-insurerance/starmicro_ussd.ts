@@ -3,7 +3,6 @@ import { App, Request, Response } from "../../../src";
 import router from "../../../src/menus";
 import { DefaultMiddleware } from "../../../src/middlewares/default.middleware";
 import { MenuType } from "./enums";
-import { ClientLogin } from "./menus/customer/login.customer";
 
 connect("mongodb://127.0.0.1:27017/starmicro-ussd").catch((err) =>
   console.error(err)

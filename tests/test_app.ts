@@ -1,4 +1,4 @@
-import App from "../src/core/app.core";
+import Ananse from "../src/core/app.core";
 import { DefaultMiddleware } from "../src/middlewares/default.middleware";
 import router from "../src/menus";
 import { BaseMenu } from "../src/menus";
@@ -65,7 +65,7 @@ class CloseAccount extends BaseMenu {
   }
 }
 
-const app = new App().configure({
+const app = new Ananse().configure({
   middlewares: [DefaultMiddleware],
   session: { type: "redis" },
 });

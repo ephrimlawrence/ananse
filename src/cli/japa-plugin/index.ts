@@ -1,6 +1,6 @@
 import { TestContext } from "@japa/runner/core";
 import { getActiveTest } from "@japa/runner";
-import App from "@src/core/app.core";
+import Ananse from "@src/core/app.core";
 import { Gateway } from "@src/types";
 import { randomUUID } from "crypto";
 import { promisify } from "util";
@@ -24,7 +24,7 @@ class UssdTestRunner {
     this.#config = _config;
   }
 
-  app(val: App) {
+  app(val: Ananse) {
     this.#config.app = val;
     return this;
   }
@@ -276,7 +276,7 @@ export function scorpionPlugin(config: Config) {
 }
 
 interface Config {
-  app?: App;
+  app?: Ananse;
   url?: string;
   provider: Gateway;
   phone?: string;

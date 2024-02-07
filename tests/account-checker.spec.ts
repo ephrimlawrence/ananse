@@ -1,7 +1,7 @@
 import { getActiveTest, test } from "@japa/runner";
 import router, { BaseMenu } from "../src/menus";
 import { DefaultMiddleware } from "../src/middlewares/default.middleware";
-import App from "../src/core/app.core";
+import Ananse from "../src/core/app.core";
 import { promisify } from "util";
 
 test.group("Maths.add", () => {
