@@ -1,6 +1,28 @@
 import { State } from "@src/models/ussd-state";
 import { BaseSession, PostgresSessionOptions } from "./base.session";
 
+/**
+ * PostgreSQL session manager
+ * A session manager that uses postgres as the session store
+ *
+ * It is assumed that database has a session table with following schema:
+ * ```sql
+ * CREATE TABLE ussd_sessions (
+ *   id UUID PRIMARY KEY,
+ *   session_id VARCHAR(255),
+ *  state JSONB DEFAULT '{}',
+ *   data JSONB DEFAULT '{}',
+ *   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+ *   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+ *   deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NULL
+ * );
+ * -- comment this out (and use the next code) if you want to use soft delete
+ * CREATE UNIQUE INDEX session_uniq_key ON ussd_sessions (session_id);
+ *
+ * -- use this index, if soft delete is enabled
+ * -- CREATE UNIQUE INDEX session_uniq_key ON ussd_session (session_id, deleted_at);
+ * ```
+ */
 export class PostgresSession extends BaseSession {
   private static instance: PostgresSession;
 
@@ -58,11 +80,12 @@ export class PostgresSession extends BaseSession {
   async setState(sessionId: string, state: State) {
     this.states[sessionId] = state;
 
-    // Update the state in the database
+    // Write postgres query to insert or update state
     await this.db.none(
-      `UPDATE $1~.$2~ SET state = $3::jsonb, updated_at = $4 WHERE session_id = $5 ${this.softDeleteQuery}`,
-      [this.config.schema, this.config.tableName, JSON.stringify(state.toJSON()), sessionId, new Date().toISOString()]
-    )
+      `INSERT INTO $1~.$2~ (session_id, state, created_at, updated_at, deleted_at) VALUES ($3, $4::jsonb, $5, $5, NULL)
+     ON CONFLICT (session_uniq_key) DO UPDATE SET state = $4::jsonb, updated_at = $5 WHERE $1~.$2~.session_id = $3 ${this.softDeleteQuery}`,
+      [this.config.schema, this.config.tableName, sessionId, JSON.stringify(state.toJSON()), new Date().toISOString()]
+    );
     return state;
   }
 
