@@ -1,13 +1,14 @@
 import { State } from "@src/models/ussd-state";
-import { BaseSession, RedisSessionOptions, SessionOptions } from "./base.session";
-import { RedisClientType, createClient } from "redis";
+import { BaseSession, RedisSessionOptions } from "./base.session";
+
+// @ts-ignore
+import type { RedisClientType } from "redis";
 
 export class RedisSession extends BaseSession {
   private static instance: RedisSession;
-  private keyPrefix: string = "";
 
   private CLIENT: RedisClientType;
-  private config: SessionOptions;
+  private config: RedisSessionOptions;
 
   private constructor() {
     super();
@@ -27,7 +28,7 @@ export class RedisSession extends BaseSession {
     }
 
     this.config = options!;
-    this.keyPrefix = options?.keyPrefix || "";
+    this.config.keyPrefix = options?.keyPrefix || "";
 
     await this.redisClient();
 
@@ -71,15 +72,14 @@ export class RedisSession extends BaseSession {
     await this.redisClient();
     const val = await this.CLIENT.get(`${sessionId}:state`);
 
-    // TODO: Save the state to redis
     return val == null ? undefined : State.fromJSON(JSON.parse(val));
   }
 
   clear(sessionId: string): void | State {
-    // TODO: remove the state to redis
     const _state = this.states[sessionId];
     delete this.states[sessionId];
     delete this.data[sessionId];
+
     this.redisClient().then((client) => client.del(`${sessionId}:*`));
 
     return _state;
@@ -126,13 +126,15 @@ export class RedisSession extends BaseSession {
 
   private async redisClient() {
     try {
+      const redis = await import("redis");
+
       if (this.CLIENT == null) {
         if (this.config.url != null) {
-          this.CLIENT = createClient({
+          this.CLIENT = redis.createClient({
             url: this.config.url,
           });
         } else {
-          this.CLIENT = createClient({
+          this.CLIENT = redis.createClient({
             username: this.config.username!,
             socket: {
               host: this.config.host || "localhost",

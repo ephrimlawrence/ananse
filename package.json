@@ -29,7 +29,8 @@
     "dev": "tsx --watch --trace-warnings tests/test_app.ts",
     "test": "tsx bin/test.ts",
     "simulate": "tsx src/cli/simulator.ts",
-    "build": "tsup"
+    "build": "tsup",
+    "prebuild": "rimraf dist"
   },
   "optionalDependencies": {
     "express": "^4.18.2",
@@ -45,6 +46,7 @@
     "@types/node": "^20.4.5",
     "tsup": "^8.0.1",
     "tsx": "^4.2.0",
-    "typescript": "^4.8.4"
+    "typescript": "^4.8.4",
+    "rimraf": "^5.0.1"
   }
 }
