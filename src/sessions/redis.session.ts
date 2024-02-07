@@ -1,5 +1,5 @@
 import { State } from "@src/models/ussd-state";
-import { BaseSession, SessionOptions } from "./base.session";
+import { BaseSession, RedisSessionOptions, SessionOptions } from "./base.session";
 import { RedisClientType, createClient } from "redis";
 
 export class RedisSession extends BaseSession {
@@ -21,7 +21,7 @@ export class RedisSession extends BaseSession {
     return RedisSession.instance;
   }
 
-  async configure(options?: SessionOptions): Promise<void> {
+  async configure(options?: RedisSessionOptions): Promise<void> {
     if (options == null) {
       throw new Error("Redis session configuration is required!");
     }
