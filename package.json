@@ -1,7 +1,22 @@
 {
-  "name": "scorpion",
+  "name": "ananse",
   "version": "1.0.0",
-  "description": "Scorpion is a simple, fast and powerful library for creating USSD applications with NodeJS/Typescript",
+  "description": "Ananse is a simple and fast library for creating USSD applications with NodeJS/Typescript",
+  "git": "https://github.com/ephrimlawrence/ananse",
+  "author": "Lawrence Ephrim",
+  "license": "ISC",
+  "keywords": [
+    "ussd",
+    "ussd builder",
+    "ussd menu",
+    "ussd route",
+    "nodejs",
+    "typescript",
+    "ananse",
+    "spider",
+    "rejoice"
+  ],
+  "entrypoint": "src/index.js",
   "scripts": {
     "tsc": "tsc",
     "tsx": "tsx",
@@ -9,8 +24,6 @@
     "test": "tsx bin/test.ts",
     "simulate": "tsx src/cli/simulator.ts"
   },
-  "author": "",
-  "license": "ISC",
   "optionalDependencies": {
     "express": "^4.18.2",
     "pg-promise": "^11.5.4",
