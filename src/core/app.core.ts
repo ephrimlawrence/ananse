@@ -28,7 +28,6 @@ export class App {
     );
   }
 
-  // TODO: implement express wrapper
   private async requestListener(req: IncomingMessage, res: ServerResponse) {
     const request = new Request(parse(req.url!, true), req);
 
@@ -64,22 +63,14 @@ export class App {
     if (req.method == "POST" || req.method == "PUT" || req.method == "PATCH") {
       let data = req.body;
 
-      // req.on("data", (chunk) => {
-      //   data += chunk;
-      // });
-
-      // req.on("end", () => {
       try {
         if (req.headers["content-type"] == "application/json") {
           request.body = data;
-
-          // request.body = JSON.parse(data);
         }
         // TODO: parse other content types
       } catch (error) {
         res.status(400).json({ error: "Invalid JSON format in the request body" })
       }
-      // });
     }
 
     const handler = new RequestHandler(request, res as unknown as Response, this.router);
