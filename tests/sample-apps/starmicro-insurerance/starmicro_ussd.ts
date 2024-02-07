@@ -44,6 +44,4 @@ router
 import "./menus/customer/index";
 import { Customer } from "./models/customer";
 
-app.listen(3000, "localhost", () => {
-  console.log("Server listening on port 3000");
-});
+export default app;

@@ -10,7 +10,6 @@ class Simulator {
   args: {
     phone?: string;
     host?: string;
-    port?: string;
     provider?: "hubtel" | "wigal";
     debug?: boolean | string;
   } = {};
@@ -20,9 +19,7 @@ class Simulator {
   }
 
   get baseUrl(): string {
-    return `${this.args.host || "http://localhost"}:${
-      this.args.port || "3000"
-    }`;
+    return `${this.args.host || "http://localhost:3000"}`;
   }
 
   // get generateRequestUrl(): string {
