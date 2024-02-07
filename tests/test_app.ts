@@ -66,6 +66,7 @@ class CloseAccount extends BaseMenu {
 }
 
 const app = new Ananse().configure({
+  gateway: "wigal",
   middlewares: [WigalGateway],
   session: { type: "redis" },
 });

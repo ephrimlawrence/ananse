@@ -6,6 +6,7 @@ import { MemcacheSession } from "./sessions/memcache.session";
 import { MySQLSession } from "./sessions/mysql.session";
 import { RedisSession } from "./sessions/redis.session";
 import { Type } from "./types";
+import { EmergentTechnologyGateway } from "./gateways/emergent_technology.gateway";
 
 export class Config {
   private static instance: Config;
@@ -30,10 +31,10 @@ export class Config {
     if (typeof options.gateway == "string") {
       switch (options.gateway) {
         case SupportGateway.wigal:
-          this.#gateway = WigalGateway
+          this.#gateway = WigalGateway;
           break;
         case SupportGateway.emergent_technology:
-          throw new Error("Emergent gateway not implemented!")
+          this.#gateway = EmergentTechnologyGateway;
           break;
       }
     } else {
