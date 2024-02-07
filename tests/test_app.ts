@@ -1,5 +1,5 @@
 import Ananse from "../src/core/app.core";
-import { WigalGateway } from "../src/gateways/wigal.middleware";
+import { WigalGateway } from "../src/gateways/wigal.gateway";
 import router from "../src/menus";
 import { BaseMenu } from "../src/menus";
 

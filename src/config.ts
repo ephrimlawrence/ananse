@@ -1,6 +1,6 @@
 import { SupportGateway } from "./helpers/constants";
-import { Gateway } from "./gateways/base.middleware";
-import { WigalGateway } from "./gateways/wigal.middleware";
+import { Gateway } from "./gateways/base.gateway";
+import { WigalGateway } from "./gateways/wigal.gateway";
 import { BaseSession, PostgresSession, SessionOptions } from "./sessions";
 import { MemcacheSession } from "./sessions/memcache.session";
 import { MySQLSession } from "./sessions/mysql.session";

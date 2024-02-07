@@ -6,7 +6,7 @@ import { Config, ConfigOptions } from "@src/config";
 import { BaseMenu, MenuAction } from "@src/menus";
 import { menuType, validateInput } from "@src/helpers/index.helper";
 import { FormMenuHandler } from "./form_handler";
-import { Gateway } from "@src/gateways/base.middleware";
+import { Gateway } from "@src/gateways/base.gateway";
 
 export class RequestHandler {
   constructor(

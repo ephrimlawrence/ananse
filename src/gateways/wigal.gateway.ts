@@ -1,5 +1,5 @@
 import { Request, Response } from "@src/types/request";
-import { Gateway } from "./base.middleware";
+import { Gateway } from "./base.gateway";
 import { State } from "@src/models/ussd-state";
 
 export class WigalGateway extends Gateway {

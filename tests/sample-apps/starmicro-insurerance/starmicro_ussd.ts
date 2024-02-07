@@ -1,7 +1,7 @@
 import { connect } from "mongoose";
 import { App, Request, Response } from "../../../src";
 import router from "../../../src/menus";
-import { WigalGateway } from "../../../src/gateways/wigal.middleware";
+import { WigalGateway } from "../../../src/gateways/wigal.gateway";
 import { MenuType } from "./enums";
 
 connect("mongodb://127.0.0.1:27017/starmicro-ussd").catch((err) =>
