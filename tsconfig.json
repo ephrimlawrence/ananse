@@ -3,14 +3,12 @@
     "module": "CommonJS",
     "declaration": true,
     "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "target": "es2017",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
-    "incremental": true,
+    "incremental": false,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "alwaysStrict": true,
@@ -46,11 +44,6 @@
       "tsconfig-paths/register"
     ]
   },
-  "include": [
-    "src",
-    "public",
-    "views"
-  ],
   "exclude": [
     "src/cli"
   ]
