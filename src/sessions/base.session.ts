@@ -28,7 +28,7 @@ export abstract class BaseSession {
   abstract getAll<T = unknown>(sessionId: string): Promise<T | undefined>;
 }
 
-export type SessionOptions = RedisSessionOptions | PostgresSessionOptions;
+export type SessionOptions = RedisSessionOptions | SQLSessionOptions;
 
 interface BaseSessionOptions {
   host?: string | undefined;
@@ -39,8 +39,8 @@ interface BaseSessionOptions {
   database?: string | number | undefined;
 }
 
-export interface PostgresSessionOptions extends BaseSessionOptions {
-  type: "postgres";
+export interface SQLSessionOptions extends BaseSessionOptions {
+  type: "postgres" | "mysql";
 
   /**
    * The name of the table to use for the session, default is `ussd_sessions`

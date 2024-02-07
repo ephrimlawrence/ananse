@@ -1,5 +1,5 @@
 import { State } from "@src/models/ussd-state";
-import { BaseSession, PostgresSessionOptions } from "./base.session";
+import { BaseSession, SQLSessionOptions } from "./base.session";
 
 /**
  * PostgreSQL session manager
@@ -26,7 +26,7 @@ import { BaseSession, PostgresSessionOptions } from "./base.session";
 export class PostgresSession extends BaseSession {
   private static instance: PostgresSession;
 
-  private config: PostgresSessionOptions;
+  private config: SQLSessionOptions;
   private db: any;
 
   private constructor() {
@@ -42,7 +42,7 @@ export class PostgresSession extends BaseSession {
     return PostgresSession.instance;
   }
 
-  async configure(options: PostgresSessionOptions): Promise<void> {
+  async configure(options: SQLSessionOptions): Promise<void> {
     if (options == null) {
       throw new Error("Postgres session configuration is required!");
     }

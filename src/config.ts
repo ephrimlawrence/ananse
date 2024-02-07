@@ -2,6 +2,7 @@ import { Middleware } from "./middlewares/base.middleware";
 import { DefaultMiddleware } from "./middlewares/default.middleware";
 import { BaseSession, PostgresSession, SessionOptions } from "./sessions";
 import { MemcacheSession } from "./sessions/memcache.session";
+import { MySQLSession } from "./sessions/mysql.session";
 import { RedisSession } from "./sessions/redis.session";
 import { Type } from "./types";
 
@@ -54,6 +55,9 @@ export class Config {
             break;
           case "postgres":
             this._session = PostgresSession.getInstance();
+            this._session.configure(_session);
+          case "mysql":
+            this._session = MySQLSession.getInstance();
             this._session.configure(_session);
           // case "mongo":
           //   throw new Error("Mongo session not implemented yet");

@@ -3,25 +3,23 @@ import { BaseSession, SQLSessionOptions } from "./base.session";
 import mysql from 'mysql2/promise';
 
 /**
- * PostgreSQL session manager
- * A session manager that uses postgres as the session store
+ * MySQL session manager
+ * A session manager that uses mysql as the session store
  *
  * It is assumed that database has a session table with following schema:
  * ```sql
  * CREATE TABLE ussd_sessions (
- *   id UUID PRIMARY KEY,
+ *   id INTEGER PRIMARY KEY AUTO_INCREMENT,
  *   session_id VARCHAR(255),
- *  state JSONB DEFAULT '{}',
- *   data JSONB DEFAULT '{}',
- *   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
- *   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
- *   deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NULL
+ *   state JSON DEFAULT '{}',
+ *   data JSON DEFAULT '{}',
+ *   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ *    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ *   deleted_at TIMESTAMP NULL DEFAULT NULL,
+ *   UNIQUE KEY session_uniq_key (session_id)
+ *   -- or uncomment the this for soft delete constraint
+ *   -- UNIQUE KEY session_uniq_key (session_id, deleted_at)
  * );
- * -- comment this out (and use the next code) if you want to use soft delete
- * CREATE UNIQUE INDEX session_uniq_key ON ussd_sessions (session_id);
- *
- * -- use this index, if soft delete is enabled
- * -- CREATE UNIQUE INDEX session_uniq_key ON ussd_session (session_id, deleted_at);
  * ```
  */
 export class MySQLSession extends BaseSession {
@@ -78,10 +76,9 @@ export class MySQLSession extends BaseSession {
     // Write postgres query to insert or update state
     await this.db.query(
       `INSERT INTO ? (session_id, state, created_at, updated_at, deleted_at) VALUES (?, ?, ?, ?, NULL)
-     ON CONFLICT (session_uniq_key) DO UPDATE SET state = ?, updated_at = ? WHERE session_id = ? ${this.softDeleteQuery}`,
+     ON CONFLICT (session_uniq_key) DO UPDATE SET state = ? WHERE session_id = ? ${this.softDeleteQuery}`,
       [this.config.tableName, sessionId,
-      JSON.stringify(state.toJSON()), new Date().toISOString(), JSON.stringify(state.toJSON()),
-      new Date().toISOString(), sessionId
+      JSON.stringify(state.toJSON()), new Date().toISOString(), JSON.stringify(state.toJSON()), sessionId
       ]
     );
     return state;
@@ -110,8 +107,8 @@ export class MySQLSession extends BaseSession {
       });
     } else {
       this.db.none(
-        `UPDATE ? SET updated_at = ?, deleted_at = ? WHERE session_id = ? ${this.softDeleteQuery}`,
-        [this.config.tableName, new Date().toISOString(), new Date().toISOString(), sessionId]
+        `UPDATE ? SET deleted_at = ? WHERE session_id = ? ${this.softDeleteQuery}`,
+        [this.config.tableName, new Date().toISOString(), sessionId]
       ).catch((error: Error) => {
         throw error;
       });
@@ -122,8 +119,8 @@ export class MySQLSession extends BaseSession {
 
   async set(sessionId: string, key: string, value: any): Promise<void> {
     const [val] = await this.db.query(
-      `UPDATE ? SET data = JSON_SET(data, '$.?', ?), updated_at = ? WHERE session_id = ? ${this.softDeleteQuery} RETURNING *`,
-      [this.config.tableName, key, JSON.stringify(value), new Date().toISOString(), sessionId]
+      `UPDATE ? SET data = JSON_SET(data, '$.?', ?) WHERE session_id = ? ${this.softDeleteQuery} RETURNING *`,
+      [this.config.tableName, key, JSON.stringify(value), sessionId]
     );
     return val;
   }
