@@ -6,13 +6,14 @@ import { Config, ConfigOptions } from "@src/config";
 import { BaseMenu, MenuAction } from "@src/menus";
 import { menuType, validateInput } from "@src/helpers/index.helper";
 import { FormMenuHandler } from "./form_handler";
+import { Gateway } from "@src/gateways/base.middleware";
 
 export class RequestHandler {
   constructor(
     private request: Request,
     private response: Response,
     private router: Menus
-  ) {}
+  ) { }
 
   private async setCurrentMenu(id: string, val: Menu, state: State) {
     state.menu ??= {
@@ -55,11 +56,11 @@ export class RequestHandler {
       currentMenu = (await this.navigateToNextMenu(state, nextMenu)).menu!;
       this.response.data = await this.buildResponse(currentMenu, state);
 
-      await this.resolveMiddlewares("response");
+      await this.resolveGateway("response");
       return this.response;
     }
 
-    await this.resolveMiddlewares("response");
+    await this.resolveGateway("response");
     return this.response;
   }
 
@@ -69,7 +70,7 @@ export class RequestHandler {
     let currentMenu: Menu | undefined = undefined;
 
     // Resolve middlewares
-    const state = (await this.resolveMiddlewares("request"))!;
+    const state = (await this.resolveGateway("request"))!;
 
     // Initialize state menu object
     state.menu ??= {
@@ -90,7 +91,7 @@ export class RequestHandler {
       currentMenu = await this.lookupMenu(state);
       this.response.data = await this.buildResponse(currentMenu, state);
 
-      await this.resolveMiddlewares("response");
+      await this.resolveGateway("response");
       return this.response;
     } else {
       currentMenu = await this.lookupMenu(state);
@@ -108,7 +109,7 @@ export class RequestHandler {
 
     if (error != null) {
       this.response.data = error;
-      await this.resolveMiddlewares("response");
+      await this.resolveGateway("response");
 
       return this.response;
     }
@@ -124,7 +125,7 @@ export class RequestHandler {
 
     this.response.data = await this.buildResponse(currentMenu, state);
 
-    await this.resolveMiddlewares("response");
+    await this.resolveGateway("response");
     return this.response;
   }
 
@@ -317,7 +318,7 @@ export class RequestHandler {
           state.action = action;
           break;
         }
-      } catch (e) {}
+      } catch (e) { }
     }
 
     this.session.setState(state.sessionId, state);
@@ -349,22 +350,18 @@ export class RequestHandler {
     return instance;
   }
 
-  private async resolveMiddlewares(stage: "request" | "response") {
+  private async resolveGateway(stage: "request" | "response") {
     if (stage == "request") {
-      for (const middleware of this.config.middlewares) {
-        const item = new middleware(this.request, this.response);
-        const _state = (await item.handleRequest(this.request, this.response))!;
-        await this.session.setState(_state.sessionId, _state)!;
+      const item = new this.config.gateway(this.request, this.response);
+      const _state = (await item.handleRequest(this.request, this.response))!;
+      await this.session.setState(_state.sessionId, _state)!;
 
-        return _state;
-      }
+      return _state;
     }
 
     if (stage == "response") {
-      for (const middleware of this.config.middlewares) {
-        const item = new middleware(this.request, this.response);
-        await item.handleResponse(this.request, this.response);
-      }
+      const item = new this.config.gateway(this.request, this.response);
+      await item.handleResponse(this.request, this.response);
     }
 
     return;

@@ -3,7 +3,7 @@ import { State } from "@src/models/ussd-state";
 import { Config } from "@src/config";
 import { BaseSession } from "@src/sessions";
 
-export abstract class Middleware {
+export abstract class Gateway {
   constructor(
     protected readonly request: Request,
     protected readonly response: Response
@@ -33,3 +33,5 @@ export abstract class Middleware {
   // # AND
   // # return response based on the expected format of the ussd gateway
 }
+
+    // TODO: add africstalking, etc

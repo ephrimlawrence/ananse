@@ -1,5 +1,6 @@
-import { Middleware } from "./middlewares/base.middleware";
-import { DefaultMiddleware } from "./middlewares/default.middleware";
+import { SupportGateway } from "./helpers/constants";
+import { Gateway } from "./gateways/base.middleware";
+import { WigalGateway } from "./gateways/wigal.middleware";
 import { BaseSession, PostgresSession, SessionOptions } from "./sessions";
 import { MemcacheSession } from "./sessions/memcache.session";
 import { MySQLSession } from "./sessions/mysql.session";
@@ -9,7 +10,7 @@ import { Type } from "./types";
 export class Config {
   private static instance: Config;
 
-  private _middlewares: Type<Middleware>[] = [];
+  #gateway: Type<Gateway>;
 
   private _session: BaseSession | undefined = undefined;
 
@@ -26,10 +27,18 @@ export class Config {
   }
 
   init(options: ConfigOptions) {
-    if ((options.middlewares || []).length == 0) {
-      this._middlewares = [DefaultMiddleware];
+    if (typeof options.gateway == "string") {
+      switch (options.gateway) {
+        case SupportGateway.wigal:
+          this.#gateway = WigalGateway
+          break;
+        case SupportGateway.emergent_technology:
+          throw new Error("Emergent gateway not implemented!")
+          break;
+      }
     } else {
-      this._middlewares = options.middlewares!;
+
+      // TODO: implement for custom gateway class
     }
 
     // Resolve session
@@ -72,8 +81,8 @@ export class Config {
     return this;
   }
 
-  get middlewares(): Type<Middleware>[] {
-    return this._middlewares;
+  get gateway(): Type<Gateway> {
+    return this.#gateway
   }
 
   get session(): BaseSession | undefined {
@@ -84,6 +93,7 @@ export class Config {
 type CustomSession = Type<BaseSession>;
 
 export interface ConfigOptions {
-  middlewares?: Type<Middleware>[];
+  middlewares?: Type<Gateway>[];
   session?: "memory" | SessionOptions | CustomSession;
+  gateway: keyof typeof SupportGateway
 }

@@ -1,5 +1,5 @@
 import Ananse from "../src/core/app.core";
-import { DefaultMiddleware } from "../src/middlewares/default.middleware";
+import { WigalGateway } from "../src/gateways/wigal.middleware";
 import router from "../src/menus";
 import { BaseMenu } from "../src/menus";
 
@@ -66,7 +66,7 @@ class CloseAccount extends BaseMenu {
 }
 
 const app = new Ananse().configure({
-  middlewares: [DefaultMiddleware],
+  middlewares: [WigalGateway],
   session: { type: "redis" },
 });
 

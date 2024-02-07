@@ -1,7 +1,7 @@
 import { connect } from "mongoose";
 import { App, Request, Response } from "../../../src";
 import router from "../../../src/menus";
-import { DefaultMiddleware } from "../../../src/middlewares/default.middleware";
+import { WigalGateway } from "../../../src/gateways/wigal.middleware";
 import { MenuType } from "./enums";
 
 connect("mongodb://127.0.0.1:27017/starmicro-ussd").catch((err) =>
@@ -9,7 +9,9 @@ connect("mongodb://127.0.0.1:27017/starmicro-ussd").catch((err) =>
 );
 
 const app = new App().configure({
-  middlewares: [DefaultMiddleware],
+  gateway: "wigal",
+  // TODO: rename to 'customGateway' or extend 'gateway' to accept custom gateway class
+  middlewares: [WigalGateway],
   session: { type: "redis" }, // TODO: implement mongodb session
 });
 

@@ -1,6 +1,6 @@
 import { getActiveTest, test } from "@japa/runner";
 import router, { BaseMenu } from "../src/menus";
-import { DefaultMiddleware } from "../src/middlewares/default.middleware";
+import { WigalGateway } from "../src/gateways/default.middleware";
 import Ananse from "../src/core/app.core";
 import { promisify } from "util";
 

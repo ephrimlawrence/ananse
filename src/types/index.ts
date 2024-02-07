@@ -15,10 +15,6 @@ export interface Type<T = any> extends Function {
   new (...args: any[]): T;
 }
 
-export enum Gateway {
-  wigal = "wigal",
-  hubtel = "hubtel",
-}
 
 export type Session = {
   get: <T>(key: string, defaultValue?: any) => Promise<T | undefined>;
