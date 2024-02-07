@@ -1,9 +1,5 @@
 import { State } from "@src/models/ussd-state";
-import { BaseSession, PostgresSessionOptions, SessionOptions } from "./base.session";
-import pgPromise from 'pg-promise';
-
-
-import { RedisClientType, createClient } from "redis";
+import { BaseSession, PostgresSessionOptions } from "./base.session";
 
 export class PostgresSession extends BaseSession {
   private static instance: PostgresSession;
@@ -31,7 +27,15 @@ export class PostgresSession extends BaseSession {
     this.config = options;
     this.config.tableName ??= "ussd_sessions";
 
-    const pgp = pgPromise({
+    let pgPromise;
+
+    try {
+      pgPromise = await import('pg-promise');
+    } catch (error) {
+      throw new Error("'pg-promise' module is required for postgres session. Please install it using 'npm install pg-promise' or 'yarn add pg-promise'")
+    }
+
+    const pgp = pgPromise.default({
       capSQL: true, // capitalize all generated SQL
       schema: [options?.schema || 'public'],
     });
@@ -56,8 +60,8 @@ export class PostgresSession extends BaseSession {
 
     // Update the state in the database
     await this.db.none(
-      `UPDATE $1~.$2~ SET state = $3, updated_at = $4 WHERE session_id = $5 ${this.softDeleteQuery}`,
-      [this.config.schema, this.config.tableName, state.toJSON(), sessionId, new Date().toISOString()]
+      `UPDATE $1~.$2~ SET state = $3::jsonb, updated_at = $4 WHERE session_id = $5 ${this.softDeleteQuery}`,
+      [this.config.schema, this.config.tableName, JSON.stringify(state.toJSON()), sessionId, new Date().toISOString()]
     )
     return state;
   }
@@ -76,20 +80,29 @@ export class PostgresSession extends BaseSession {
     delete this.states[sessionId];
     delete this.data[sessionId];
 
-    this.db.none(
-      `DELETE FROM $1~.$2~ WHERE session_id = $3 ${this.softDeleteQuery}`,
-      [this.config.schema, this.config.tableName, sessionId]
-    ).catch((error: Error) => {
-      throw error;
-    });
+    if (this.config.softDelete == false || this.config.softDelete == null) {
+      this.db.none(
+        "DELETE FROM $1~.$2~ WHERE session_id = $3",
+        [this.config.schema, this.config.tableName, sessionId]
+      ).catch((error: Error) => {
+        throw error;
+      });
+    } else {
+      this.db.none(
+        `UPDATE $1~.$2~ SET updated_at = $3, deleted_at = $3 WHERE session_id = $4 ${this.softDeleteQuery}`,
+        [this.config.schema, this.config.tableName, new Date().toISOString(), sessionId]
+      ).catch((error: Error) => {
+        throw error;
+      });
+    }
 
     return _state;
   }
 
   async set(sessionId: string, key: string, value: any): Promise<void> {
     const val = await this.db.one(
-      `UPDATE $1~.$2~ SET data = jsonb_set(data, '{$3}', $4::jsonb) WHERE session_id = $4 ${this.softDeleteQuery} RETURNING *`,
-      [this.config.schema, this.config.tableName, key, JSON.stringify(value), sessionId]
+      `UPDATE $1~.$2~ SET data = jsonb_set(data, '{$3}', $4::jsonb), updated_at = $4 WHERE session_id = $5 ${this.softDeleteQuery} RETURNING *`,
+      [this.config.schema, this.config.tableName, key, JSON.stringify(value), new Date().toISOString(), sessionId]
     );
     return val;
   }
@@ -99,8 +112,10 @@ export class PostgresSession extends BaseSession {
     key: string,
     defaultValue?: T
   ): Promise<T | undefined> {
-    await this.redisClient();
-    const val = await this.CLIENT.get(`${sessionId}:data`);
+    const val = await this.db.one(
+      `SELECT data FROM $1~.$2~ WHERE session_id = $3 ${this.softDeleteQuery}`,
+      [this.config.schema, this.config.tableName, sessionId]
+    );
 
     if (val == null) {
       return defaultValue;
@@ -110,8 +125,9 @@ export class PostgresSession extends BaseSession {
   }
 
   async getAll<T>(sessionId: string): Promise<T | undefined> {
-    const val = await this.redisClient().then((client) =>
-      client.get(`${sessionId}:data`)
+    const val = await this.db.one(
+      `SELECT data FROM $1~.$2~ WHERE session_id = $3 ${this.softDeleteQuery}`,
+      [this.config.schema, this.config.tableName, sessionId]
     );
 
     if (val == null) {
@@ -119,34 +135,5 @@ export class PostgresSession extends BaseSession {
     }
 
     return JSON.parse(val) as T;
-  }
-
-  private async redisClient() {
-    try {
-      if (this.CLIENT == null) {
-        if (this.config.url != null) {
-          this.CLIENT = createClient({
-            url: this.config.url,
-          });
-        } else {
-          this.CLIENT = createClient({
-            username: this.config.username!,
-            socket: {
-              host: this.config.host || "localhost",
-              port: this.config.port || 6379,
-            },
-            database: this.config.database as number,
-            password: this.config.password!,
-          });
-        }
-      }
-      if (!this.CLIENT?.isOpen) {
-        await this.CLIENT.connect();
-      }
-
-      return this.CLIENT;
-    } catch (error) {
-      throw error;
-    }
   }
 }

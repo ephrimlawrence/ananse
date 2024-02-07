@@ -1,6 +1,6 @@
 import { Middleware } from "./middlewares/base.middleware";
 import { DefaultMiddleware } from "./middlewares/default.middleware";
-import { BaseSession, SessionOptions } from "./sessions";
+import { BaseSession, PostgresSession, SessionOptions } from "./sessions";
 import { MemcacheSession } from "./sessions/memcache.session";
 import { RedisSession } from "./sessions/redis.session";
 import { Type } from "./types";
@@ -14,7 +14,7 @@ export class Config {
 
   // private states: { [key: string]: State } = {};
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): Config {
     if (!Config.instance) {
@@ -52,15 +52,15 @@ export class Config {
             this._session = RedisSession.getInstance();
             this._session.configure(_session);
             break;
-          case "mongo":
-            throw new Error("Mongo session not implemented yet");
           case "postgres":
-            throw new Error("Postgres session not implemented yet");
+            this._session = PostgresSession.getInstance();
+            this._session.configure(_session);
+          // case "mongo":
+          //   throw new Error("Mongo session not implemented yet");
           default:
             throw new Error("Invalid session type");
         }
       }
-      console.log(typeof _session);
       // A session class is provided, so we need to create a new instance of the session
       // this._session = _session as unknown as Session;
     }

@@ -27,3 +27,6 @@
 // }
 
 export { BaseSession, SessionOptions } from "./base.session";
+export { RedisSession } from "./redis.session";
+export { PostgresSession } from "./postgresql.session";
+export { MemcacheSession } from "./memcache.session";
