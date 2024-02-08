@@ -6,7 +6,7 @@ import { Request, Response } from "@src/types/request";
 export abstract class BaseMenu {
   constructor(
     protected readonly request: Request,
-    protected readonly response: Response
+    protected readonly response: Response,
   ) {}
 
   async validate(data?: string): Promise<ValidationResponse> {
@@ -32,7 +32,7 @@ export abstract class BaseMenu {
         return await Config.getInstance().session?.get<T>(
           this.sessionId!,
           key,
-          defaultValue
+          defaultValue,
         );
       },
       getAll: <T>() => {

@@ -64,7 +64,7 @@ class UssdTestRunner {
   async startServer() {
     if (this.#config.app == null && this.#url == null) {
       throw new Error(
-        "Please provide an app to start the server, or a url to make request to"
+        "Please provide an app to start the server, or a url to make request to",
       );
     }
 
@@ -109,7 +109,7 @@ class UssdTestRunner {
   async send(url?: string) {
     if (this.#config.app == null && this.#config.url == null) {
       throw new Error(
-        "Please provide an app to start the server, or a url to make request to"
+        "Please provide an app to start the server, or a url to make request to",
       );
     }
 
@@ -121,7 +121,7 @@ class UssdTestRunner {
 
     if ((this.#inputs || []).length == 0) {
       throw new Error(
-        "No input provided. Please provide input using the input() or steps() method"
+        "No input provided. Please provide input using the input() or steps() method",
       );
     }
 
@@ -201,7 +201,7 @@ class UssdTestRunner {
       };
     } else {
       throw new Error(
-        `Response parsing is not implemented for ${this.#provider}`
+        `Response parsing is not implemented for ${this.#provider}`,
       );
     }
   }

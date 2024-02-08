@@ -6,8 +6,10 @@ import { Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
 import { RequestHandler } from "./request_handler";
 // @ts-ignore
-import type { Request as ExpressRequest, Response as ExpressResponse } from "express";
-
+import type {
+  Request as ExpressRequest,
+  Response as ExpressResponse,
+} from "express";
 
 export class Ananse {
   private router: Menus;
@@ -23,7 +25,7 @@ export class Ananse {
     return createServer((req, res) => this.requestListener(req, res)).listen(
       port,
       hostname,
-      listeningListener
+      listeningListener,
     );
   }
 
@@ -46,7 +48,9 @@ export class Ananse {
         } catch (error) {
           res.writeHead(400, { "Content-Type": "application/json" });
           res.end(
-            JSON.stringify({ error: "Invalid JSON format in the request body" })
+            JSON.stringify({
+              error: "Invalid JSON format in the request body",
+            }),
           );
         }
       });
@@ -68,15 +72,19 @@ export class Ananse {
         }
         // TODO: parse other content types
       } catch (error) {
-        res.status(400).json({ error: "Invalid JSON format in the request body" })
+        res
+          .status(400)
+          .json({ error: "Invalid JSON format in the request body" });
       }
     }
 
-    const handler = new RequestHandler(request, res as unknown as Response, this.router);
+    const handler = new RequestHandler(
+      request,
+      res as unknown as Response,
+      this.router,
+    );
     return await handler.processRequest();
-
   }
-
 }
 
 export default Ananse;

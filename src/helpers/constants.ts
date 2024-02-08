@@ -3,5 +3,5 @@
  */
 export enum SupportGateway {
   wigal = "wigal",
-  emergent_technology = "emergent_technology"
+  emergent_technology = "emergent_technology",
 }

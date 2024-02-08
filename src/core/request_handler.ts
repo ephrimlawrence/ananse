@@ -12,8 +12,8 @@ export class RequestHandler {
   constructor(
     private request: Request,
     private response: Response,
-    private router: Menus
-  ) { }
+    private router: Menus,
+  ) {}
 
   private async setCurrentMenu(id: string, val: Menu, state: State) {
     state.menu ??= {
@@ -44,7 +44,7 @@ export class RequestHandler {
     const formHandler = new FormMenuHandler(
       this.request,
       this.response,
-      currentMenu
+      currentMenu,
     );
     const nextMenu = await formHandler.handle();
 
@@ -132,7 +132,7 @@ export class RequestHandler {
   private async validateUserData(
     state: State,
     menu: Menu,
-    error?: string
+    error?: string,
   ): Promise<string | undefined> {
     let result = await validateInput({
       state: state,
@@ -153,7 +153,7 @@ export class RequestHandler {
   private async buildResponse(
     menu: Menu | undefined,
     state: State,
-    errorMessage?: string
+    errorMessage?: string,
   ) {
     if (errorMessage != null) {
       return errorMessage;
@@ -170,7 +170,7 @@ export class RequestHandler {
     } else {
       message = await (menu as DynamicMenu).getMessage(
         this.request,
-        this.response
+        this.response,
       );
     }
 
@@ -230,7 +230,7 @@ export class RequestHandler {
 
     const _next = await (currentMenu as DynamicMenu).getDefaultNextMenu(
       this.request,
-      this.response
+      this.response,
     );
 
     if (_next != null) {
@@ -318,7 +318,7 @@ export class RequestHandler {
           state.action = action;
           break;
         }
-      } catch (e) { }
+      } catch (e) {}
     }
 
     this.session.setState(state.sessionId, state);
@@ -346,7 +346,7 @@ export class RequestHandler {
     this.setCurrentMenu(id!, instance, state);
 
     // Update session mode
-    state.mode = StateMode.more
+    state.mode = StateMode.more;
     return instance;
   }
 
@@ -383,19 +383,19 @@ export class RequestHandler {
         return await Config.getInstance().session?.get<T>(
           this.request.state.sessionId!,
           key,
-          defaultValue
+          defaultValue,
         );
       },
       getAll: <T>() => {
         return Config.getInstance().session?.getAll<T>(
-          this.request.state.sessionId
+          this.request.state.sessionId,
         );
       },
       set: (key: string, val: any) =>
         Config.getInstance().session?.set(
           this.request.state.sessionId,
           key,
-          val
+          val,
         ),
     };
   }

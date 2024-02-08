@@ -21,7 +21,6 @@ export class WigalGateway extends Gateway {
     this.request.state = _state;
     this.request.input = this.request.query?.userdata!;
 
-
     return _state;
   }
 
@@ -33,8 +32,10 @@ export class WigalGateway extends Gateway {
 
   private async wigalResponse(): Promise<string> {
     const data = (await this.state)!;
-    return `${this.request.query?.network}|${data?.mode}|${data?.msisdn}|${data?.sessionId
-      }|${this.response.data}|${this.request.query?.username}|${this.request.query?.trafficid
-      }|${data?.menu?.nextMenu || ""}`;
+    return `${this.request.query?.network}|${data?.mode}|${data?.msisdn}|${
+      data?.sessionId
+    }|${this.response.data}|${this.request.query?.username}|${
+      this.request.query?.trafficid
+    }|${data?.menu?.nextMenu || ""}`;
   }
 }

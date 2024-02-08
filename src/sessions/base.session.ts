@@ -22,7 +22,7 @@ export abstract class BaseSession {
   abstract get<T>(
     sessionId: string,
     key: string,
-    defaultValue?: T
+    defaultValue?: T,
   ): Promise<T | undefined>;
 
   abstract getAll<T = unknown>(sessionId: string): Promise<T | undefined>;

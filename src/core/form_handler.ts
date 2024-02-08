@@ -11,7 +11,7 @@ export class FormMenuHandler {
   constructor(
     private readonly request: Request,
     private readonly response: Response,
-    private readonly menu: Menu
+    private readonly menu: Menu,
   ) {}
 
   #currentInput: FormInput | undefined = undefined;
@@ -69,7 +69,7 @@ export class FormMenuHandler {
     // or else fallback to the current input
     if (this.state.form?.nextInput != null) {
       this.#currentInput = this.#formInputs.find(
-        (item) => item.name == this.state.form?.nextInput
+        (item) => item.name == this.state.form?.nextInput,
       );
     }
 
@@ -88,7 +88,7 @@ export class FormMenuHandler {
 
     if (this.#currentInput == null) {
       throw new Error(
-        `Input #${this.state.form?.id} is not defined in form/menu #${this.state.menu}`
+        `Input #${this.state.form?.id} is not defined in form/menu #${this.state.menu}`,
       );
     }
 
@@ -112,7 +112,7 @@ export class FormMenuHandler {
       const temp =
         (await this.session.get<Record<string, string>>(
           this.state.sessionId,
-          this.state.form!.id!
+          this.state.form!.id!,
         )) ?? {};
 
       temp[this.#currentInput.name] = this.state.userData;
@@ -126,19 +126,19 @@ export class FormMenuHandler {
           return await Config.getInstance().session?.get<T>(
             this.request.state.sessionId!,
             key,
-            defaultValue
+            defaultValue,
           );
         },
         getAll: <T>() => {
           return Config.getInstance().session?.getAll<T>(
-            this.request.state.sessionId
+            this.request.state.sessionId,
           );
         },
         set: (key: string, val: any) =>
           Config.getInstance().session?.set(
             this.request.state.sessionId,
             key,
-            val
+            val,
           ),
       });
     }
@@ -167,9 +167,7 @@ export class FormMenuHandler {
       this.#currentInput?.next_menu != null
     ) {
       throw new Error(
-        `Input #${
-          this.#currentInput
-        } has both next_input and next_menu defined. Please define only one`
+        `Input #${this.#currentInput} has both next_input and next_menu defined. Please define only one`,
       );
     }
 
@@ -193,19 +191,19 @@ export class FormMenuHandler {
       this.state.form!.nextInput = this.#currentInput.next_input;
     } else if (typeof this.#currentInput.next_input == "function") {
       this.state.form!.nextInput = await this.#currentInput.next_input(
-        this.request
+        this.request,
       );
     }
 
     // Lookup the next input
     this.#nextInput = await this.#formInputs.find(
-      (item) => item.name == this.state.form?.nextInput
+      (item) => item.name == this.state.form?.nextInput,
     );
     if (this.#nextInput == null) {
       await this.endSession();
 
       throw new Error(
-        `Input #${this.state.form?.nextInput} is not defined in form/menu #${this.state.menu}`
+        `Input #${this.state.form?.nextInput} is not defined in form/menu #${this.state.menu}`,
       );
     }
   }

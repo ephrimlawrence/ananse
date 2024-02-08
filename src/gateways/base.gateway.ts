@@ -6,7 +6,7 @@ import { BaseSession } from "@src/sessions";
 export abstract class Gateway {
   constructor(
     protected readonly request: Request,
-    protected readonly response: Response
+    protected readonly response: Response,
   ) {}
 
   get state(): Promise<State | undefined> {
@@ -25,7 +25,7 @@ export abstract class Gateway {
   // # extract session from redis
   abstract handleRequest(
     req: Request,
-    resp: Response
+    resp: Response,
   ): Promise<State | undefined>;
 
   abstract handleResponse(req: Request, resp: Response): Promise<void>;
@@ -34,4 +34,4 @@ export abstract class Gateway {
   // # return response based on the expected format of the ussd gateway
 }
 
-    // TODO: add africstalking, etc
+// TODO: add africstalking, etc

@@ -15,9 +15,7 @@ export class Config {
 
   private _session: BaseSession | undefined = undefined;
 
-  // private states: { [key: string]: State } = {};
-
-  private constructor() { }
+  private constructor() {}
 
   public static getInstance(): Config {
     if (!Config.instance) {
@@ -38,7 +36,6 @@ export class Config {
           break;
       }
     } else {
-
       // TODO: implement for custom gateway class
     }
 
@@ -83,7 +80,7 @@ export class Config {
   }
 
   get gateway(): Type<Gateway> {
-    return this.#gateway
+    return this.#gateway;
   }
 
   get session(): BaseSession | undefined {
@@ -96,5 +93,5 @@ type CustomSession = Type<BaseSession>;
 export interface ConfigOptions {
   middlewares?: Type<Gateway>[];
   session?: "memory" | SessionOptions | CustomSession;
-  gateway: keyof typeof SupportGateway
+  gateway: keyof typeof SupportGateway;
 }

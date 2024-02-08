@@ -34,7 +34,7 @@ export class DynamicMenu {
   }
 
   defaultNextMenu(
-    menu: string | ((req: Request, res: Response) => Promise<string> | string)
+    menu: string | ((req: Request, res: Response) => Promise<string> | string),
   ): DynamicMenu {
     this._nextMenu = menu;
     return this;
@@ -43,7 +43,7 @@ export class DynamicMenu {
   actions(items: MenuAction[]): DynamicMenu {
     if (this._action != undefined) {
       throw new Error(
-        "Cannot set options for a menu with an action. Menu #${this._id} has an action defined"
+        "Cannot set options for a menu with an action. Menu #${this._id} has an action defined",
       );
     }
 
@@ -103,7 +103,7 @@ export class DynamicMenu {
 
   async getDefaultNextMenu(
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<string | undefined> {
     if (typeof this._nextMenu == "function") {
       return this._nextMenu(req, res);
@@ -113,7 +113,7 @@ export class DynamicMenu {
 
   async validateInput(
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<ValidationResponse> {
     if (this._validation == null) {
       return true;

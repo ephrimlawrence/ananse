@@ -1,6 +1,6 @@
 import { State } from "@src/models/ussd-state";
 import { BaseSession, SQLSessionOptions } from "./base.session";
-import mysql from 'mysql2/promise';
+import mysql from "mysql2/promise";
 
 /**
  * MySQL session manager
@@ -32,7 +32,6 @@ export class MySQLSession extends BaseSession {
     super();
   }
 
-
   public static getInstance(): MySQLSession {
     if (!MySQLSession.instance) {
       MySQLSession.instance = new MySQLSession();
@@ -51,21 +50,24 @@ export class MySQLSession extends BaseSession {
     let mysql;
 
     try {
-      mysql = await import('mysql2/promise');
+      mysql = await import("mysql2/promise");
     } catch (error) {
-      throw new Error("'mysql2/promise' module is required for postgres session. Please install it using 'npm install mysql2/promise' or 'yarn add mysql2/promise'")
+      throw new Error(
+        "'mysql2/promise' module is required for postgres session. Please install it using 'npm install mysql2/promise' or 'yarn add mysql2/promise'",
+      );
     }
 
     this.db = await mysql.createConnection({
-      host: this.config?.host || 'localhost',
-      user: this.config.username || 'root',
+      host: this.config?.host || "localhost",
+      user: this.config.username || "root",
       database: this.config.database,
       password: this.config.password as string,
     });
   }
 
   private get softDeleteQuery() {
-    if (this.config.softDelete == false || this.config.softDelete == null) return "";
+    if (this.config.softDelete == false || this.config.softDelete == null)
+      return "";
 
     return "AND deleted_at IS NULL";
   }
@@ -77,9 +79,14 @@ export class MySQLSession extends BaseSession {
     await this.db.query(
       `INSERT INTO ? (session_id, state, created_at, updated_at, deleted_at) VALUES (?, ?, ?, ?, NULL)
      ON CONFLICT (session_uniq_key) DO UPDATE SET state = ? WHERE session_id = ? ${this.softDeleteQuery}`,
-      [this.config.tableName, sessionId,
-      JSON.stringify(state.toJSON()), new Date().toISOString(), JSON.stringify(state.toJSON()), sessionId
-      ]
+      [
+        this.config.tableName,
+        sessionId,
+        JSON.stringify(state.toJSON()),
+        new Date().toISOString(),
+        JSON.stringify(state.toJSON()),
+        sessionId,
+      ],
     );
     return state;
   }
@@ -87,7 +94,7 @@ export class MySQLSession extends BaseSession {
   async getState(sessionId: string) {
     const [val, _fields] = await this.db.query(
       `SELECT state FROM ? WHERE session_id = ? ${this.softDeleteQuery}`,
-      [this.config.tableName, sessionId]
+      [this.config.tableName, sessionId],
     );
 
     return val == null ? undefined : State.fromJSON(JSON.parse(val));
@@ -99,19 +106,23 @@ export class MySQLSession extends BaseSession {
     delete this.data[sessionId];
 
     if (this.config.softDelete == false || this.config.softDelete == null) {
-      this.db.query(
-        "DELETE FROM ? WHERE session_id = ?",
-        [this.config.tableName, sessionId]
-      ).catch((error: Error) => {
-        throw error;
-      });
+      this.db
+        .query("DELETE FROM ? WHERE session_id = ?", [
+          this.config.tableName,
+          sessionId,
+        ])
+        .catch((error: Error) => {
+          throw error;
+        });
     } else {
-      this.db.none(
-        `UPDATE ? SET deleted_at = ? WHERE session_id = ? ${this.softDeleteQuery}`,
-        [this.config.tableName, new Date().toISOString(), sessionId]
-      ).catch((error: Error) => {
-        throw error;
-      });
+      this.db
+        .none(
+          `UPDATE ? SET deleted_at = ? WHERE session_id = ? ${this.softDeleteQuery}`,
+          [this.config.tableName, new Date().toISOString(), sessionId],
+        )
+        .catch((error: Error) => {
+          throw error;
+        });
     }
 
     return _state;
@@ -120,7 +131,7 @@ export class MySQLSession extends BaseSession {
   async set(sessionId: string, key: string, value: any): Promise<void> {
     const [val] = await this.db.query(
       `UPDATE ? SET data = JSON_SET(data, '$.?', ?) WHERE session_id = ? ${this.softDeleteQuery} RETURNING *`,
-      [this.config.tableName, key, JSON.stringify(value), sessionId]
+      [this.config.tableName, key, JSON.stringify(value), sessionId],
     );
     return val;
   }
@@ -128,11 +139,11 @@ export class MySQLSession extends BaseSession {
   async get<T>(
     sessionId: string,
     key: string,
-    defaultValue?: T
+    defaultValue?: T,
   ): Promise<T | undefined> {
     const [val] = await this.db.one(
       `SELECT data FROM ? WHERE session_id = ? ${this.softDeleteQuery}`,
-      [this.config.tableName, sessionId]
+      [this.config.tableName, sessionId],
     );
 
     if (val == null) {
@@ -145,7 +156,7 @@ export class MySQLSession extends BaseSession {
   async getAll<T>(sessionId: string): Promise<T | undefined> {
     const [val] = await this.db.one(
       `SELECT data FROM ? WHERE session_id = ? ${this.softDeleteQuery}`,
-      [this.config.tableName, sessionId]
+      [this.config.tableName, sessionId],
     );
 
     if (val == null) {

@@ -13,7 +13,6 @@
 //   // TODO: validate that either route or action is provided
 // }
 
-
 // export interface AddMenu {
 //   name: string;
 //   start?: boolean;

@@ -24,28 +24,29 @@ export class EmergentTechnologyGateway extends Gateway {
     const body = this.request.body as IEmergentRequest;
 
     _state.mode = this.getMode(body.Type.toLowerCase());
-    _state.msisdn = body.Mobile
+    _state.msisdn = body.Mobile;
     _state.sessionId = body.SessionId;
-    _state.userData = body.Message
+    _state.userData = body.Message;
 
     this.request.state = _state;
 
     // The content of Message for session initiation is always the service short code value
     // We don't really need it given that is start of a session
     if (_state.mode == StateMode.start) {
-      this.request.input = ""
+      this.request.input = "";
     } else {
-      this.request.input = body.Message
+      this.request.input = body.Message;
     }
-
 
     return _state;
   }
 
   async handleResponse(_req: Request, res: Response): Promise<void> {
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end({ Message: this.response.data, Type: StateMode.more ? "Response" : "Release" }
-    );
+    res.end({
+      Message: this.response.data,
+      Type: StateMode.more ? "Response" : "Release",
+    });
   }
 
   private getMode(type: string): StateMode {
@@ -53,10 +54,10 @@ export class EmergentTechnologyGateway extends Gateway {
       case "initiation":
         return StateMode.start;
       case "response":
-        return StateMode.more
+        return StateMode.more;
       case "release":
       case "timeout":
-        return StateMode.end
+        return StateMode.end;
       default:
         return StateMode.start;
     }

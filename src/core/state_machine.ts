@@ -2,7 +2,6 @@
 // const async = require('async');
 // const EventEmitter = require('events');
 
-
 // class UssdMenu extends EventEmitter {
 
 //     constructor(opts = {}) {
@@ -70,7 +69,6 @@
 //         }
 //     }
 
-
 //     formatResponse(response, formatter) {
 //         if (formatter) {
 //             return formatter(response);
@@ -78,7 +76,6 @@
 //             throw new Error('No formatter provided');
 //         }
 //     }
-
 
 //     testLinkRule(rule, val) {
 //         //if rule starts with *, treat as regex
@@ -317,7 +314,6 @@
 //         // default defaultNext to same state
 //         state.defaultNext = options.defaultNext || name;
 
-
 //         return this;
 //     }
 
@@ -429,7 +425,6 @@
 // }
 
 // UssdMenu.START_STATE = '__start__';
-
 
 // class UssdState {
 

@@ -63,7 +63,7 @@ export class RedisSession extends BaseSession {
     this.states[sessionId] = state;
 
     await this.redisClient().then((client) =>
-      client.set(`${sessionId}:state`, JSON.stringify(state.toJSON()))
+      client.set(`${sessionId}:state`, JSON.stringify(state.toJSON())),
     );
     return state;
   }
@@ -93,14 +93,14 @@ export class RedisSession extends BaseSession {
     data[key] = value;
 
     await this.redisClient().then((client) =>
-      client.set(`${sessionId}:data`, JSON.stringify(data))
+      client.set(`${sessionId}:data`, JSON.stringify(data)),
     );
   }
 
   async get<T>(
     sessionId: string,
     key: string,
-    defaultValue?: T
+    defaultValue?: T,
   ): Promise<T | undefined> {
     await this.redisClient();
     const val = await this.CLIENT.get(`${sessionId}:data`);
@@ -114,7 +114,7 @@ export class RedisSession extends BaseSession {
 
   async getAll<T>(sessionId: string): Promise<T | undefined> {
     const val = await this.redisClient().then((client) =>
-      client.get(`${sessionId}:data`)
+      client.get(`${sessionId}:data`),
     );
 
     if (val == null) {

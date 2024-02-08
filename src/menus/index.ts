@@ -51,7 +51,7 @@ export class Menus {
 
   getStartMenu(
     req: Request,
-    res: Response
+    res: Response,
   ): { id: string; obj: DynamicMenu | Type<BaseMenu> } {
     const start = Object.keys(MENU_CACHE).find((id) => {
       const menu = MENU_CACHE[id];

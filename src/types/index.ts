@@ -15,7 +15,6 @@ export interface Type<T = any> extends Function {
   new (...args: any[]): T;
 }
 
-
 export type Session = {
   get: <T>(key: string, defaultValue?: any) => Promise<T | undefined>;
   getAll: <T>() => Promise<T | undefined> | undefined;

@@ -15,7 +15,7 @@ export class MenuAction {
     | ((
         input: string | undefined,
         req: Request,
-        res: Response
+        res: Response,
       ) => Promise<string>); // TODO: or function
   //FIXME: remove this
   // route: string; // Route ID

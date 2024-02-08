@@ -43,7 +43,7 @@ export class MemcacheSession extends BaseSession {
   async get<T = unknown>(
     sessionId: string,
     key: string,
-    defaultValue?: T
+    defaultValue?: T,
   ): Promise<T | undefined> {
     if (this.data[sessionId] == null) {
       return defaultValue;
