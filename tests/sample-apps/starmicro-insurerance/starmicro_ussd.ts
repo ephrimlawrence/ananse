@@ -1,5 +1,5 @@
 import { connect } from "mongoose";
-import { App, Request, Response } from "../../../src";
+import { Ananse, Request, Response } from "../../../src";
 import router from "../../../src/menus";
 import { WigalGateway } from "../../../src/gateways/wigal.gateway";
 import { MenuType } from "./enums";
@@ -8,7 +8,7 @@ connect("mongodb://127.0.0.1:27017/starmicro-ussd").catch((err) =>
   console.error(err)
 );
 
-const app = new App().configure({
+const app = new Ananse().configure({
   gateway: "wigal",
   // TODO: rename to 'customGateway' or extend 'gateway' to accept custom gateway class
   middlewares: [WigalGateway],

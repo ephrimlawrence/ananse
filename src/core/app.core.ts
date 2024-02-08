@@ -86,5 +86,3 @@ export class Ananse {
     return await handler.processRequest();
   }
 }
-
-export default Ananse;
