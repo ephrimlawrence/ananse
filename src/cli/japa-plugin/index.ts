@@ -1,9 +1,10 @@
+// @ts-ignore
 import { TestContext } from "@japa/runner/core";
 import { getActiveTest } from "@japa/runner";
-import Ananse from "@src/core/app.core";
-import { Gateway } from "@src/types";
+import { Gateway, Ananse } from "../..";
 import { randomUUID } from "crypto";
-import { promisify } from "util";
+import { Config as AnanseConfig } from "@src/config";
+import { SupportGateway } from "@src/helpers/constants";
 
 class UssdTestRunner {
   #inputs: string[] = [];
@@ -152,7 +153,7 @@ class UssdTestRunner {
         }
 
         let val = "Unable to parse text from response";
-        if (this.#provider == Gateway.wigal) {
+        if (this.#provider == AnanseConfig.getInstance().gatewayName) {
           val = this.#rawResponse.userdata;
         }
 
@@ -169,8 +170,8 @@ class UssdTestRunner {
   // 2. make request to url and parse response like in simulator
   // 3. add helper functions
 
-  get #provider(): Gateway {
-    return this.#config.provider;
+  get #provider(): SupportGateway {
+    return this.#config.gateway as SupportGateway;
   }
 
   get #url(): string {
@@ -186,7 +187,7 @@ class UssdTestRunner {
   private parseResponse(data: string) {
     this.log(data);
 
-    if (this.#provider == Gateway.wigal) {
+    if (this.#provider == SupportGateway.wigal) {
       let resp = data.split("|");
       this.#rawResponse = {
         network: resp[0],
@@ -210,17 +211,14 @@ class UssdTestRunner {
     let data = { ...this.#rawResponse };
 
     let url = "";
-    if (this.#provider == Gateway.wigal) {
+    if (this.#provider == SupportGateway.wigal) {
       data ??= {};
       const sessionId = data.sessionid || this.#sessionId || randomUUID();
 
-      url = `${this.#url}?network=${
-        data.network || "wigal_mtn_gh"
-      }&sessionid=${sessionId}&mode=${data.mode || "start"}&msisdn=${
-        data.msisdn || this.#phone
-      }&userdata=${input}&username=${
-        data.username || "test_user"
-      }&trafficid=${randomUUID()}&other=${data.other || ""}`;
+      url = `${this.#url}?network=${data.network || "wigal_mtn_gh"
+        }&sessionid=${sessionId}&mode=${data.mode || "start"}&msisdn=${data.msisdn || this.#phone
+        }&userdata=${input}&username=${data.username || "test_user"
+        }&trafficid=${randomUUID()}&other=${data.other || ""}`;
     } else {
       throw new Error(`Reply is not implemented for ${this.#provider}`);
     }
@@ -242,6 +240,7 @@ class UssdTestRunner {
 export function scorpionPlugin(config: Config) {
   const obj = new UssdTestRunner(config);
 
+  // @ts-ignore
   return function ({ emitter, runner, cliArgs, config }) {
     obj.debug(false);
 
@@ -278,7 +277,7 @@ export function scorpionPlugin(config: Config) {
 interface Config {
   app?: Ananse;
   url?: string;
-  provider: Gateway;
+  gateway: keyof typeof SupportGateway;
   phone?: string;
   session?: string; //TODO: same props used in core
 }

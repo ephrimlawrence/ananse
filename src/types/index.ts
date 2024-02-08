@@ -9,10 +9,10 @@ export type ValidationResponse = boolean | string;
 
 export type Validation =
   | RegExp
-  | ((req: Request, resp: Response) => ValidationResponse);
+  | ((req: Request, resp: Response) => Promise<ValidationResponse> | ValidationResponse);
 
 export interface Type<T = any> extends Function {
-  new (...args: any[]): T;
+  new(...args: any[]): T;
 }
 
 export type Session = {
@@ -24,8 +24,8 @@ export type Session = {
 export type FormInput = {
   name: string;
   validate: Validation;
-  display: string | ((req: Request) => Promise<string>);
-  handler: (req: Request, session: Session) => Promise<void>;
+  display: string | ((req: Request) => Promise<string> | string);
+  handler?: (req: Request, session: Session) => Promise<void>;
   next_input?: string | ((req: Request) => Promise<string>);
   end?: boolean | ((req: Request) => boolean);
   next_menu?: NextMenu;

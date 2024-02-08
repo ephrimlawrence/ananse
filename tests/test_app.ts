@@ -1,7 +1,4 @@
-import Ananse from "../src/core/app.core";
-import { WigalGateway } from "../src/gateways/wigal.gateway";
-import MenuRouter from "../src/menus";
-import { BaseMenu } from "../src/menus";
+import { Ananse, WigalGateway, BaseMenu, Request, Response, MenuRouter } from "../src";
 
 class SelfService extends BaseMenu {
   async nextMenu() {
@@ -79,21 +76,21 @@ MenuRouter
     {
       choice: "1",
       display: "1. Check Balance",
-      name: "check_balance",
+      // name: "check_balance",
       next_menu: "check_balance",
     },
     {
       choice: "2",
-      display: (_req, _res) => {
+      display: (_req: Request, _res: Response) => {
         return "2. Investment";
       },
-      name: "investment",
+      // name: "investment",
     },
     {
       choice: "3",
       display: "3. Self Service",
       next_menu: "self_service",
-      name: "self_service",
+      // name: "self_service",
     },
   ]);
 

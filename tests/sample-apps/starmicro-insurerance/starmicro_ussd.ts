@@ -3,6 +3,7 @@ import { Ananse, Request, Response } from "../../../src";
 import { MenuRouter } from "../../../src/menus";
 import { WigalGateway } from "../../../src/gateways/wigal.gateway";
 import { MenuType } from "./enums";
+import { Customer } from "./models/customer";
 
 connect("mongodb://127.0.0.1:27017/starmicro-ussd").catch((err) =>
   console.error(err)
@@ -43,6 +44,5 @@ MenuRouter
   ]);
 
 import "./menus/customer/index";
-import { Customer } from "./models/customer";
 
 export default app;

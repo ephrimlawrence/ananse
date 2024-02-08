@@ -24,12 +24,12 @@
     "dist"
   ],
   "scripts": {
-    "tsc": "tsc",
+    "build": "tsc",
     "tsx": "tsx",
     "dev": "tsx --watch --trace-warnings tests/test_app.ts",
     "test": "tsx bin/test.ts",
     "simulate": "tsx src/cli/simulator.ts",
-    "build": "tsup",
+    "bundle": "npm run build && tsup",
     "prebuild": "rimraf dist",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "npm run format && eslint \"{src,apps,libs,test}/**/*.ts\" --fix"

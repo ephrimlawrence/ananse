@@ -12,6 +12,7 @@ export class Config {
   private static instance: Config;
 
   #gateway: Type<Gateway>;
+  #options: ConfigOptions;
 
   private _session: BaseSession | undefined = undefined;
 
@@ -26,6 +27,8 @@ export class Config {
   }
 
   init(options: ConfigOptions) {
+    this.#options = options;
+
     if (typeof options.gateway == "string") {
       switch (options.gateway) {
         case SupportGateway.wigal:
@@ -81,6 +84,10 @@ export class Config {
 
   get gateway(): Type<Gateway> {
     return this.#gateway;
+  }
+
+  get gatewayName(): SupportGateway {
+    return this.#options.gateway as SupportGateway;
   }
 
   get session(): BaseSession | undefined {

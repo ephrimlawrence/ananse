@@ -2,6 +2,7 @@ import { BaseMenu, DynamicMenu, Menu, ValidationResponse } from "@src/menus";
 import { State } from "@src/models/ussd-state";
 import { FormInput } from "@src/types";
 import { Request, Response } from "@src/types/request";
+import { SupportGateway } from "./constants";
 
 export function menuType(val: Menu): "class" | "dynamic" {
   // TODO: document why this special case is needed
@@ -38,9 +39,9 @@ export async function validateInput(opts: {
   }
 
   let resp: { error: string | undefined; valid: boolean } = {
-      valid: true,
-      error: undefined,
-    },
+    valid: true,
+    error: undefined,
+  },
     status: ValidationResponse = true;
 
   if (menu != null) {
@@ -59,7 +60,7 @@ export async function validateInput(opts: {
     } else {
       try {
         status = (input.validate as RegExp).test(state?.userData);
-      } catch (error) {}
+      } catch (error) { }
     }
   }
 
@@ -71,3 +72,5 @@ export async function validateInput(opts: {
 
   return resp;
 }
+
+export { SupportGateway }

@@ -1,4 +1,4 @@
-import MenuRouter from "../../../../../src/menus";
+import { MenuRouter } from "../../../../../src";
 import { MenuType } from "../../enums";
 import { Customer } from "../../models/customer";
 import { ClientLogin } from "./login.customer";
@@ -72,7 +72,7 @@ MenuRouter
       display: "Enter PIN",
       handler: async (_req, session) => {
         //TODO: add session to request object
-        const form = await session.get(MenuType.customer_registration);
+        const form = await session.get<any>(MenuType.customer_registration);
         const customer = new Customer({
           first_name: form.first_name,
           phone_number: _req.state.msisdn,

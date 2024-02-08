@@ -8,7 +8,7 @@ configure({
   files: ["tests/**/*.spec.ts"],
   plugins: [
     assert(),
-    scorpionPlugin({ phone: "23324143443", provider: "wigal", app: app }),
+    scorpionPlugin({ phone: "23324143443", gateway: "wigal", app: app }),
   ],
 });
 

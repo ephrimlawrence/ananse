@@ -4,7 +4,7 @@ import { State, StateMode } from "@src/models/ussd-state";
 import { MenuRouter, DynamicMenu, Menu, Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
 import { BaseMenu, MenuAction } from "@src/menus";
-import { menuType, validateInput } from "@src/helpers/index.helper";
+import { menuType, validateInput } from "@src/helpers";
 import { FormMenuHandler } from "./form_handler";
 
 export class RequestHandler {

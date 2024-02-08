@@ -1,5 +1,4 @@
-import { Request } from "../../../../../src";
-import MenuRouter from "../../../../../src/menus";
+import { Request, MenuRouter } from "../../../../../src";
 import { MenuType } from "../../enums";
 import { Policy } from "../../models/policy";
 
@@ -17,7 +16,7 @@ MenuRouter
   .inputs([
     {
       name: "product",
-      display: (req: Request) => {
+      display: (_req: Request) => {
         return PRODUCTS.map(
           (product, index) => `${index + 1}. ${product}`
         ).join("\n");

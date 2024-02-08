@@ -6,5 +6,5 @@ export * from "./menus/dynamic_menu.menu";
 export * from "./types";
 export * from "./sessions";
 
-export { Gateway as Middleware } from "./gateways/base.gateway";
-export { WigalGateway as DefaultMiddleware } from "./gateways/wigal.gateway";
+export * from "./gateways";
+export * from "./helpers";

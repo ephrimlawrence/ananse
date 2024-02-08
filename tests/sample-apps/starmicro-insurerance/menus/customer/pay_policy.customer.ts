@@ -1,5 +1,4 @@
-import { Request } from "../../../../../src";
-import MenuRouter from "../../../../../src/menus";
+import { Request, MenuRouter, ValidationResponse } from "../../../../../src";
 import { MenuType } from "../../enums";
 import { Payment } from "../../models/payment";
 import { Policy } from "../../models/policy";
@@ -21,7 +20,7 @@ MenuRouter
           .map((policy, index) => `${index + 1}. ${policy.name}`)
           .join("\n");
       },
-      validate: async (req, _res) => {
+      validate: async (req, _res): Promise<ValidationResponse> => {
         if (isNaN(+req.state.userData)) {
           return false;
         }
@@ -55,7 +54,7 @@ MenuRouter
         return true;
       },
       handler: async (req: Request, session) => {
-        const form = await session.get(MenuType.customer_premium_payment);
+        const form = await session.get<any>(MenuType.customer_premium_payment);
         // TODO: add payment logic here. Any payment provider can be used, eg. hubtel, paystack, stripe, etc.
 
         const payment = new Payment({

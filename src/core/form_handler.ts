@@ -1,10 +1,10 @@
 import { FormInput, NextMenu, Type, ValidationResponse } from "@src/types";
 import { Request, Response } from "@src/types/request";
 import { State } from "@src/models/ussd-state";
-import MenuRouter, { DynamicMenu, Menu, Menus } from "@src/menus";
+import { MenuRouter, DynamicMenu, Menu, Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
 import { BaseMenu, MenuAction } from "@src/menus";
-import { menuType, validateInput } from "@src/helpers/index.helper";
+import { menuType, validateInput } from "@src/helpers";
 
 // TODO: change to project name
 export class FormMenuHandler {
@@ -12,7 +12,7 @@ export class FormMenuHandler {
     private readonly request: Request,
     private readonly response: Response,
     private readonly menu: Menu,
-  ) {}
+  ) { }
 
   #currentInput: FormInput | undefined = undefined;
   #nextInput: FormInput | undefined = undefined;
