@@ -29,7 +29,7 @@
     "dev": "tsx --watch --trace-warnings tests/test_app.ts",
     "test": "tsx bin/test.ts",
     "simulate": "tsx src/cli/simulator.ts",
-    "bundle": "npm run build && tsup",
+    "bundle": "npm run build && npm run prebuild && tsup",
     "prebuild": "rimraf dist",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "npm run format && eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
