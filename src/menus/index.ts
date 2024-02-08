@@ -83,5 +83,4 @@ export class Menus {
 
 export type Menu = Type<BaseMenu> | DynamicMenu;
 
-const MenuRouter = Menus.getInstance();
-export default MenuRouter;
+export const MenuRouter = Menus.getInstance();

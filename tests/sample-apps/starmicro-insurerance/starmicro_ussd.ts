@@ -1,6 +1,6 @@
 import { connect } from "mongoose";
 import { Ananse, Request, Response } from "../../../src";
-import MenuRouter from "../../../src/menus";
+import { MenuRouter } from "../../../src/menus";
 import { WigalGateway } from "../../../src/gateways/wigal.gateway";
 import { MenuType } from "./enums";
 

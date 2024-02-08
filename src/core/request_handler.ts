@@ -1,7 +1,7 @@
 import { NextMenu, Session, Type, ValidationResponse } from "@src/types";
 import { Request, Response } from "@src/types/request";
 import { State, StateMode } from "@src/models/ussd-state";
-import MenuRouter, { DynamicMenu, Menu, Menus } from "@src/menus";
+import { MenuRouter, DynamicMenu, Menu, Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
 import { BaseMenu, MenuAction } from "@src/menus";
 import { menuType, validateInput } from "@src/helpers/index.helper";
@@ -12,7 +12,7 @@ export class RequestHandler {
     private request: Request,
     private response: Response,
     private router: Menus,
-  ) {}
+  ) { }
 
   private async setCurrentMenu(id: string, val: Menu, state: State) {
     state.menu ??= {
@@ -317,7 +317,7 @@ export class RequestHandler {
           state.action = action;
           break;
         }
-      } catch (e) {}
+      } catch (e) { }
     }
 
     this.session.setState(state.sessionId, state);
