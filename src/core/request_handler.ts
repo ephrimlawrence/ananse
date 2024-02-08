@@ -1,12 +1,11 @@
 import { NextMenu, Session, Type, ValidationResponse } from "@src/types";
 import { Request, Response } from "@src/types/request";
 import { State, StateMode } from "@src/models/ussd-state";
-import router, { DynamicMenu, Menu, Menus } from "@src/menus";
+import MenuRouter, { DynamicMenu, Menu, Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
 import { BaseMenu, MenuAction } from "@src/menus";
 import { menuType, validateInput } from "@src/helpers/index.helper";
 import { FormMenuHandler } from "./form_handler";
-import { Gateway } from "@src/gateways/base.gateway";
 
 export class RequestHandler {
   constructor(
@@ -65,7 +64,7 @@ export class RequestHandler {
   }
 
   async processRequest() {
-    this.router = router;
+    this.router = MenuRouter;
 
     let currentMenu: Menu | undefined = undefined;
 

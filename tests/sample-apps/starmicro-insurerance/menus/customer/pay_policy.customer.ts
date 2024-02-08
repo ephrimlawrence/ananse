@@ -1,11 +1,11 @@
 import { Request } from "../../../../../src";
-import router from "../../../../../src/menus";
+import MenuRouter from "../../../../../src/menus";
 import { MenuType } from "../../enums";
 import { Payment } from "../../models/payment";
 import { Policy } from "../../models/policy";
 
 // New policy registration, using forms feature
-router
+MenuRouter
   .menu(MenuType.customer_premium_payment) // menu name becomes form name
   .isForm()
   .inputs([
@@ -70,7 +70,7 @@ router
   ]);
 
 // TODO: add function to end session
-router
+MenuRouter
   .menu("payment_confirmed")
   .message(
     "Your payment has been confirmed. Thank you for choosing Star Microinsurance"

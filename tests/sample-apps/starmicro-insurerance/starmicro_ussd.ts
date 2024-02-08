@@ -1,6 +1,6 @@
 import { connect } from "mongoose";
 import { Ananse, Request, Response } from "../../../src";
-import router from "../../../src/menus";
+import MenuRouter from "../../../src/menus";
 import { WigalGateway } from "../../../src/gateways/wigal.gateway";
 import { MenuType } from "./enums";
 
@@ -16,7 +16,7 @@ const app = new Ananse().configure({
 });
 
 // Account selection
-router
+MenuRouter
   .menu(MenuType.account_type)
   .start()
   .message("Choose account type")

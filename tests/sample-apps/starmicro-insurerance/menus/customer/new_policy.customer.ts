@@ -1,5 +1,5 @@
 import { Request } from "../../../../../src";
-import router from "../../../../../src/menus";
+import MenuRouter from "../../../../../src/menus";
 import { MenuType } from "../../enums";
 import { Policy } from "../../models/policy";
 
@@ -11,7 +11,7 @@ const PRODUCTS = [
 ];
 
 // New policy registration, using forms feature
-router
+MenuRouter
   .menu(MenuType.customer_new_policy) // menu name is used as the form name
   .isForm()
   .inputs([
@@ -69,7 +69,7 @@ router
     },
   ]);
 
-router
+MenuRouter
   .menu("policy_created")
   .message(
     "Thank you for registering with star MicroInsurance Services Limited, you will receive your policy number via SMS"

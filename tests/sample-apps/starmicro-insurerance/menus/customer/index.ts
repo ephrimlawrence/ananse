@@ -1,13 +1,13 @@
-import router from "../../../../../src/menus";
+import MenuRouter from "../../../../../src/menus";
 import { MenuType } from "../../enums";
 import { Customer } from "../../models/customer";
 import { ClientLogin } from "./login.customer";
 
 // Account login
-router.add(ClientLogin, MenuType.customer_login);
+MenuRouter.add(ClientLogin, MenuType.customer_login);
 
 // Client main menu
-router
+MenuRouter
   .menu(MenuType.customer)
   .message("Welcome to Star MicroInsurance. Choose an Option")
   .actions([
@@ -44,7 +44,7 @@ router
   ]);
 
 // New customer registration, using forms feature
-router
+MenuRouter
   .menu(MenuType.customer_registration) // menu name becomes form name
   .isForm()
   .inputs([
@@ -87,7 +87,7 @@ router
     },
   ]);
 
-router
+MenuRouter
   .menu("client_created")
   .message(
     "Thank you for registering as customer with Star M Kindly dial short code again to register a policy"

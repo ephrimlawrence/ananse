@@ -1,6 +1,6 @@
 import Ananse from "../src/core/app.core";
 import { WigalGateway } from "../src/gateways/wigal.gateway";
-import router from "../src/menus";
+import MenuRouter from "../src/menus";
 import { BaseMenu } from "../src/menus";
 
 class SelfService extends BaseMenu {
@@ -71,7 +71,7 @@ const app = new Ananse().configure({
   session: { type: "redis" },
 });
 
-router
+MenuRouter
   .menu("first")
   .start()
   .message("Hello, welcome to FirstTrust Bank")
@@ -97,19 +97,19 @@ router
     },
   ]);
 
-router
+MenuRouter
   .menu("check_balance")
   .message("Enter your account PIN")
   .defaultNextMenu("verify_pin");
 
-router
+MenuRouter
   .menu("verify_pin")
   .validation(/\d{4}/)
   .message("Your account balance is GHS12.000");
 // TODO: add .end() function
 
-router.add(SelfService, "self_service");
-router.add(CloseAccount, "self_service.close_account");
+MenuRouter.add(SelfService, "self_service");
+MenuRouter.add(CloseAccount, "self_service.close_account");
 
 // console.log(JSON.stringify(router, null, 2));
 
