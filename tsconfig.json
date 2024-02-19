@@ -44,7 +44,4 @@
       "tsconfig-paths/register"
     ]
   },
-  "exclude": [
-    "src/cli", "tests/sample-apps"
-  ]
 }

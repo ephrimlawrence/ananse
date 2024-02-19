@@ -24,7 +24,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "tsc": "tsc",
+    "build": "tsc --project tsconfig.build.json",
     "tsx": "tsx",
     "dev": "tsx --watch --trace-warnings tests/test_app.ts",
     "test": "tsx bin/test.ts",
