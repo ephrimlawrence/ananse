@@ -1,3 +1,7 @@
+## [1.1.8](https://github.com/ephrimlawrence/ananse/compare/v1.1.7...v1.1.8) (2024-02-19)
+
+
+
 ## [1.1.7](https://github.com/ephrimlawrence/ananse/compare/v1.1.6...v1.1.7) (2024-02-19)
 
 
@@ -21,15 +25,6 @@
 ### Bug Fixes
 
 * remove sample-apps from tsc build ([0e931a0](https://github.com/ephrimlawrence/ananse/commit/0e931a092e5a058c9abc45f40def2c851acfc31b))
-
-
-
-## [1.1.3](https://github.com/ephrimlawrence/ananse/compare/v1.1.2...v1.1.3) (2024-02-19)
-
-
-### Bug Fixes
-
-* update npm deploy action ([fb951fa](https://github.com/ephrimlawrence/ananse/commit/fb951fa2383472580b0da414e3d2b92e209231e1))
 
 
 
