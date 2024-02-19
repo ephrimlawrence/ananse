@@ -1,4 +1,8 @@
-# 1.1.0 (2024-02-19)
+## [1.1.1](https://github.com/ephrimlawrence/ananse/compare/v1.1.0...v1.1.1) (2024-02-19)
+
+
+
+# [1.1.0](https://github.com/ephrimlawrence/ananse/compare/df0a1faf37d97bdf87d3fe258eee7830b2992fae...v1.1.0) (2024-02-19)
 
 
 ### Bug Fixes
