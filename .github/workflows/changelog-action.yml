@@ -2,10 +2,10 @@ name: Conventional Changelog Action
 on:
   push:
     branches:
-      - master
+      - main
   merge_group:
     branches:
-      - master
+      - main
 
 jobs:
   changelog:
@@ -27,9 +27,9 @@ jobs:
           output-file: "CHANGELOG.md"
           skip-on-empty: false
 
-      - name: Deploy to stable => Merge master -> stable
+      - name: Deploy to stable => Merge main -> stable
         run: |
           git fetch origin stable
           git checkout stable
-          git merge master
+          git merge main
           git push
