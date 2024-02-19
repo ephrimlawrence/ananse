@@ -1,0 +1,35 @@
+name: Conventional Changelog Action
+on:
+  push:
+    branches:
+      - master
+  merge_group:
+    branches:
+      - master
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Bump version and push tag
+        uses: TriPSs/conventional-changelog-action@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          git-message: "change log (release): {version}"
+          preset: "angular"
+          tag-prefix: "v"
+          output-file: "CHANGELOG.md"
+          skip-on-empty: false
+
+      - name: Deploy to stable => Merge master -> stable
+        run: |
+          git fetch origin stable
+          git checkout stable
+          git merge master
+          git push

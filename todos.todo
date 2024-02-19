@@ -1,7 +1,8 @@
 Pending features:
     ✔ rewrite cli simulator to support all provider modes @done(23-12-02 15:23)
     ✔ redis session management @done(23-12-02 17:44)
-    ☐ add 'end' to dyanmic menu actions and action menu class
+    ☐ add 'end' to dyanmic menu actions
+    ☐ add 'end' to action menu class
     ☐ add session management to dynamic menu
     ☐ session management
         ☐ set
