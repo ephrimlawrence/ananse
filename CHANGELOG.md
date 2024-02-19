@@ -1,3 +1,12 @@
+## [1.1.3](https://github.com/ephrimlawrence/ananse/compare/v1.1.2...v1.1.3) (2024-02-19)
+
+
+### Bug Fixes
+
+* update npm deploy action ([fb951fa](https://github.com/ephrimlawrence/ananse/commit/fb951fa2383472580b0da414e3d2b92e209231e1))
+
+
+
 ## [1.1.2](https://github.com/ephrimlawrence/ananse/compare/v1.1.1...v1.1.2) (2024-02-19)
 
 
