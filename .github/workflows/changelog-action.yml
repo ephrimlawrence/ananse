@@ -14,13 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.github_token }}
           fetch-depth: 0
 
       - name: Bump version and push tag
         uses: TriPSs/conventional-changelog-action@v3
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.github_token }}
           git-message: "change log (release): {version}"
           preset: "angular"
           tag-prefix: "v"
