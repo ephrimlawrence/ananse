@@ -16,7 +16,7 @@ export class Config {
 
   private _session: BaseSession | undefined = undefined;
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): Config {
     if (!Config.instance) {
@@ -66,9 +66,11 @@ export class Config {
           case "postgres":
             this._session = PostgresSession.getInstance();
             this._session.configure(_session);
+            break;
           case "mysql":
             this._session = MySQLSession.getInstance();
             this._session.configure(_session);
+            break;
           // case "mongo":
           //   throw new Error("Mongo session not implemented yet");
           default:
