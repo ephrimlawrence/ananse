@@ -1,3 +1,12 @@
+## [1.1.4](https://github.com/ephrimlawrence/ananse/compare/v1.1.3...v1.1.4) (2024-02-19)
+
+
+### Bug Fixes
+
+* remove sample-apps from tsc build ([0e931a0](https://github.com/ephrimlawrence/ananse/commit/0e931a092e5a058c9abc45f40def2c851acfc31b))
+
+
+
 ## [1.1.3](https://github.com/ephrimlawrence/ananse/compare/v1.1.2...v1.1.3) (2024-02-19)
 
 
