@@ -15,6 +15,7 @@ class Simulator {
     debug?: boolean | string;
   } = {};
 
+  // TODO: Implement emergent ussd
   get provider(): "hubtel" | "wigal" {
     return this.args.provider || "wigal";
   }
@@ -126,7 +127,7 @@ class Simulator {
       text = data.userdata;
     }
 
-    return text.replace(/\^/g, "\n");
+    return text?.replace(/\^/g, "\n");
   }
 
   log(data: any) {

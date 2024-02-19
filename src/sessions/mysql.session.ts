@@ -72,15 +72,18 @@ export class MySQLSession extends BaseSession {
     return "AND deleted_at IS NULL";
   }
 
+  private get tableName() {
+    return this.config.tableName!
+  }
+
   async setState(sessionId: string, state: State) {
     this.states[sessionId] = state;
 
     // Write postgres query to insert or update state
     await this.db.query(
-      `INSERT INTO ? (session_id, state, created_at, updated_at, deleted_at) VALUES (?, ?, ?, ?, NULL)
+      `INSERT INTO ${this.tableName} (session_id, state, created_at, updated_at, deleted_at) VALUES (?, ?, ?, ?, NULL)
      ON CONFLICT (session_uniq_key) DO UPDATE SET state = ? WHERE session_id = ? ${this.softDeleteQuery}`,
       [
-        this.config.tableName,
         sessionId,
         JSON.stringify(state.toJSON()),
         new Date().toISOString(),
@@ -93,8 +96,8 @@ export class MySQLSession extends BaseSession {
 
   async getState(sessionId: string) {
     const [val, _fields] = await this.db.query(
-      `SELECT state FROM ? WHERE session_id = ? ${this.softDeleteQuery}`,
-      [this.config.tableName, sessionId],
+      `SELECT state FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery}`,
+      [sessionId],
     );
 
     return val == null ? undefined : State.fromJSON(JSON.parse(val));
@@ -107,8 +110,7 @@ export class MySQLSession extends BaseSession {
 
     if (this.config.softDelete == false || this.config.softDelete == null) {
       this.db
-        .query("DELETE FROM ? WHERE session_id = ?", [
-          this.config.tableName,
+        .query(`DELETE FROM ${this.tableName} WHERE session_id = ?`, [
           sessionId,
         ])
         .catch((error: Error) => {
@@ -117,8 +119,8 @@ export class MySQLSession extends BaseSession {
     } else {
       this.db
         .none(
-          `UPDATE ? SET deleted_at = ? WHERE session_id = ? ${this.softDeleteQuery}`,
-          [this.config.tableName, new Date().toISOString(), sessionId],
+          `UPDATE ${this.tableName} SET deleted_at = ? WHERE session_id = ? ${this.softDeleteQuery}`,
+          [new Date().toISOString(), sessionId],
         )
         .catch((error: Error) => {
           throw error;
@@ -130,8 +132,8 @@ export class MySQLSession extends BaseSession {
 
   async set(sessionId: string, key: string, value: any): Promise<void> {
     const [val] = await this.db.query(
-      `UPDATE ? SET data = JSON_SET(data, '$.?', ?) WHERE session_id = ? ${this.softDeleteQuery} RETURNING *`,
-      [this.config.tableName, key, JSON.stringify(value), sessionId],
+      `UPDATE ${this.tableName} SET data = JSON_SET(data, '$.?', ?) WHERE session_id = ? ${this.softDeleteQuery} RETURNING *`,
+      [key, JSON.stringify(value), sessionId],
     );
     return val;
   }
@@ -142,8 +144,8 @@ export class MySQLSession extends BaseSession {
     defaultValue?: T,
   ): Promise<T | undefined> {
     const [val] = await this.db.one(
-      `SELECT data FROM ? WHERE session_id = ? ${this.softDeleteQuery}`,
-      [this.config.tableName, sessionId],
+      `SELECT data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery}`,
+      [sessionId],
     );
 
     if (val == null) {
@@ -155,8 +157,8 @@ export class MySQLSession extends BaseSession {
 
   async getAll<T>(sessionId: string): Promise<T | undefined> {
     const [val] = await this.db.one(
-      `SELECT data FROM ? WHERE session_id = ? ${this.softDeleteQuery}`,
-      [this.config.tableName, sessionId],
+      `SELECT data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery}`,
+      [sessionId],
     );
 
     if (val == null) {
