@@ -1,3 +1,12 @@
+## [1.2.4](https://github.com/ephrimlawrence/ananse/compare/v1.2.3...v1.2.4) (2024-02-19)
+
+
+### Bug Fixes
+
+* change bin name ([a6f5a0b](https://github.com/ephrimlawrence/ananse/commit/a6f5a0bdace43a538bd5900a79dfeb4e5ada995d))
+
+
+
 ## [1.2.3](https://github.com/ephrimlawrence/ananse/compare/v1.2.2...v1.2.3) (2024-02-19)
 
 
@@ -31,10 +40,6 @@
 ### Features
 
 * bundle simulator as binary file ([880e676](https://github.com/ephrimlawrence/ananse/commit/880e676d0784bb0eae73103542980e18a55424f6))
-
-
-
-## [1.1.8](https://github.com/ephrimlawrence/ananse/compare/v1.1.7...v1.1.8) (2024-02-19)
 
 
 
