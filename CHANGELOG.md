@@ -1,3 +1,12 @@
+# [1.2.0](https://github.com/ephrimlawrence/ananse/compare/v1.1.8...v1.2.0) (2024-02-19)
+
+
+### Features
+
+* bundle simulator as binary file ([880e676](https://github.com/ephrimlawrence/ananse/commit/880e676d0784bb0eae73103542980e18a55424f6))
+
+
+
 ## [1.1.8](https://github.com/ephrimlawrence/ananse/compare/v1.1.7...v1.1.8) (2024-02-19)
 
 
@@ -16,15 +25,6 @@
 ### Bug Fixes
 
 * update npm deploy action ([ec00d7e](https://github.com/ephrimlawrence/ananse/commit/ec00d7e932d54f56d59b58b1c14802e03a0c3e13))
-
-
-
-## [1.1.4](https://github.com/ephrimlawrence/ananse/compare/v1.1.3...v1.1.4) (2024-02-19)
-
-
-### Bug Fixes
-
-* remove sample-apps from tsc build ([0e931a0](https://github.com/ephrimlawrence/ananse/commit/0e931a092e5a058c9abc45f40def2c851acfc31b))
 
 
 
