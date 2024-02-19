@@ -1,3 +1,12 @@
+## [1.2.3](https://github.com/ephrimlawrence/ananse/compare/v1.2.2...v1.2.3) (2024-02-19)
+
+
+### Bug Fixes
+
+* minor bug ([feac7a2](https://github.com/ephrimlawrence/ananse/commit/feac7a24cc5fb8b2f185f441402157640204dd67))
+
+
+
 ## [1.2.2](https://github.com/ephrimlawrence/ananse/compare/v1.2.1...v1.2.2) (2024-02-19)
 
 
@@ -26,10 +35,6 @@
 
 
 ## [1.1.8](https://github.com/ephrimlawrence/ananse/compare/v1.1.7...v1.1.8) (2024-02-19)
-
-
-
-## [1.1.7](https://github.com/ephrimlawrence/ananse/compare/v1.1.6...v1.1.7) (2024-02-19)
 
 
 
