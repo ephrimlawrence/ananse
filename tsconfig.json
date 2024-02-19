@@ -45,6 +45,6 @@
     ]
   },
   "exclude": [
-    "src/cli"
+    "src/cli", "tests/sample-apps"
   ]
 }
