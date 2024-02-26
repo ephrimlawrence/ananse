@@ -1,3 +1,12 @@
+## [1.3.4](https://github.com/ephrimlawrence/ananse/compare/v1.3.3...v1.3.4) (2024-02-26)
+
+
+### Bug Fixes
+
+* github action bug ([9c7de89](https://github.com/ephrimlawrence/ananse/commit/9c7de89c106a4fbc13dec2649d6cdee001808699))
+
+
+
 ## [1.3.3](https://github.com/ephrimlawrence/ananse/compare/v1.3.2...v1.3.3) (2024-02-26)
 
 
@@ -34,15 +43,6 @@
 ### Features
 
 * **simulator:** implement emergence api simulator ([dc7ec44](https://github.com/ephrimlawrence/ananse/commit/dc7ec44e77e19d238b04379708ae8d3284b0fefd))
-
-
-
-## [1.2.4](https://github.com/ephrimlawrence/ananse/compare/v1.2.3...v1.2.4) (2024-02-19)
-
-
-### Bug Fixes
-
-* change bin name ([a6f5a0b](https://github.com/ephrimlawrence/ananse/commit/a6f5a0bdace43a538bd5900a79dfeb4e5ada995d))
 
 
 
