@@ -38,21 +38,25 @@ jobs:
           git merge main
           git push
 
-      # - name: Create Release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      #   with:
-      #     tag_name: ${{ github.ref }}
-      #     release_name: Release ${{ github.ref }}
-      #     body_path: CHANGELOG.md
-      #     draft: false
-      #     prerelease: false
+      - name: Build package
+        run: |
+          npm ci --legacy-peer-deps
+          npm run bundle
+
+      - name: Create release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.PERSONAL_ACCESS_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Production Build"
+          files: |
+            LICENSE.txt
+            CHANGELOG.md
+            dist/*
 
       - name: Publish package to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm ci --legacy-peer-deps
-          npm run bundle
           npm publish
