@@ -102,6 +102,7 @@ export class MySQLSession extends BaseSession {
     if(resp.length == 0) return undefined;
 
     return resp == null ? undefined : State.fromJSON(JSON.parse(resp[0]));
+    return resp == null ? undefined : State.fromJSON(JSON.parse(resp[0].state));
   }
 
   clear(sessionId: string): void | State {
