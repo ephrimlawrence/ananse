@@ -1,3 +1,12 @@
+## [1.3.2](https://github.com/ephrimlawrence/ananse/compare/v1.3.1...v1.3.2) (2024-02-26)
+
+
+### Bug Fixes
+
+* github action bug ([16dfb29](https://github.com/ephrimlawrence/ananse/commit/16dfb2997a96ec624d5fad0884f9bd336c5a8c01))
+
+
+
 ## [1.3.1](https://github.com/ephrimlawrence/ananse/compare/v1.3.0...v1.3.1) (2024-02-26)
 
 
@@ -39,15 +48,6 @@
 ### Bug Fixes
 
 * minor bug ([feac7a2](https://github.com/ephrimlawrence/ananse/commit/feac7a24cc5fb8b2f185f441402157640204dd67))
-
-
-
-## [1.2.2](https://github.com/ephrimlawrence/ananse/compare/v1.2.1...v1.2.2) (2024-02-19)
-
-
-### Bug Fixes
-
-* **session: mysql:** table name error when passed as a prepared statement ([9db4e6c](https://github.com/ephrimlawrence/ananse/commit/9db4e6c8d0759326f7e28bc5ddf321b04ad28656))
 
 
 
