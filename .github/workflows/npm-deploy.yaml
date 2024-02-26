@@ -2,10 +2,10 @@ name: Publish Package to npmjs
 on:
   push:
     branches:
-      - stable
+      - main
   merge_group:
     branches:
-      - stable
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,6 +21,23 @@ jobs:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Bump version and push tag
+        uses: TriPSs/conventional-changelog-action@v3
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          git-message: "change log (release): {version}"
+          preset: "angular"
+          tag-prefix: "v"
+          output-file: "CHANGELOG.md"
+          skip-on-empty: false
+
+      - name: Deploy to stable => Merge main -> stable
+        run: |
+          git fetch origin stable
+          git checkout stable
+          git merge main
+          git push
+
       - name: Create Release
         uses: actions/create-release@v1
         env:
@@ -32,9 +49,10 @@ jobs:
           draft: false
           prerelease: false
 
-      - run: npm ci --legacy-peer-deps
-      - run: |
-          npm run bundle
-          npm publish
+      - name: Publish package to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm ci --legacy-peer-deps
+          npm run bundle
+          npm publish
