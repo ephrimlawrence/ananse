@@ -81,12 +81,11 @@ export class MySQLSession extends BaseSession {
 
     // Write postgres query to insert or update state
     await this.db.query(
-      `INSERT INTO ${this.tableName} (session_id, state, created_at, updated_at, deleted_at) VALUES (?, ?, ?, ?, NULL)
-     ON CONFLICT (session_uniq_key) DO UPDATE SET state = ? WHERE session_id = ? ${this.softDeleteQuery}`,
+      `INSERT INTO ${this.tableName} (session_id, state, created_at, updated_at) VALUES (?, ?, NOW(), NOW())
+     ON DUPLICATE KEY UPDATE state = ?`,
       [
         sessionId,
         JSON.stringify(state.toJSON()),
-        new Date().toISOString(),
         JSON.stringify(state.toJSON()),
         sessionId,
       ],
@@ -95,12 +94,14 @@ export class MySQLSession extends BaseSession {
   }
 
   async getState(sessionId: string) {
-    const [val, _fields] = await this.db.query(
-      `SELECT state FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery}`,
+    const [resp, _fields] = await this.db.query(
+      `SELECT state FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery} LIMIT 1`,
       [sessionId],
     );
 
-    return val == null ? undefined : State.fromJSON(JSON.parse(val));
+    if(resp.length == 0) return undefined;
+
+    return resp == null ? undefined : State.fromJSON(JSON.parse(resp[0]));
   }
 
   clear(sessionId: string): void | State {

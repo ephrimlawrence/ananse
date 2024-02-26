@@ -15,7 +15,7 @@ const CACHE: Record<SupportedGateway, { sessionId?: string, operator?: string }>
 class Simulator {
   args: {
     phone?: string;
-    host?: string;
+    url?: string;
     provider?: SupportedGateway;
     debug?: boolean | string;
   } = {};
@@ -26,7 +26,7 @@ class Simulator {
   }
 
   get baseUrl(): string {
-    return `${this.args.host || "http://localhost:3000"}`;
+    return `${this.args.url || "http://localhost:3000"}`;
   }
 
   // get generateRequestUrl(): string {
@@ -43,6 +43,8 @@ class Simulator {
 
   private parseArguments() {
     this.args["phone"] = process.argv.slice(2)[0];
+    this.args["provider"] = process.argv.slice(2)[1] as SupportedGateway;
+    this.args["url"] = process.argv.slice(2)[2];
 
     if (this.args.phone == null || this.args.phone?.trim() == "") {
       console.log("Please provide a phone number!");
@@ -61,12 +63,12 @@ class Simulator {
     });
   }
 
-  async start(url?: string) {
+  async start(url?: string, body?: any) {
     try {
 
-      let resp = await fetch(url || this.reply());
 
       if (this.provider == SupportedGateway.wigal) {
+        const resp = await fetch(url || (this.reply() as string));
         const data = await resp.text();
 
         let wigal = this.parseResponse(data);
@@ -78,20 +80,28 @@ class Simulator {
         if (wigal.isEndSession) process.exit(0);
 
         rl.question("Response: ", async (input) => {
-          return await this.start(this.reply(wigal, input));
+          return await this.start(this.reply(wigal, input) as string);
         });
       } else if (this.provider == SupportedGateway.emergent_technology) {
-        const data: { Message: string, type: 'Release' | 'Response' } = await resp.json();
+        const { url, body } = this.reply() as { url: string, body: any };
+        console.log(url, body);
+
+        const resp = await fetch(url, { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } });
+
+        // console.log(resp.text());
+        const json: { Message: string, type: 'Release' | 'Response' } = await resp.json();
 
         // let emergence = this.parseResponse(data);
-        if (data.type == 'Release') process.exit(0);
+        if (json.type == 'Release') process.exit(0);
 
         console.log("");
-        console.log(this.displayText(data.Message));
+        console.log(this.displayText(json.Message));
         console.log("");
 
         rl.question("Response: ", async (input) => {
-          return await this.start(this.reply(data, input));
+          const { url, body } = this.reply(json, input) as { url: string, body: any };
+
+          return await this.start(url, body);
         });
       }
     } catch (e) {
@@ -101,7 +111,7 @@ class Simulator {
     }
   }
 
-  reply(data?: any, input?: string) {
+  reply(data?: any, input?: string): string | { url: string, body: any } {
     if (this.provider == SupportedGateway.wigal) {
       // Wigal reply
       data ??= {};
@@ -119,7 +129,7 @@ class Simulator {
     if (this.provider == SupportedGateway.emergent_technology) {
       // Emergent Technology
       data ??= {
-        "Type": "initiation", "Mobile": this.args.phone,
+        "Mobile": this.args.phone,
         "Message": "*714#"
       };
       data.Message = input != null ? input : data.Message;
@@ -132,18 +142,12 @@ class Simulator {
 
       // TODO: Auto detect operator/network from phone number
 
-      // const url = `${this.baseUrl}?network=${data.network || "wigal_mtn_gh"
-      //   }&sessionid=${data.sessionid || randomUUID()}&mode=${data.mode || "start"
-      //   }&msisdn=${data.msisdn || this.args.phone}&userdata=${input}&username=${data.username || "test_user"
-      //   }&trafficid=${randomUUID()}&other=${data.other || ""}`;
+      CACHE[this.provider].sessionId = data.SessionId
 
-      // this.log(url);
-      // return url;
-      return data;
+      return { url: this.baseUrl, body: data };
     }
-    else {
-      throw new Error(`Reply is not implemented for ${this.provider}`);
-    }
+
+    throw new Error(`Reply is not implemented for ${this.provider}`);
   }
 
   parseResponse(data: string) {
@@ -173,7 +177,7 @@ class Simulator {
   }
 
   log(data: any) {
-    // this.args.debug = false;
+    this.args.debug = true;
     if (this.args.debug == true || this.args.debug == "true") {
       console.log("");
       console.log(data);

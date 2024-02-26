@@ -43,10 +43,10 @@ export class EmergentTechnologyGateway extends Gateway {
 
   async handleResponse(_req: Request, res: Response): Promise<void> {
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end({
+    res.end(JSON.stringify({
       Message: this.response.data,
       Type: StateMode.more ? "Response" : "Release",
-    });
+    }));
   }
 
   private getMode(type: string): StateMode {
