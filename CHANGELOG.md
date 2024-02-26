@@ -1,3 +1,7 @@
+## [1.3.3](https://github.com/ephrimlawrence/ananse/compare/v1.3.2...v1.3.3) (2024-02-26)
+
+
+
 ## [1.3.2](https://github.com/ephrimlawrence/ananse/compare/v1.3.1...v1.3.2) (2024-02-26)
 
 
@@ -39,15 +43,6 @@
 ### Bug Fixes
 
 * change bin name ([a6f5a0b](https://github.com/ephrimlawrence/ananse/commit/a6f5a0bdace43a538bd5900a79dfeb4e5ada995d))
-
-
-
-## [1.2.3](https://github.com/ephrimlawrence/ananse/compare/v1.2.2...v1.2.3) (2024-02-19)
-
-
-### Bug Fixes
-
-* minor bug ([feac7a2](https://github.com/ephrimlawrence/ananse/commit/feac7a24cc5fb8b2f185f441402157640204dd67))
 
 
 
