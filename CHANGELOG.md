@@ -1,3 +1,12 @@
+## [1.3.10](https://github.com/ephrimlawrence/ananse/compare/v1.3.9...v1.3.10) (2024-02-26)
+
+
+### Bug Fixes
+
+* github action bug ([1371b89](https://github.com/ephrimlawrence/ananse/commit/1371b892af374169017ba10445f7f293e407d6bd))
+
+
+
 ## [1.3.9](https://github.com/ephrimlawrence/ananse/compare/v1.3.8...v1.3.9) (2024-02-26)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * github action bug ([31cbf6e](https://github.com/ephrimlawrence/ananse/commit/31cbf6e25c817b5c1c8616b6497a3ff2f0062319))
-
-
-
-## [1.3.5](https://github.com/ephrimlawrence/ananse/compare/v1.3.4...v1.3.5) (2024-02-26)
-
-
-### Bug Fixes
-
-* github action bug ([f437e6a](https://github.com/ephrimlawrence/ananse/commit/f437e6a765ff89216ec4ed969feac21c87a555e7))
 
 
 
