@@ -4,7 +4,7 @@ import { getActiveTest } from "@japa/runner";
 import { Gateway, Ananse } from "../..";
 import { randomUUID } from "crypto";
 import { Config as AnanseConfig } from "@src/config";
-import { SupportGateway } from "@src/helpers/constants";
+import { SupportedGateway } from "@src/helpers/constants";
 
 class UssdTestRunner {
   #inputs: string[] = [];
@@ -170,8 +170,8 @@ class UssdTestRunner {
   // 2. make request to url and parse response like in simulator
   // 3. add helper functions
 
-  get #provider(): SupportGateway {
-    return this.#config.gateway as SupportGateway;
+  get #provider(): SupportedGateway {
+    return this.#config.gateway as SupportedGateway;
   }
 
   get #url(): string {
@@ -187,7 +187,7 @@ class UssdTestRunner {
   private parseResponse(data: string) {
     this.log(data);
 
-    if (this.#provider == SupportGateway.wigal) {
+    if (this.#provider == SupportedGateway.wigal) {
       let resp = data.split("|");
       this.#rawResponse = {
         network: resp[0],
@@ -211,7 +211,7 @@ class UssdTestRunner {
     let data = { ...this.#rawResponse };
 
     let url = "";
-    if (this.#provider == SupportGateway.wigal) {
+    if (this.#provider == SupportedGateway.wigal) {
       data ??= {};
       const sessionId = data.sessionid || this.#sessionId || randomUUID();
 
@@ -277,7 +277,7 @@ export function scorpionPlugin(config: Config) {
 interface Config {
   app?: Ananse;
   url?: string;
-  gateway: keyof typeof SupportGateway;
+  gateway: keyof typeof SupportedGateway;
   phone?: string;
   session?: string; //TODO: same props used in core
 }

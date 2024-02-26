@@ -2,7 +2,7 @@ import { BaseMenu, DynamicMenu, Menu, ValidationResponse } from "@src/menus";
 import { State } from "@src/models/ussd-state";
 import { FormInput } from "@src/types";
 import { Request, Response } from "@src/types/request";
-import { SupportGateway } from "./constants";
+import { SupportedGateway } from "./constants";
 
 export function menuType(val: Menu): "class" | "dynamic" {
   // TODO: document why this special case is needed
@@ -73,4 +73,4 @@ export async function validateInput(opts: {
   return resp;
 }
 
-export { SupportGateway }
+export { SupportedGateway as SupportGateway }

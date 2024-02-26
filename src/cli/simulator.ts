@@ -1,23 +1,28 @@
 #!/usr/bin/env node
 
+import { SupportedGateway } from "@src/helpers/constants";
 import { randomUUID } from "crypto";
 import * as readline from "readline";
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
 
+const CACHE: Record<SupportedGateway, { sessionId?: string, operator?: string }> = { wigal: {}, emergent_technology: {} };
+
+
 class Simulator {
   args: {
     phone?: string;
     host?: string;
-    provider?: "hubtel" | "wigal";
+    provider?: SupportedGateway;
     debug?: boolean | string;
   } = {};
 
   // TODO: Implement emergent ussd
-  get provider(): "hubtel" | "wigal" {
-    return this.args.provider || "wigal";
+  get provider() {
+    return this.args.provider
   }
 
   get baseUrl(): string {
@@ -38,6 +43,7 @@ class Simulator {
 
   private parseArguments() {
     this.args["phone"] = process.argv.slice(2)[0];
+
     if (this.args.phone == null || this.args.phone?.trim() == "") {
       console.log("Please provide a phone number!");
       process.exit(1);
@@ -57,21 +63,37 @@ class Simulator {
 
   async start(url?: string) {
     try {
+
       let resp = await fetch(url || this.reply());
 
-      const data = await resp.text();
+      if (this.provider == SupportedGateway.wigal) {
+        const data = await resp.text();
 
-      let wigal = this.parseResponse(data);
+        let wigal = this.parseResponse(data);
 
-      console.log("");
-      console.log(this.displayText(wigal));
-      console.log("");
+        console.log("");
+        console.log(this.displayText(wigal.userdata));
+        console.log("");
 
-      if (wigal.isEndSession) process.exit(0);
+        if (wigal.isEndSession) process.exit(0);
 
-      rl.question("Response: ", async (input) => {
-        return await this.start(this.reply(wigal, input));
-      });
+        rl.question("Response: ", async (input) => {
+          return await this.start(this.reply(wigal, input));
+        });
+      } else if (this.provider == SupportedGateway.emergent_technology) {
+        const data: { Message: string, type: 'Release' | 'Response' } = await resp.json();
+
+        // let emergence = this.parseResponse(data);
+        if (data.type == 'Release') process.exit(0);
+
+        console.log("");
+        console.log(this.displayText(data.Message));
+        console.log("");
+
+        rl.question("Response: ", async (input) => {
+          return await this.start(this.reply(data, input));
+        });
+      }
     } catch (e) {
       console.log("Simulator error: ", e);
       this.log(e);
@@ -80,25 +102,48 @@ class Simulator {
   }
 
   reply(data?: any, input?: string) {
-    let url = "";
-    if (this.provider == "wigal") {
+    if (this.provider == SupportedGateway.wigal) {
+      // Wigal reply
       data ??= {};
       data.userdata = input != null ? input : data.userdata;
 
-      url = `${this.baseUrl}?network=${
-        data.network || "wigal_mtn_gh"
-      }&sessionid=${data.sessionid || randomUUID()}&mode=${
-        data.mode || "start"
-      }&msisdn=${data.msisdn || this.args.phone}&userdata=${input}&username=${
-        data.username || "test_user"
-      }&trafficid=${randomUUID()}&other=${data.other || ""}`;
-    } else {
-      throw new Error(`Reply is not implemented for ${this.provider}`);
+      const url = `${this.baseUrl}?network=${data.network || "wigal_mtn_gh"
+        }&sessionid=${data.sessionid || randomUUID()}&mode=${data.mode || "start"
+        }&msisdn=${data.msisdn || this.args.phone}&userdata=${input}&username=${data.username || "test_user"
+        }&trafficid=${randomUUID()}&other=${data.other || ""}`;
+
+      this.log(url);
+      return url;
     }
 
-    this.log(url);
+    if (this.provider == SupportedGateway.emergent_technology) {
+      // Emergent Technology
+      data ??= {
+        "Type": "initiation", "Mobile": this.args.phone,
+        "Message": "*714#"
+      };
+      data.Message = input != null ? input : data.Message;
+      // SessionId is not included in the response, so we read from cache first
+      data.SessionId = CACHE[this.provider].sessionId || randomUUID()
+      data.Type ??= 'Initiation'
+      data.Mobile = this.args.phone;
+      data.Operator = "Vodafone"
+      data.ServiceCode = "714"
 
-    return url;
+      // TODO: Auto detect operator/network from phone number
+
+      // const url = `${this.baseUrl}?network=${data.network || "wigal_mtn_gh"
+      //   }&sessionid=${data.sessionid || randomUUID()}&mode=${data.mode || "start"
+      //   }&msisdn=${data.msisdn || this.args.phone}&userdata=${input}&username=${data.username || "test_user"
+      //   }&trafficid=${randomUUID()}&other=${data.other || ""}`;
+
+      // this.log(url);
+      // return url;
+      return data;
+    }
+    else {
+      throw new Error(`Reply is not implemented for ${this.provider}`);
+    }
   }
 
   parseResponse(data: string) {
@@ -121,11 +166,8 @@ class Simulator {
     throw new Error(`Response parsing is not implemented for ${this.provider}`);
   }
 
-  displayText(data: any) {
-    let text = "Unable to parse text from response";
-    if (this.provider == "wigal") {
-      text = data.userdata;
-    }
+  displayText(text: string | undefined) {
+    text ??= "Unable to parse text from response";
 
     return text?.replace(/\^/g, "\n");
   }

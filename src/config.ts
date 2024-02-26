@@ -1,4 +1,4 @@
-import { SupportGateway } from "./helpers/constants";
+import { SupportedGateway } from "./helpers/constants";
 import { Gateway } from "./gateways/base.gateway";
 import { WigalGateway } from "./gateways/wigal.gateway";
 import { BaseSession, PostgresSession, SessionOptions } from "./sessions";
@@ -31,10 +31,10 @@ export class Config {
 
     if (typeof options.gateway == "string") {
       switch (options.gateway) {
-        case SupportGateway.wigal:
+        case SupportedGateway.wigal:
           this.#gateway = WigalGateway;
           break;
-        case SupportGateway.emergent_technology:
+        case SupportedGateway.emergent_technology:
           this.#gateway = EmergentTechnologyGateway;
           break;
       }
@@ -88,8 +88,8 @@ export class Config {
     return this.#gateway;
   }
 
-  get gatewayName(): SupportGateway {
-    return this.#options.gateway as SupportGateway;
+  get gatewayName(): SupportedGateway {
+    return this.#options.gateway as SupportedGateway;
   }
 
   get session(): BaseSession | undefined {
@@ -102,5 +102,5 @@ type CustomSession = Type<BaseSession>;
 export interface ConfigOptions {
   middlewares?: Type<Gateway>[];
   session?: "memory" | SessionOptions | CustomSession;
-  gateway: keyof typeof SupportGateway;
+  gateway: keyof typeof SupportedGateway;
 }
