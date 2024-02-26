@@ -1,3 +1,12 @@
+## [1.3.5](https://github.com/ephrimlawrence/ananse/compare/v1.3.4...v1.3.5) (2024-02-26)
+
+
+### Bug Fixes
+
+* github action bug ([f437e6a](https://github.com/ephrimlawrence/ananse/commit/f437e6a765ff89216ec4ed969feac21c87a555e7))
+
+
+
 ## [1.3.4](https://github.com/ephrimlawrence/ananse/compare/v1.3.3...v1.3.4) (2024-02-26)
 
 
@@ -26,23 +35,6 @@
 ### Bug Fixes
 
 * update npm deploy action ([d7ee0c0](https://github.com/ephrimlawrence/ananse/commit/d7ee0c0716a533c1b74bb59ff0db0b9e710bccb9))
-
-
-
-# [1.3.0](https://github.com/ephrimlawrence/ananse/compare/v1.2.4...v1.3.0) (2024-02-26)
-
-
-### Bug Fixes
-
-* **session: mysql:** query bugs ([5cacef7](https://github.com/ephrimlawrence/ananse/commit/5cacef7c3a919ecf8813a3878c6fc2155d640439))
-* **session: mysql:** query bugs ([102d0fe](https://github.com/ephrimlawrence/ananse/commit/102d0fecbb0b11fc1fdab786f39cbc8b62931112))
-* **session: mysql:** query bugs ([971348d](https://github.com/ephrimlawrence/ananse/commit/971348d9696a8cedec3e68deb7c8960b2357294b))
-* **session: mysql:** query bugs ([40b6bbd](https://github.com/ephrimlawrence/ananse/commit/40b6bbd5c09e51451b2ea8acdd3ccc6893143831))
-
-
-### Features
-
-* **simulator:** implement emergence api simulator ([dc7ec44](https://github.com/ephrimlawrence/ananse/commit/dc7ec44e77e19d238b04379708ae8d3284b0fefd))
 
 
 
