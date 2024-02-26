@@ -1,3 +1,20 @@
+# [1.3.0](https://github.com/ephrimlawrence/ananse/compare/v1.2.4...v1.3.0) (2024-02-26)
+
+
+### Bug Fixes
+
+* **session: mysql:** query bugs ([5cacef7](https://github.com/ephrimlawrence/ananse/commit/5cacef7c3a919ecf8813a3878c6fc2155d640439))
+* **session: mysql:** query bugs ([102d0fe](https://github.com/ephrimlawrence/ananse/commit/102d0fecbb0b11fc1fdab786f39cbc8b62931112))
+* **session: mysql:** query bugs ([971348d](https://github.com/ephrimlawrence/ananse/commit/971348d9696a8cedec3e68deb7c8960b2357294b))
+* **session: mysql:** query bugs ([40b6bbd](https://github.com/ephrimlawrence/ananse/commit/40b6bbd5c09e51451b2ea8acdd3ccc6893143831))
+
+
+### Features
+
+* **simulator:** implement emergence api simulator ([dc7ec44](https://github.com/ephrimlawrence/ananse/commit/dc7ec44e77e19d238b04379708ae8d3284b0fefd))
+
+
+
 ## [1.2.4](https://github.com/ephrimlawrence/ananse/compare/v1.2.3...v1.2.4) (2024-02-19)
 
 
@@ -31,15 +48,6 @@
 ### Bug Fixes
 
 * bug ([596469a](https://github.com/ephrimlawrence/ananse/commit/596469a52582e6d51c6915b366b0f07fa20c27da))
-
-
-
-# [1.2.0](https://github.com/ephrimlawrence/ananse/compare/v1.1.8...v1.2.0) (2024-02-19)
-
-
-### Features
-
-* bundle simulator as binary file ([880e676](https://github.com/ephrimlawrence/ananse/commit/880e676d0784bb0eae73103542980e18a55424f6))
 
 
 
