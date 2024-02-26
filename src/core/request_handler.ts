@@ -14,7 +14,7 @@ export class RequestHandler {
     private router: Menus,
   ) { }
 
-  private async setCurrentMenu(id: string, val: Menu, state: State) {
+  private async setCurrentMenu(id: string, state: State) {
     state.menu ??= {
       nextMenu: undefined,
       visited: {},
@@ -84,6 +84,7 @@ export class RequestHandler {
     // (2) then get the user input and validate it
     // (3) repeat (1) and (2) until the user input is valid or session is terminated
     //
+
     // If next menu is null, it means the menu is yet to be visited. Get options and display message
     // else, validate user input and add the menu to the visited list
     if (state.menu?.nextMenu == null) {
@@ -263,7 +264,7 @@ export class RequestHandler {
       state.menu!.visited[state.menu!.nextMenu!] = true;
       delete state.menu!.visited[id!];
 
-      this.setCurrentMenu(id!, menu!, state);
+      this.setCurrentMenu(id!, state);
     }
 
     return { status, menu };
@@ -342,7 +343,7 @@ export class RequestHandler {
     }
 
     const instance = this.instantiateMenu(menu);
-    this.setCurrentMenu(id!, instance, state);
+    this.setCurrentMenu(id!, state);
 
     // Update session mode
     state.mode = StateMode.more;

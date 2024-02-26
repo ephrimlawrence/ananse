@@ -103,7 +103,7 @@ export class PostgresSession extends BaseSession {
       [this.config.schema, this.config.tableName, sessionId],
     );
 
-    return val == null ? undefined : State.fromJSON(JSON.parse(val));
+    return val == null ? undefined : State.fromJSON(JSON.parse(val.state));
   }
 
   clear(sessionId: string): void | State {

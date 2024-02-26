@@ -13,7 +13,7 @@ interface IEmergentRequest {
 
 export class EmergentTechnologyGateway extends Gateway {
   get sessionId(): string {
-    return this.request.query?.sessionid!;
+    return (this.request.body as IEmergentRequest)?.SessionId!;
   }
 
   async handleRequest(): Promise<State | undefined> {

@@ -63,7 +63,7 @@ class Simulator {
     });
   }
 
-  async start(url?: string, body?: any) {
+  async start(url?: string, requestBody?: any) {
     try {
 
 
@@ -83,7 +83,7 @@ class Simulator {
           return await this.start(this.reply(wigal, input) as string);
         });
       } else if (this.provider == SupportedGateway.emergent_technology) {
-        const { url, body } = this.reply() as { url: string, body: any };
+        const { url, body } = this.reply(requestBody) as { url: string, body: any };
         console.log(url, body);
 
         const resp = await fetch(url, { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } });
