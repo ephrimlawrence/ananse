@@ -1,3 +1,12 @@
+## [1.3.1](https://github.com/ephrimlawrence/ananse/compare/v1.3.0...v1.3.1) (2024-02-26)
+
+
+### Bug Fixes
+
+* update npm deploy action ([d7ee0c0](https://github.com/ephrimlawrence/ananse/commit/d7ee0c0716a533c1b74bb59ff0db0b9e710bccb9))
+
+
+
 # [1.3.0](https://github.com/ephrimlawrence/ananse/compare/v1.2.4...v1.3.0) (2024-02-26)
 
 
@@ -39,15 +48,6 @@
 ### Bug Fixes
 
 * **session: mysql:** table name error when passed as a prepared statement ([9db4e6c](https://github.com/ephrimlawrence/ananse/commit/9db4e6c8d0759326f7e28bc5ddf321b04ad28656))
-
-
-
-## [1.2.1](https://github.com/ephrimlawrence/ananse/compare/v1.2.0...v1.2.1) (2024-02-19)
-
-
-### Bug Fixes
-
-* bug ([596469a](https://github.com/ephrimlawrence/ananse/commit/596469a52582e6d51c6915b366b0f07fa20c27da))
 
 
 
