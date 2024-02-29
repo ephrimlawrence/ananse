@@ -1,3 +1,12 @@
+## [1.3.15](https://github.com/ephrimlawrence/ananse/compare/v1.3.14...v1.3.15) (2024-02-29)
+
+
+### Bug Fixes
+
+* **session: mysql:** query bug when querying session data ([a308606](https://github.com/ephrimlawrence/ananse/commit/a308606d668ea927a2b954fdc3f14485b03cbd3a))
+
+
+
 ## [1.3.14](https://github.com/ephrimlawrence/ananse/compare/v1.3.13...v1.3.14) (2024-02-29)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * github action bug ([92d06a6](https://github.com/ephrimlawrence/ananse/commit/92d06a6a7c23e332a2c9be23675d401b97bf766e))
-
-
-
-## [1.3.10](https://github.com/ephrimlawrence/ananse/compare/v1.3.9...v1.3.10) (2024-02-26)
-
-
-### Bug Fixes
-
-* github action bug ([1371b89](https://github.com/ephrimlawrence/ananse/commit/1371b892af374169017ba10445f7f293e407d6bd))
 
 
 
