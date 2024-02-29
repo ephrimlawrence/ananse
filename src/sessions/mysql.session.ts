@@ -152,7 +152,7 @@ export class MySQLSession extends BaseSession {
       return defaultValue;
     }
 
-    return (JSON.parse(val.data)[key] || defaultValue) as T;
+    return (JSON.parse(val.data || '{}')[key] || defaultValue) as T;
   }
 
   async getAll<T>(sessionId: string): Promise<T | undefined> {
@@ -165,6 +165,6 @@ export class MySQLSession extends BaseSession {
       return undefined;
     }
 
-    return JSON.parse(val.data) as T;
+    return JSON.parse(val.data || '{}') as T;
   }
 }
