@@ -144,7 +144,7 @@ export class MySQLSession extends BaseSession {
     key: string,
     defaultValue?: T,
   ): Promise<T | undefined> {
-    const [val] = await this.db.one(
+    const [val] = await this.db.query(
       `SELECT data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery} LIMIT 1`,
       [sessionId],
     );
@@ -157,7 +157,7 @@ export class MySQLSession extends BaseSession {
   }
 
   async getAll<T>(sessionId: string): Promise<T | undefined> {
-    const [val] = await this.db.one(
+    const [val] = await this.db.query(
       `SELECT data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery}`,
       [sessionId],
     );
