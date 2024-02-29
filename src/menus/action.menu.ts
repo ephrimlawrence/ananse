@@ -31,7 +31,7 @@ export class MenuAction {
 
   // TODO: validate that either route or action is provided
   // suggest a name for a method that will be called when this option is selected by the user
-  handler?: (req: Request, session: BaseSession) => Promise<void>;
+  handler?: (req: Request) => Promise<void>;
   // handler: (get: () => void, set: (val: any) => Promise<void>) => void = (
   //   get,
   //   set

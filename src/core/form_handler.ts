@@ -121,26 +121,7 @@ export class FormMenuHandler {
 
     // Call handler to allow the user to process the input
     if (this.#currentInput.handler != null) {
-      await this.#currentInput.handler(this.request, {
-        get: async <T>(key: string, defaultValue?: any) => {
-          return await Config.getInstance().session?.get<T>(
-            this.request.state.sessionId!,
-            key,
-            defaultValue,
-          );
-        },
-        getAll: <T>() => {
-          return Config.getInstance().session?.getAll<T>(
-            this.request.state.sessionId,
-          );
-        },
-        set: (key: string, val: any) =>
-          Config.getInstance().session?.set(
-            this.request.state.sessionId,
-            key,
-            val,
-          ),
-      });
+      await this.#currentInput.handler(this.request);
     }
 
     // Track input as submitted

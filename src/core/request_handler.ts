@@ -206,7 +206,7 @@ export class RequestHandler {
 
     // Execute the action handler
     if (action?.handler != null) {
-      await action.handler(this.request, this.session);
+      await action.handler(this.request);
     }
 
     // Resolve next menu and make it the current menu
