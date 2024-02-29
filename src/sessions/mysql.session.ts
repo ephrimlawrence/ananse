@@ -1,6 +1,5 @@
 import { State } from "@src/models/ussd-state";
 import { BaseSession, SQLSessionOptions } from "./base.session";
-import mysql from "mysql2/promise";
 
 /**
  * MySQL session manager
@@ -119,7 +118,7 @@ export class MySQLSession extends BaseSession {
         });
     } else {
       this.db
-        .none(
+        .query(
           `UPDATE ${this.tableName} SET deleted_at = ? WHERE session_id = ? ${this.softDeleteQuery}`,
           [new Date().toISOString(), sessionId],
         )
