@@ -166,6 +166,6 @@ export class MySQLSession extends BaseSession {
       return undefined;
     }
 
-    return JSON.parse(val) as T;
+    return val as T;
   }
 }
