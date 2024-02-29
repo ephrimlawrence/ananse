@@ -153,7 +153,7 @@ export class MySQLSession extends BaseSession {
       return defaultValue;
     }
 
-    return (JSON.parse(val)[key] || defaultValue) as T;
+    return (val[key] || defaultValue) as T;
   }
 
   async getAll<T>(sessionId: string): Promise<T | undefined> {
