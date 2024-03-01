@@ -1,3 +1,12 @@
+## [1.4.1](https://github.com/ephrimlawrence/ananse/compare/v1.4.0...v1.4.1) (2024-03-01)
+
+
+### Bug Fixes
+
+* **session: mysql:** server crash when parsing state value to JSON on mssql database ([159324b](https://github.com/ephrimlawrence/ananse/commit/159324bb67adc62884ad590be130967a14758350))
+
+
+
 # [1.4.0](https://github.com/ephrimlawrence/ananse/compare/v1.3.17...v1.4.0) (2024-03-01)
 
 
@@ -37,15 +46,6 @@
 ### Bug Fixes
 
 * **session: mysql:** query bug when querying session data ([a308606](https://github.com/ephrimlawrence/ananse/commit/a308606d668ea927a2b954fdc3f14485b03cbd3a))
-
-
-
-## [1.3.14](https://github.com/ephrimlawrence/ananse/compare/v1.3.13...v1.3.14) (2024-02-29)
-
-
-### Bug Fixes
-
-* **session: mysql:** query bug when querying session data ([9dd236f](https://github.com/ephrimlawrence/ananse/commit/9dd236fbe4e7286326876c53afa5644e997b7d6c))
 
 
 
