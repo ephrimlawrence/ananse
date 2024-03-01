@@ -1,3 +1,17 @@
+# [1.4.0](https://github.com/ephrimlawrence/ananse/compare/v1.3.17...v1.4.0) (2024-03-01)
+
+
+### Bug Fixes
+
+* **session: mysql:** session data incorrectly saved as string instead of json ([12ee9aa](https://github.com/ephrimlawrence/ananse/commit/12ee9aa2d55a06021a485b0262504fb87ba30eba))
+
+
+### Features
+
+* implement session termination by user ([cfc8b41](https://github.com/ephrimlawrence/ananse/commit/cfc8b41b8a805c0caeee1b0794f85755a0bb309d))
+
+
+
 ## [1.3.17](https://github.com/ephrimlawrence/ananse/compare/v1.3.16...v1.3.17) (2024-02-29)
 
 
@@ -32,15 +46,6 @@
 ### Bug Fixes
 
 * **session: mysql:** query bug when querying session data ([9dd236f](https://github.com/ephrimlawrence/ananse/commit/9dd236fbe4e7286326876c53afa5644e997b7d6c))
-
-
-
-## [1.3.13](https://github.com/ephrimlawrence/ananse/compare/v1.3.12...v1.3.13) (2024-02-29)
-
-
-### Bug Fixes
-
-* **session: mysql:** query bug when querying session data ([156c10e](https://github.com/ephrimlawrence/ananse/commit/156c10e14a5a90d4e7996f4142eed44af1d8fe26))
 
 
 
