@@ -9,10 +9,10 @@ export class DynamicMenu {
   #id: string;
   #formInputs: FormInput[] = [];
   #isForm: boolean = false;
+  #end: boolean = false;
 
   private _validation?: Validation;
   private _actions: MenuAction[];
-  private _back?: string; // TODO: links to previous menu/action
   private _isStart: boolean = false;
   private _currentOption?: MenuAction | undefined = undefined; // make private??
   private _action?: Type<BaseMenu> | undefined = undefined;
@@ -62,11 +62,6 @@ export class DynamicMenu {
     return this;
   }
 
-  back(menuName: string): DynamicMenu {
-    this._back = menuName;
-
-    return this;
-  }
 
   start(): DynamicMenu {
     // TODO: verify that only one start menu is defined. Move to Route class?
@@ -83,6 +78,13 @@ export class DynamicMenu {
   message(msg: string | ((req: Request, res: Response) => Promise<string>)) {
     this._message = msg;
     return this;
+  }
+
+  /**
+   * Terminate the current session
+   */
+  end(): void {
+    this.#end = true;
   }
 
   // TODO: rename to getactiona
@@ -125,7 +127,7 @@ export class DynamicMenu {
 
     try {
       return this._validation.test(req.state.userData);
-    } catch {}
+    } catch { }
 
     return false;
   }
@@ -146,6 +148,10 @@ export class DynamicMenu {
 
   get id(): string {
     return this.#id;
+  }
+
+  get isEnd(): boolean {
+    return this.#end;
   }
 
   get isStart(): boolean {

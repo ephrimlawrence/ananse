@@ -88,15 +88,13 @@ class Simulator {
 
         const resp = await fetch(url, { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } });
 
-        // console.log(resp.text());
-        const json: { Message: string, type: 'Release' | 'Response' } = await resp.json();
-
-        // let emergence = this.parseResponse(data);
-        if (json.type == 'Release') process.exit(0);
+        const json: { Message: string, Type: 'Release' | 'Response' } = await resp.json();
 
         console.log("");
         console.log(this.displayText(json.Message));
         console.log("");
+
+        if (json.Type == 'Release') process.exit(0);
 
         rl.question("Response: ", async (input) => {
           const { url, body } = this.reply(json, input) as { url: string, body: any };

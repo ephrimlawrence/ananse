@@ -17,6 +17,14 @@ export abstract class BaseMenu {
 
   abstract nextMenu(): Promise<string | undefined>;
 
+  /**
+   * Terminate the current session
+   *
+   */
+  async end(): Promise<boolean> {
+    return false;
+  }
+
   get sessionId(): string {
     // FIXME: this is not reliable, add to request object
     return this.request.query?.sessionid!;

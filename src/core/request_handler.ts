@@ -77,7 +77,7 @@ export class RequestHandler {
       visited: {},
     };
     this.request.state = state;
-    this.request.session = this.userUser();
+    this.request.session = this.getSession();
 
     // Each menu is visited at least twice,
     // (1) to get the menu options and display message to the, and
@@ -120,6 +120,23 @@ export class RequestHandler {
       // Next menu is a form, use form handler to build response
       if (await this.isFormMenu(currentMenu)) {
         return this.formHandler(currentMenu, state);
+      }
+
+      // If menu terminates the session, end the session
+      let isEnd = false;
+      console.log("here 1")
+      // console.log(instance)
+      if (menuType(currentMenu) == "class") {
+        isEnd = await (currentMenu as unknown as BaseMenu).end();
+      } else {
+        console.log("here")
+        console.log(currentMenu)
+        isEnd = (currentMenu as DynamicMenu).isEnd;
+      }
+
+      console.log(isEnd)
+      if (isEnd) {
+        state.end();
       }
     }
 
@@ -376,7 +393,7 @@ export class RequestHandler {
    * Exposes a simplified session API interface to be used in menus
    *
    */
-  userUser(): Session {
+  getSession(): Session {
     return {
       // TODO: add delete
       get: async <T>(key: string, defaultValue?: any) => {

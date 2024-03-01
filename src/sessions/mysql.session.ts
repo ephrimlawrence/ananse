@@ -98,7 +98,7 @@ export class MySQLSession extends BaseSession {
       [sessionId],
     );
 
-    if(resp.length == 0) return undefined;
+    if (resp.length == 0) return undefined;
 
     return resp == null ? undefined : State.fromJSON(JSON.parse(resp[0].state));
   }
@@ -131,7 +131,7 @@ export class MySQLSession extends BaseSession {
   }
 
   async set(sessionId: string, key: string, value: any): Promise<void> {
-    const [val] = await this.db.query(
+    await this.db.query(
       `UPDATE ${this.tableName} SET data = JSON_SET(data, '$.${key}', ?) WHERE session_id = ? ${this.softDeleteQuery}`,
       [JSON.stringify(value), sessionId],
     );
@@ -143,7 +143,7 @@ export class MySQLSession extends BaseSession {
     key: string,
     defaultValue?: T,
   ): Promise<T | undefined> {
-    const [val] = await this.db.query(
+    const [val, _fields] = await this.db.query(
       `SELECT data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery} LIMIT 1`,
       [sessionId],
     );
@@ -152,11 +152,11 @@ export class MySQLSession extends BaseSession {
       return defaultValue;
     }
 
-    return (JSON.parse(val.data || '{}')[key] || defaultValue) as T;
+    return (JSON.parse(val[0]?.data || '{}')[key] || defaultValue) as T;
   }
 
   async getAll<T>(sessionId: string): Promise<T | undefined> {
-    const [val] = await this.db.query(
+    const [[val]] = await this.db.query(
       `SELECT data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery}`,
       [sessionId],
     );
