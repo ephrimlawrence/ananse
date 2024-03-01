@@ -40,7 +40,7 @@ interface BaseSessionOptions {
 }
 
 export interface SQLSessionOptions extends BaseSessionOptions {
-  type: "postgres" | "mysql";
+  type: "postgres" | "mysql" | "mssql";
 
   /**
    * The name of the table to use for the session, default is `ussd_sessions`

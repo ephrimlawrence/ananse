@@ -100,6 +100,10 @@ export class MySQLSession extends BaseSession {
 
     if (resp.length == 0) return undefined;
 
+    if (this.config.type == "mssql") {
+      return resp == null ? undefined : State.fromJSON(resp[0].state);
+    }
+
     return resp == null ? undefined : State.fromJSON(JSON.parse(resp[0].state));
   }
 
