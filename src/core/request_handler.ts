@@ -124,17 +124,12 @@ export class RequestHandler {
 
       // If menu terminates the session, end the session
       let isEnd = false;
-      console.log("here 1")
-      // console.log(instance)
       if (menuType(currentMenu) == "class") {
         isEnd = await (currentMenu as unknown as BaseMenu).end();
       } else {
-        console.log("here")
-        console.log(currentMenu)
         isEnd = (currentMenu as DynamicMenu).isEnd;
       }
 
-      console.log(isEnd)
       if (isEnd) {
         state.end();
       }
