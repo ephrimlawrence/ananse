@@ -133,7 +133,7 @@ export class MySQLSession extends BaseSession {
   async set(sessionId: string, key: string, value: any): Promise<void> {
     await this.db.query(
       `UPDATE ${this.tableName} SET data = JSON_SET(data, '$.${key}', ?) WHERE session_id = ? ${this.softDeleteQuery}`,
-      [JSON.stringify(value), sessionId],
+      [value, sessionId],
     );
     return await this.get(sessionId, key, value);
   }
