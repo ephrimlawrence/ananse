@@ -67,6 +67,7 @@ export class Config {
             this._session = PostgresSession.getInstance();
             this._session.configure(_session);
             break;
+          case "mssql":
           case "mysql":
             this._session = MySQLSession.getInstance();
             this._session.configure(_session);
