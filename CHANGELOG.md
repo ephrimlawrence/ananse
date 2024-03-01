@@ -1,3 +1,12 @@
+## [1.4.2](https://github.com/ephrimlawrence/ananse/compare/v1.4.1...v1.4.2) (2024-03-01)
+
+
+### Bug Fixes
+
+* **simulator:** remove logs ([12530b8](https://github.com/ephrimlawrence/ananse/commit/12530b8eb3c56c17e2834ea85c70d24285a89aed))
+
+
+
 ## [1.4.1](https://github.com/ephrimlawrence/ananse/compare/v1.4.0...v1.4.1) (2024-03-01)
 
 
@@ -37,15 +46,6 @@
 
 * **session: mysql:** query bug when querying session data ([b8251a0](https://github.com/ephrimlawrence/ananse/commit/b8251a03d2e1fe15a47123da030e2b8c4e5cbb23))
 * **session: mysql:** query bug when querying session data ([7d067eb](https://github.com/ephrimlawrence/ananse/commit/7d067ebd443ff492f45eb54430be08fc7f42168d))
-
-
-
-## [1.3.15](https://github.com/ephrimlawrence/ananse/compare/v1.3.14...v1.3.15) (2024-02-29)
-
-
-### Bug Fixes
-
-* **session: mysql:** query bug when querying session data ([a308606](https://github.com/ephrimlawrence/ananse/commit/a308606d668ea927a2b954fdc3f14485b03cbd3a))
 
 
 
