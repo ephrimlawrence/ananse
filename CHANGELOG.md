@@ -1,3 +1,12 @@
+## [1.4.3](https://github.com/ephrimlawrence/ananse/compare/v1.4.2...v1.4.3) (2024-03-01)
+
+
+### Bug Fixes
+
+* add mssql to session config ([90dd280](https://github.com/ephrimlawrence/ananse/commit/90dd280d1dca20fbbff1b279b84486505e6774fa))
+
+
+
 ## [1.4.2](https://github.com/ephrimlawrence/ananse/compare/v1.4.1...v1.4.2) (2024-03-01)
 
 
@@ -36,16 +45,6 @@
 ### Bug Fixes
 
 * **session: mysql:** query bug when querying session data ([d46a8a6](https://github.com/ephrimlawrence/ananse/commit/d46a8a634e447e0b0ed4de5e099ee3cc733024e9))
-
-
-
-## [1.3.16](https://github.com/ephrimlawrence/ananse/compare/v1.3.15...v1.3.16) (2024-02-29)
-
-
-### Bug Fixes
-
-* **session: mysql:** query bug when querying session data ([b8251a0](https://github.com/ephrimlawrence/ananse/commit/b8251a03d2e1fe15a47123da030e2b8c4e5cbb23))
-* **session: mysql:** query bug when querying session data ([7d067eb](https://github.com/ephrimlawrence/ananse/commit/7d067ebd443ff492f45eb54430be08fc7f42168d))
 
 
 
