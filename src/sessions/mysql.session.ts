@@ -10,8 +10,8 @@ import { BaseSession, SQLSessionOptions } from "./base.session";
  * CREATE TABLE ussd_sessions (
  *   id INTEGER PRIMARY KEY AUTO_INCREMENT,
  *   session_id VARCHAR(255),
- *   state JSON DEFAULT '{}',
- *   data JSON DEFAULT '{}',
+ *   state LONGTEXT DEFAULT '{}',
+ *   data LONGTEXT DEFAULT '{}',
  *   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
  *    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
  *   deleted_at TIMESTAMP NULL DEFAULT NULL,
@@ -94,17 +94,15 @@ export class MySQLSession extends BaseSession {
 
   async getState(sessionId: string) {
     const [resp, _fields] = await this.db.query(
-      `SELECT state FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery} LIMIT 1`,
+      `SELECT state, data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery} LIMIT 1`,
       [sessionId],
     );
 
     if (resp.length == 0) return undefined;
 
-    if (this.config.type == "mssql") {
-      return resp == null ? undefined : State.fromJSON(resp[0].state);
-    }
+    this.data[sessionId] = JSON.parse(resp[0].data);
 
-    return resp == null ? undefined : State.fromJSON(JSON.parse(resp[0].state));
+    return State.fromJSON(JSON.parse(resp[0].state));
   }
 
   clear(sessionId: string): void | State {
@@ -135,11 +133,13 @@ export class MySQLSession extends BaseSession {
   }
 
   async set(sessionId: string, key: string, value: any): Promise<void> {
+    this.data[sessionId] ??= {};
+    this.data[sessionId][key] = value;
+
     await this.db.query(
-      `UPDATE ${this.tableName} SET data = JSON_SET(data, '$.${key}', ?) WHERE session_id = ? ${this.softDeleteQuery}`,
-      [value, sessionId],
+      `UPDATE ${this.tableName} SET data = ? WHERE session_id = ? ${this.softDeleteQuery}`,
+      [JSON.stringify(this.data[sessionId]), sessionId],
     );
-    return await this.get(sessionId, key, value);
   }
 
   async get<T>(
