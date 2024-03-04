@@ -1,3 +1,12 @@
+## [1.4.4](https://github.com/ephrimlawrence/ananse/compare/v1.4.3...v1.4.4) (2024-03-04)
+
+
+### Bug Fixes
+
+* **session: mysql:** change `data` and `state` column type from json to longtext ([36225b9](https://github.com/ephrimlawrence/ananse/commit/36225b9223a7e058a3987695a6b243e3975c641b))
+
+
+
 ## [1.4.3](https://github.com/ephrimlawrence/ananse/compare/v1.4.2...v1.4.3) (2024-03-01)
 
 
@@ -36,15 +45,6 @@
 ### Features
 
 * implement session termination by user ([cfc8b41](https://github.com/ephrimlawrence/ananse/commit/cfc8b41b8a805c0caeee1b0794f85755a0bb309d))
-
-
-
-## [1.3.17](https://github.com/ephrimlawrence/ananse/compare/v1.3.16...v1.3.17) (2024-02-29)
-
-
-### Bug Fixes
-
-* **session: mysql:** query bug when querying session data ([d46a8a6](https://github.com/ephrimlawrence/ananse/commit/d46a8a634e447e0b0ed4de5e099ee3cc733024e9))
 
 
 
