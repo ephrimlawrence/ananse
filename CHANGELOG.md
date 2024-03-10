@@ -1,3 +1,12 @@
+## [1.4.5](https://github.com/ephrimlawrence/ananse/compare/v1.4.4...v1.4.5) (2024-03-10)
+
+
+### Bug Fixes
+
+* class based menu lookup bugs ([4881765](https://github.com/ephrimlawrence/ananse/commit/4881765372f4a164805f7d3f080a224221096403))
+
+
+
 ## [1.4.4](https://github.com/ephrimlawrence/ananse/compare/v1.4.3...v1.4.4) (2024-03-04)
 
 
@@ -31,20 +40,6 @@
 ### Bug Fixes
 
 * **session: mysql:** server crash when parsing state value to JSON on mssql database ([159324b](https://github.com/ephrimlawrence/ananse/commit/159324bb67adc62884ad590be130967a14758350))
-
-
-
-# [1.4.0](https://github.com/ephrimlawrence/ananse/compare/v1.3.17...v1.4.0) (2024-03-01)
-
-
-### Bug Fixes
-
-* **session: mysql:** session data incorrectly saved as string instead of json ([12ee9aa](https://github.com/ephrimlawrence/ananse/commit/12ee9aa2d55a06021a485b0262504fb87ba30eba))
-
-
-### Features
-
-* implement session termination by user ([cfc8b41](https://github.com/ephrimlawrence/ananse/commit/cfc8b41b8a805c0caeee1b0794f85755a0bb309d))
 
 
 
