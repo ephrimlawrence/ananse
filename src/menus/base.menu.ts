@@ -7,7 +7,7 @@ export abstract class BaseMenu {
   constructor(
     protected readonly request: Request,
     protected readonly response: Response,
-  ) {}
+  ) { }
 
   async validate(data?: string): Promise<ValidationResponse> {
     return true;
@@ -30,7 +30,7 @@ export abstract class BaseMenu {
     return this.request.query?.sessionid!;
   }
 
-  get isStart(): Promise<boolean> {
+  async isStart(): Promise<boolean> {
     return Promise.resolve(false);
   }
 

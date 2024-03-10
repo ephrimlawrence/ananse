@@ -345,7 +345,7 @@ export class RequestHandler {
       menu = this.router.getMenu(id);
     } else if (state.isStart) {
       // If it is a start request, lookup for the start menu
-      const value = this.router.getStartMenu(this.request, this.response);
+      const value = await this.router.getStartMenu(this.request, this.response);
       id = value.id;
       menu = value.obj;
     }

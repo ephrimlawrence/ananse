@@ -4,7 +4,7 @@
 			"path": "."
 		},
 		{
-			"path": "../instant-settlement"
+			"path": "../direct-debit-ussd"
 		}
 	],
 	"settings": {
