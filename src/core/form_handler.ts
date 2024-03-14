@@ -1,6 +1,6 @@
 import { FormInput, NextMenu, Type, ValidationResponse } from "@src/types";
 import { Request, Response } from "@src/types/request";
-import { State } from "@src/models/ussd-state";
+import { State } from "@src/models";
 import { MenuRouter, DynamicMenu, Menu, Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
 import { BaseMenu, MenuAction } from "@src/menus";

@@ -1,6 +1,6 @@
 import { Request, Response } from "@src/types/request";
 import { Gateway } from "./base.gateway";
-import { State, StateMode } from "@src/models/ussd-state";
+import { State, StateMode } from "@src/models";
 
 interface IEmergentRequest {
   Type: "initiation" | "response" | "release" | "timeout";

@@ -1,5 +1,5 @@
 import { Request, Response } from "@src/types/request";
-import { State } from "@src/models/ussd-state";
+import { State } from "@src/models";
 import { Config } from "@src/config";
 import { BaseSession } from "@src/sessions";
 

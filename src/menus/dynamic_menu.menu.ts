@@ -1,7 +1,6 @@
-import { FormInput, Type, Validation, ValidationResponse } from "@src/types";
+import { FormInput, Request, Response, Type, Validation, ValidationResponse } from "@src/types";
 import { MenuAction } from "./action.menu";
 import { BaseMenu } from "./base.menu";
-import { Request, Response } from "@src/types/request";
 
 export class DynamicMenu {
   // TODO: Look for better class name
@@ -10,6 +9,7 @@ export class DynamicMenu {
   #formInputs: FormInput[] = [];
   #isForm: boolean = false;
   #end: boolean = false;
+  #paginate: boolean = false;
 
   private _validation?: Validation;
   private _actions: MenuAction[];
@@ -77,6 +77,11 @@ export class DynamicMenu {
 
   message(msg: string | ((req: Request, res: Response) => Promise<string>)) {
     this._message = msg;
+    return this;
+  }
+
+  paginate() {
+    this.#paginate = true
     return this;
   }
 
@@ -164,5 +169,9 @@ export class DynamicMenu {
 
   get currentOption(): MenuAction | undefined {
     return this._currentOption;
+  }
+
+  get isPaginate(): boolean {
+    return this.#paginate;
   }
 }

@@ -1,6 +1,6 @@
 import { Request, Response } from "@src/types/request";
 import { Gateway } from "./base.gateway";
-import { State } from "@src/models/ussd-state";
+import { State } from "@src/models";
 
 export class WigalGateway extends Gateway {
   get sessionId(): string {

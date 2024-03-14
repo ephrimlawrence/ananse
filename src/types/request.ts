@@ -1,6 +1,5 @@
-import { State } from "@src/models/ussd-state";
+import { State } from "@src/models";
 import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
-import { ParsedUrlQuery } from "querystring";
 import { Url } from "url";
 import { Session } from ".";
 

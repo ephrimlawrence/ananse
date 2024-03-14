@@ -1,4 +1,4 @@
-// import { State } from "@src/models/ussd-state";
+// import { State } from "@src/models";
 
 // export abstract class Session {
 //   protected readonly states: { [key: string]: State } = {};

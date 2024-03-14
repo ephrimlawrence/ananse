@@ -1,6 +1,6 @@
 import { NextMenu, Session, Type, ValidationResponse } from "@src/types";
 import { Request, Response } from "@src/types/request";
-import { State, StateMode } from "@src/models/ussd-state";
+import { State, StateMode } from "@src/models";
 import { MenuRouter, DynamicMenu, Menu, Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
 import { BaseMenu, MenuAction } from "@src/menus";
@@ -104,6 +104,8 @@ export class RequestHandler {
 
     // Resolve menu options
     await this.lookupMenuOptions(state, currentMenu);
+
+    // TODO: implement pagination here
 
     const error = await this.validateUserData(state, currentMenu);
 
@@ -304,6 +306,8 @@ export class RequestHandler {
       actions = (menu as DynamicMenu).getActions();
     }
 
+    // TODO: cache actions for pagition
+
     // Loop through the actions, and find the one that matches the user input
     const input = state.userData;
     for (const action of actions) {
@@ -356,6 +360,8 @@ export class RequestHandler {
 
     const instance = this.instantiateMenu(menu);
     this.setCurrentMenu(id!, state);
+
+    //TODO: if paginated menu, update pagination cache
 
     // Update session mode
     state.mode = StateMode.more;

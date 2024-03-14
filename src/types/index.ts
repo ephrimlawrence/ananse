@@ -1,15 +1,5 @@
 import { Request, Response } from "./request";
-/**
- * The validation response can be a boolean or a string.
- *
- * If `string`, the value is used as the error message, thus the input is invalid.
- * If `boolean`, the value is used to determine if the input is valid or not.
- */
-export type ValidationResponse = boolean | string;
-
-export type Validation =
-  | RegExp
-  | ((req: Request, resp: Response) => Promise<ValidationResponse> | ValidationResponse);
+import { Validation, ValidationResponse } from './validation.type'
 
 export interface Type<T = any> extends Function {
   new(...args: any[]): T;
@@ -35,4 +25,4 @@ export type NextMenu =
   | string
   | ((req: Request, resp: Response) => Promise<string>);
 
-export { Request, Response };
+export { Request, Response, Validation, ValidationResponse };

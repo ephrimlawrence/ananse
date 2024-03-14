@@ -9,8 +9,12 @@ export abstract class BaseMenu {
     protected readonly response: Response,
   ) { }
 
-  async validate(data?: string): Promise<ValidationResponse> {
+  async validate(_data?: string): Promise<ValidationResponse> {
     return true;
+  }
+
+  async paginate(): Promise<boolean> {
+    return false;
   }
 
   abstract message(): Promise<string>;

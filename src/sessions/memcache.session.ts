@@ -1,4 +1,4 @@
-import { State } from "@src/models/ussd-state";
+import { State } from "@src/models";
 import { BaseSession } from "./base.session";
 
 export class MemcacheSession extends BaseSession {

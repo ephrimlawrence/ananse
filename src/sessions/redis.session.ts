@@ -1,4 +1,4 @@
-import { State } from "@src/models/ussd-state";
+import { State } from "@src/models";
 import { BaseSession, RedisSessionOptions } from "./base.session";
 
 // @ts-ignore

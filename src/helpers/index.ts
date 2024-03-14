@@ -1,5 +1,5 @@
 import { BaseMenu, DynamicMenu, Menu, ValidationResponse } from "@src/menus";
-import { State } from "@src/models/ussd-state";
+import { State } from "@src/models";
 import { FormInput } from "@src/types";
 import { Request, Response } from "@src/types/request";
 import { SupportedGateway } from "./constants";
