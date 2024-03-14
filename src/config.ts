@@ -5,7 +5,7 @@ import { BaseSession, PostgresSession, SessionOptions } from "./sessions";
 import { MemcacheSession } from "./sessions/memcache.session";
 import { MySQLSession } from "./sessions/mysql.session";
 import { RedisSession } from "./sessions/redis.session";
-import { Type } from "./types";
+import { PaginationOption, Type } from "./types";
 import { EmergentTechnologyGateway } from "./gateways/emergent_technology.gateway";
 
 export class Config {
@@ -96,12 +96,17 @@ export class Config {
   get session(): BaseSession | undefined {
     return this._session;
   }
+
+  get options() {
+    return this.#options
+  }
 }
 
 type CustomSession = Type<BaseSession>;
 
-export interface ConfigOptions {
+export class ConfigOptions {
   middlewares?: Type<Gateway>[];
   session?: "memory" | SessionOptions | CustomSession;
   gateway: keyof typeof SupportedGateway;
+  pagination?: PaginationOption = new PaginationOption()
 }

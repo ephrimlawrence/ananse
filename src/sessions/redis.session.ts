@@ -1,8 +1,9 @@
 import { State } from "@src/models";
-import { BaseSession, RedisSessionOptions } from "./base.session";
+import { BaseSession } from "./base.session";
 
 // @ts-ignore
 import type { RedisClientType } from "redis";
+import { RedisSessionOptions } from "@src/types";
 
 export class RedisSession extends BaseSession {
   private static instance: RedisSession;

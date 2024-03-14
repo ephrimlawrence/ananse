@@ -171,7 +171,7 @@ export class DynamicMenu {
     return this._currentOption;
   }
 
-  get isPaginate(): boolean {
+  get isPaginated(): boolean {
     return this.#paginate;
   }
 }

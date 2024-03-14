@@ -2,7 +2,7 @@ import { MenuAction } from "../menus/action.menu"
 
 export interface PaginationItem {
   page: number
-  nextPage?: number
-  previousPage?: number,
+  nextPage: PaginationItem | undefined
+  previousPage: PaginationItem | undefined
   data: Array<MenuAction>
 }

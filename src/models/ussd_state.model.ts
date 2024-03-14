@@ -1,3 +1,4 @@
+import { PaginationItem } from "@src/types/pagination.type";
 import { Menu, MenuAction } from "../menus";
 
 export enum StateMode {
@@ -46,7 +47,7 @@ export class State {
     // TODO: track submitted inputs
   } | undefined;
 
-  pagination?: { menuId: string, currentPage: number } = undefined
+  pagination: { [menuId: string]: PaginationItem }  = {}
 
   get isStart(): boolean {
     return this.mode == StateMode.start;

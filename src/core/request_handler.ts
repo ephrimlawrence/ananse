@@ -1,11 +1,12 @@
 import { NextMenu, Session, Type, ValidationResponse } from "@src/types";
 import { Request, Response } from "@src/types/request";
-import { State, StateMode } from "@src/models";
+import { MENU_CACHE, State, StateMode } from "@src/models";
 import { MenuRouter, DynamicMenu, Menu, Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
 import { BaseMenu, MenuAction } from "@src/menus";
-import { menuType, validateInput } from "@src/helpers";
+import { buildUserResponse, menuType, validateInput } from "@src/helpers";
 import { FormMenuHandler } from "./form_handler";
+import { PaginationHandler } from "./pagination_handler";
 
 export class RequestHandler {
   constructor(
@@ -36,6 +37,14 @@ export class RequestHandler {
       return (await (menu as unknown as BaseMenu).isForm()) || false;
     } else {
       return (await (menu as DynamicMenu).isFormMenu) || false;
+    }
+  }
+
+  private async isPaginatedMenu(menu: Menu) {
+    if (menuType(menu) == "class") {
+      return (await (menu as unknown as BaseMenu).paginate()) || false;
+    } else {
+      return (await (menu as DynamicMenu).isPaginated) || false;
     }
   }
 
@@ -103,12 +112,25 @@ export class RequestHandler {
     }
 
     // Resolve menu options
-    await this.lookupMenuOptions(state, currentMenu);
 
-    // TODO: implement pagination here
+    if (await this.isPaginatedMenu(currentMenu)) {
+      const paginationState = state.pagination == null ? null : state.pagination[state.menu.nextMenu!]
+
+      // First visited paginated menu, lookup menu options and generate pagination items
+      if (paginationState == null) {
+        await this.lookupMenuOptions(state, currentMenu);
+        await new PaginationHandler(
+          this.request,
+          this.response,
+          currentMenu,
+          state.menu?.nextMenu!
+        ).handle()
+      }
+    } else {
+      await this.lookupMenuOptions(state, currentMenu);
+    }
 
     const error = await this.validateUserData(state, currentMenu);
-
     if (error != null) {
       this.response.data = error;
       await this.resolveGateway("response");
@@ -148,6 +170,14 @@ export class RequestHandler {
     menu: Menu,
     error?: string,
   ): Promise<string | undefined> {
+
+    // If its a paginated menu, and the user data matches nav choices, skip input validation
+    if (await this.isPaginatedMenu(menu)) {
+      if (PaginationHandler.isNavActionSelected(state.userData?.trim())) {
+        return undefined
+      }
+    }
+
     let result = await validateInput({
       state: state,
       menu: menu,
@@ -169,50 +199,37 @@ export class RequestHandler {
     state: State,
     errorMessage?: string,
   ) {
-    if (errorMessage != null) {
-      return errorMessage;
-    }
+    // If its a paginated menu, and the user data matches nav choices, skip input validation
+    if (menu != null && await this.isPaginatedMenu(menu)) {
+      const input = state.userData?.trim();
+      let actions: MenuAction[] = [],
+        paginationState = state.pagination[state.menu?.nextMenu!]
 
-    // No message to display, end session
-    if (menu == null && state.isEnd) {
-      return "";
-    }
-
-    let message = "";
-    if (menuType(menu!) == "class") {
-      message = await (menu as unknown as BaseMenu).message();
-    } else {
-      message = await (menu as DynamicMenu).getMessage(
-        this.request,
-        this.response,
-      );
-    }
-
-    // Add options to the message
-    if (menuType(menu!) == "class") {
-      const _actions = (await (menu as unknown as BaseMenu).actions()) || [];
-      for await (const action of _actions) {
-        if (action.display == null) continue;
-
-        if (typeof action.display == "function") {
-          message += "\n" + (await action.display(this.request, this.response));
-        } else {
-          message += "\n" + action.display || "";
-        }
+      if (PaginationHandler.shouldGoToNextPage(input)) {
+        paginationState = paginationState.nextPage!;
+        actions = paginationState.nextPage?.data ?? [];
+      } else if (PaginationHandler.shouldGoToPreviousPage(input)) {
+        paginationState = paginationState.previousPage!;
+        actions = paginationState.previousPage?.data ?? [];
       }
-      return message;
+
+      return buildUserResponse({
+        menu,
+        actions: actions,
+        state,
+        errorMessage,
+        request: this.request,
+        response: this.response
+      })
     }
 
-    for await (const action of await (menu as DynamicMenu).getActions()) {
-      if (action.display == null) continue;
-
-      if (typeof action.display == "function") {
-        message += "\n" + (await action.display(this.request, this.response));
-      } else {
-        message += "\n" + action.display || "";
-      }
-    }
-    return message;
+    return buildUserResponse({
+      menu,
+      state,
+      errorMessage,
+      request: this.request,
+      response: this.response
+    })
   }
 
   private async resolveNextMenu(state: State, currentMenu: Menu) {
@@ -221,6 +238,13 @@ export class RequestHandler {
     // Execute the action handler
     if (action?.handler != null) {
       await action.handler(this.request);
+    }
+
+    // If paginated menu, and the user data matches nav choices, we stay on the same page
+    if (await this.isPaginatedMenu(currentMenu)) {
+      if (PaginationHandler.isNavActionSelected(state.userData?.trim())) {
+        return undefined
+      }
     }
 
     // Resolve next menu and make it the current menu
@@ -306,7 +330,7 @@ export class RequestHandler {
       actions = (menu as DynamicMenu).getActions();
     }
 
-    // TODO: cache actions for pagition
+    // TODO: cache actions for pagination
 
     // Loop through the actions, and find the one that matches the user input
     const input = state.userData;
@@ -361,10 +385,16 @@ export class RequestHandler {
     const instance = this.instantiateMenu(menu);
     this.setCurrentMenu(id!, state);
 
-    //TODO: if paginated menu, update pagination cache
+    // Check if it is a paginated menu
+    if (menuType(menu) == "class") {
+      MENU_CACHE[id!].paginated = await (menu as unknown as BaseMenu).paginate();
+    } else {
+      MENU_CACHE[id!].paginated = (menu as DynamicMenu).isPaginated;
+    }
 
     // Update session mode
     state.mode = StateMode.more;
+
     return instance;
   }
 

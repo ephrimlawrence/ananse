@@ -7,7 +7,7 @@ import { Request, Response } from "@src/types/request";
 import { Type } from "@src/types";
 import { BaseMenu } from "@src/menus/base.menu";
 import { DynamicMenu } from "@src/menus";
-import { MENU_CACHE } from "@src/core/state.core";
+import { MENU_CACHE } from "@src/models";
 import { menuType } from "..";
 
 export class Menus {
@@ -25,20 +25,13 @@ export class Menus {
     return Menus.instance;
   }
 
-  name(value: string): DynamicMenu {
-    const _menu = new DynamicMenu(value);
-    MENU_CACHE[value] = _menu;
-    return _menu;
-  }
-
   add(cls: Type<BaseMenu>, name: string): void {
-    // const _menu = new cls(cls.name, cls);
-    MENU_CACHE[name] = cls;
+    MENU_CACHE[name] = { menu: cls, paginated: false };
   }
 
   menu(id: string): DynamicMenu {
     const _menu = new DynamicMenu(id);
-    MENU_CACHE[id] = _menu;
+    MENU_CACHE[id] = { menu: _menu, paginated: false };
 
     return _menu;
   }
@@ -55,7 +48,7 @@ export class Menus {
 
     for (const id in MENU_CACHE) {
       let isStart = false;
-      const menu = MENU_CACHE[id];
+      const menu = MENU_CACHE[id]?.menu;
 
       if (menuType(menu) == "class") {
         if (menu instanceof BaseMenu) {
@@ -80,11 +73,11 @@ export class Menus {
       throw new Error("No start menu defined. Please define a start menu");
     }
 
-    return { id: startId, obj: MENU_CACHE[startId] };
+    return { id: startId, obj: MENU_CACHE[startId]?.menu };
   }
 
   getMenu(id: string): DynamicMenu | Type<BaseMenu> {
-    const menu = MENU_CACHE[id];
+    const menu = MENU_CACHE[id]?.menu;
 
     if (menu == undefined) {
       throw new Error(`Menu #${id} not found`);

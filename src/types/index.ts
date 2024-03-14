@@ -26,3 +26,4 @@ export type NextMenu =
   | ((req: Request, resp: Response) => Promise<string>);
 
 export { Request, Response, Validation, ValidationResponse };
+export * from './config_options.type'
