@@ -138,28 +138,43 @@ export class RequestHandler {
       return this.response;
     }
 
-    currentMenu = await this.resolveNextMenu(state, currentMenu);
+    let nextMenu: Menu | undefined = await this.resolveNextMenu(state, currentMenu);
 
-    if (currentMenu != null) {
-      // Next menu is a form, use form handler to build response
-      if (await this.isFormMenu(currentMenu)) {
-        return this.formHandler(currentMenu, state);
-      }
+    if (nextMenu != null) {
+      // Next menu is paginated, build pagination items and render them
+      if (await this.isPaginatedMenu(nextMenu)) {
+        const paginationState = state.pagination == null ? null : state.pagination[state.menu.nextMenu!]
 
-      // If menu terminates the session, end the session
-      let isEnd = false;
-      if (menuType(currentMenu) == "class") {
-        isEnd = await (currentMenu as unknown as BaseMenu).end();
+        // First visited paginated menu, lookup menu options and generate pagination items
+        if (paginationState == null) {
+          await new PaginationHandler(
+            this.request,
+            this.response,
+            nextMenu,
+            state.menu?.nextMenu!
+          ).handle()
+        }
       } else {
-        isEnd = (currentMenu as DynamicMenu).isEnd;
-      }
+        // Next menu is a form, use form handler to build response
+        if (await this.isFormMenu(nextMenu)) {
+          return this.formHandler(nextMenu, state);
+        }
 
-      if (isEnd) {
-        state.end();
+        // If menu terminates the session, end the session
+        let isEnd = false;
+        if (menuType(nextMenu) == "class") {
+          isEnd = await (nextMenu as unknown as BaseMenu).end();
+        } else {
+          isEnd = (nextMenu as DynamicMenu).isEnd;
+        }
+
+        if (isEnd) {
+          state.end();
+        }
       }
     }
 
-    this.response.data = await this.buildResponse(currentMenu, state);
+    this.response.data = await this.buildResponse(nextMenu, state);
 
     await this.resolveGateway("response");
     return this.response;
@@ -205,14 +220,15 @@ export class RequestHandler {
       let actions: MenuAction[] = [],
         paginationState = state.pagination[state.menu?.nextMenu!]
 
-      if (PaginationHandler.shouldGoToNextPage(input)) {
-        paginationState = paginationState.nextPage!;
-        actions = paginationState.nextPage?.data ?? [];
-      } else if (PaginationHandler.shouldGoToPreviousPage(input)) {
+      if (PaginationHandler.shouldGoToPreviousPage(input)) {
+        actions = [...paginationState?.data];
         paginationState = paginationState.previousPage!;
-        actions = paginationState.previousPage?.data ?? [];
+      } else {
+        actions = [...paginationState?.data];
+        paginationState = paginationState.nextPage!;
       }
 
+      state.pagination[state.menu?.nextMenu!] = paginationState
       return buildUserResponse({
         menu,
         actions: actions,
@@ -386,10 +402,10 @@ export class RequestHandler {
     this.setCurrentMenu(id!, state);
 
     // Check if it is a paginated menu
-    if (menuType(menu) == "class") {
-      MENU_CACHE[id!].paginated = await (menu as unknown as BaseMenu).paginate();
+    if (menuType(instance) == "class") {
+      MENU_CACHE[id!].paginated = await (instance as unknown as BaseMenu).paginate();
     } else {
-      MENU_CACHE[id!].paginated = (menu as DynamicMenu).isPaginated;
+      MENU_CACHE[id!].paginated = (instance as DynamicMenu).isPaginated;
     }
 
     // Update session mode

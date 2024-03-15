@@ -41,6 +41,96 @@ MenuRouter
       display: "6. Reset Pin",
       next_menu: MenuType.customer_reset_pin,
     },
+    {
+      choice: "1",
+      display: "1. New Policy Registration",
+      next_menu: MenuType.customer_new_policy,
+    },
+    {
+      choice: "2",
+      display: "2. Pay Policy Premium",
+      next_menu: MenuType.customer_premium_payment,
+    },
+    {
+      choice: "3",
+      display: "3. Collection Balance",
+      next_menu: MenuType.customer_balance,
+    },
+    {
+      choice: "4",
+      display: "4. Set up Direct Debit",
+      next_menu: MenuType.customer_debit_setup,
+    },
+    {
+      choice: "5",
+      display: "5. Claims Request",
+      next_menu: MenuType.customer_claim_request,
+    },
+    {
+      choice: "6",
+      display: "6. Reset Pin",
+      next_menu: MenuType.customer_reset_pin,
+    },
+    {
+      choice: "1",
+      display: "1. New Policy Registration",
+      next_menu: MenuType.customer_new_policy,
+    },
+    {
+      choice: "2",
+      display: "2. Pay Policy Premium",
+      next_menu: MenuType.customer_premium_payment,
+    },
+    {
+      choice: "3",
+      display: "3. Collection Balance",
+      next_menu: MenuType.customer_balance,
+    },
+    {
+      choice: "4",
+      display: "4. Set up Direct Debit",
+      next_menu: MenuType.customer_debit_setup,
+    },
+    {
+      choice: "5",
+      display: "5. Claims Request",
+      next_menu: MenuType.customer_claim_request,
+    },
+    {
+      choice: "6",
+      display: "6. Reset Pin",
+      next_menu: MenuType.customer_reset_pin,
+    },
+    {
+      choice: "1",
+      display: "1. New Policy Registration",
+      next_menu: MenuType.customer_new_policy,
+    },
+    {
+      choice: "2",
+      display: "2. Pay Policy Premium",
+      next_menu: MenuType.customer_premium_payment,
+    },
+    {
+      choice: "3",
+      display: "3. Collection Balance",
+      next_menu: MenuType.customer_balance,
+    },
+    {
+      choice: "4",
+      display: "4. Set up Direct Debit",
+      next_menu: MenuType.customer_debit_setup,
+    },
+    {
+      choice: "5",
+      display: "5. Claims Request",
+      next_menu: MenuType.customer_claim_request,
+    },
+    {
+      choice: "6",
+      display: "6. Reset Pin",
+      next_menu: MenuType.customer_reset_pin,
+    },
   ]);
 
 // New customer registration, using forms feature
@@ -70,9 +160,9 @@ MenuRouter
       name: "pin",
       validate: /\d{4}/,
       display: "Enter PIN",
-      handler: async (_req, session) => {
+      handler: async (_req) => {
         //TODO: add session to request object
-        const form = await session.get<any>(MenuType.customer_registration);
+        const form = await _req.session.get<any>(MenuType.customer_registration);
         const customer = new Customer({
           first_name: form.first_name,
           phone_number: _req.state.msisdn,

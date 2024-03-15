@@ -40,7 +40,7 @@ export class PaginationHandler {
 
     if (pagination != null) {
       this.state.pagination ??= {}
-      this.state.pagination[this.menuId] = pagination
+      this.state.pagination[this.menuId] = this.goToFirstPage(pagination)
     }
   }
 
@@ -71,9 +71,9 @@ export class PaginationHandler {
     }
 
     // If pagination is enabled but its not necessary, return response as usual
-    if (message.length <= MAXIMUM_CHARACTERS && isStart) {
-      return opts.item;
-    }
+    // if (message.length <= MAXIMUM_CHARACTERS && isStart) {
+    //   return opts.item;
+    // }
 
     // Add navigation options to message and compute characters length
     message += this.buildNavigationAction(isStart);
@@ -114,12 +114,13 @@ export class PaginationHandler {
     let paginationItem: PaginationItem = {
       page: opts.page,
       nextPage: undefined,
-      previousPage: opts.item,
-      data: actions
+      previousPage: undefined,
+      data: [...actions]
     };
 
     if (opts.item != null) {
-      opts.item.nextPage = paginationItem
+      opts.item.nextPage = {...paginationItem}
+      paginationItem.previousPage = { ...opts.item }
     }
 
     // Reset actions to unpaginated items
@@ -143,6 +144,14 @@ export class PaginationHandler {
     }
 
     return `\n${conf.previousPage.display}\n${conf.nextPage.display}`
+  }
+
+  goToFirstPage(item: PaginationItem): PaginationItem {
+    if (item.previousPage != null && item.page != 1) {
+      return this.goToFirstPage(item.previousPage)
+    }
+
+    return item;
   }
 
   static get paginationConfig() {

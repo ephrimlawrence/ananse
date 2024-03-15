@@ -26,7 +26,7 @@
 //   abstract get<T = unknown>(key: string, defaultValue: T): T | unknown;
 // }
 
-export { BaseSession, SessionOptions } from "./base.session";
+export { BaseSession } from "./base.session";
 export { RedisSession } from "./redis.session";
 export { PostgresSession } from "./postgresql.session";
 export { MemcacheSession } from "./memcache.session";

@@ -1,11 +1,11 @@
 import { SupportedGateway } from "./helpers/constants";
 import { Gateway } from "./gateways/base.gateway";
 import { WigalGateway } from "./gateways/wigal.gateway";
-import { BaseSession, PostgresSession, SessionOptions } from "./sessions";
+import { BaseSession, PostgresSession } from "./sessions";
 import { MemcacheSession } from "./sessions/memcache.session";
 import { MySQLSession } from "./sessions/mysql.session";
 import { RedisSession } from "./sessions/redis.session";
-import { PaginationOption, Type } from "./types";
+import { PaginationOption, SessionOptions, Type } from "./types";
 import { EmergentTechnologyGateway } from "./gateways/emergent_technology.gateway";
 
 export class Config {
