@@ -47,7 +47,7 @@ export class State {
     // TODO: track submitted inputs
   } | undefined;
 
-  pagination: { [menuId: string]: PaginationItem }  = {}
+  pagination: { [menuId: string]: { currentPage: PaginationItem | undefined, pages: PaginationItem[] } } = {}
 
   get isStart(): boolean {
     return this.mode == StateMode.start;

@@ -112,11 +112,11 @@ export class RequestHandler {
     }
 
     // Resolve menu options
-
     if (await this.isPaginatedMenu(currentMenu)) {
       const paginationState = state.pagination == null ? null : state.pagination[state.menu.nextMenu!]
 
       // First visited paginated menu, lookup menu options and generate pagination items
+      // TODO: consider when paginated action is selected (not nav action)
       if (paginationState == null) {
         await this.lookupMenuOptions(state, currentMenu);
         await new PaginationHandler(
@@ -143,17 +143,12 @@ export class RequestHandler {
     if (nextMenu != null) {
       // Next menu is paginated, build pagination items and render them
       if (await this.isPaginatedMenu(nextMenu)) {
-        const paginationState = state.pagination == null ? null : state.pagination[state.menu.nextMenu!]
-
-        // First visited paginated menu, lookup menu options and generate pagination items
-        if (paginationState == null) {
-          await new PaginationHandler(
-            this.request,
-            this.response,
-            nextMenu,
-            state.menu?.nextMenu!
-          ).handle()
-        }
+        await new PaginationHandler(
+          this.request,
+          this.response,
+          nextMenu,
+          state.menu?.nextMenu!
+        ).handle()
       } else {
         // Next menu is a form, use form handler to build response
         if (await this.isFormMenu(nextMenu)) {
@@ -216,22 +211,22 @@ export class RequestHandler {
   ) {
     // If its a paginated menu, and the user data matches nav choices, skip input validation
     if (menu != null && await this.isPaginatedMenu(menu)) {
-      const input = state.userData?.trim();
-      let actions: MenuAction[] = [],
-        paginationState = state.pagination[state.menu?.nextMenu!]
+      // const input = state.userData?.trim();
+      // let actions: MenuAction[] = [],
+      //   paginationState = state.pagination[state.menu?.nextMenu!]
 
-      if (PaginationHandler.shouldGoToPreviousPage(input)) {
-        actions = [...paginationState?.data];
-        paginationState = paginationState.previousPage!;
-      } else {
-        actions = [...paginationState?.data];
-        paginationState = paginationState.nextPage!;
-      }
+      // if (PaginationHandler.shouldGoToPreviousPage(input)) {
+      //   actions = [...paginationState?.data];
+      //   paginationState = { ...paginationState.previousPage! };
+      // } else {
+      //   actions = [...paginationState?.data];
+      //   paginationState = { ...paginationState.nextPage! };
+      // }
 
-      state.pagination[state.menu?.nextMenu!] = paginationState
+      // state.pagination[state.menu?.nextMenu!] = paginationState
       return buildUserResponse({
         menu,
-        actions: actions,
+        actions: PaginationHandler.navigateToPage(state),
         state,
         errorMessage,
         request: this.request,
@@ -259,7 +254,7 @@ export class RequestHandler {
     // If paginated menu, and the user data matches nav choices, we stay on the same page
     if (await this.isPaginatedMenu(currentMenu)) {
       if (PaginationHandler.isNavActionSelected(state.userData?.trim())) {
-        return undefined
+        return (await this.navigateToNextMenu(state, state.menu?.nextMenu))?.menu;
       }
     }
 

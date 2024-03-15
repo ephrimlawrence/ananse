@@ -22,6 +22,13 @@ export class PaginationHandler {
   }
 
   async handle() {
+    const paginationState = this.state.pagination == null ? null : this.state.pagination[this.menuId]
+
+    // Pages has already been generated and cached, nothing to do here
+    if (paginationState != null) {
+      return
+    }
+
     let actions: MenuAction[] = []
 
     if (menuType(this.menu!) == "class") {
@@ -30,29 +37,34 @@ export class PaginationHandler {
       actions = await (this.menu as DynamicMenu).getActions()
     }
 
-    const pagination = await this.generatePaginationItems({
+    const pages = await this.generatePaginationItems({
       actions: actions,
-      item: undefined,
+      // item: undefined,
       menu: this.menu,
       unpaginatedActions: [],
-      page: 1
+      page: 1,
+      pages: []
     })
 
-    if (pagination != null) {
+    if (pages != null) {
       this.state.pagination ??= {}
-      this.state.pagination[this.menuId] = this.goToFirstPage(pagination)
+      this.state.pagination[this.menuId] = {
+        currentPage: undefined,
+        pages: pages
+      }
     }
   }
 
   private async generatePaginationItems(opts: {
     menu: Menu,
-    item: PaginationItem | undefined,
+    // item: PaginationItem | undefined,
     actions: MenuAction[],
     unpaginatedActions: MenuAction[],
-    page: number
-  }): Promise<PaginationItem | undefined> {
+    page: number,
+    pages: PaginationItem[]
+  }): Promise<PaginationItem[] | undefined> {
     // Pagination item is null when starting
-    const isStart = opts.item == null;
+    const isStart = opts.page == 1;
 
     const { actions } = opts;
 
@@ -67,7 +79,7 @@ export class PaginationHandler {
 
     // No more actions, return pagination tree
     if (actions.length == 0) {
-      return opts.item
+      return opts.pages
     }
 
     // If pagination is enabled but its not necessary, return response as usual
@@ -89,8 +101,9 @@ export class PaginationHandler {
         menu: opts.menu,
         actions: temp,
         unpaginatedActions: opts.unpaginatedActions,
-        item: opts.item,
-        page: opts.page
+        // item: opts.item,
+        page: opts.page,
+        pages: opts.pages
       })
     }
 
@@ -114,14 +127,15 @@ export class PaginationHandler {
     let paginationItem: PaginationItem = {
       page: opts.page,
       nextPage: undefined,
-      previousPage: undefined,
+      previousPage: !isStart ? opts.page - 1 : undefined,
       data: [...actions]
     };
 
-    if (opts.item != null) {
-      opts.item.nextPage = {...paginationItem}
-      paginationItem.previousPage = { ...opts.item }
+    if (opts.unpaginatedActions.length > 0) {
+      opts.page += 1
+      paginationItem.nextPage = opts.page
     }
+    opts.pages.push(paginationItem)
 
     // Reset actions to unpaginated items
     const temp = [...opts.unpaginatedActions];
@@ -131,8 +145,9 @@ export class PaginationHandler {
       menu: opts.menu,
       actions: temp,
       unpaginatedActions: opts.unpaginatedActions,
-      item: paginationItem,
-      page: opts.page + 1
+      // item: paginationItem,
+      page: opts.page,
+      pages: opts.pages
     })
   }
 
@@ -146,13 +161,13 @@ export class PaginationHandler {
     return `\n${conf.previousPage.display}\n${conf.nextPage.display}`
   }
 
-  goToFirstPage(item: PaginationItem): PaginationItem {
-    if (item.previousPage != null && item.page != 1) {
-      return this.goToFirstPage(item.previousPage)
-    }
+  // goToFirstPage(item: PaginationItem): PaginationItem {
+  //   if (item.previousPage != null && item.page != 1) {
+  //     return this.goToFirstPage(item.previousPage)
+  //   }
 
-    return item;
-  }
+  //   return item;
+  // }
 
   static get paginationConfig() {
     return Config.getInstance().options.pagination ?? new PaginationOption();
@@ -171,15 +186,15 @@ export class PaginationHandler {
     return options.includes(input?.trim())
   }
 
-  static shouldGoToNextPage(input?: string): boolean {
-    if (input == null) {
-      return false
-    }
+  // static shouldGoToNextPage(input?: string): boolean {
+  //   if (input == null) {
+  //     return false
+  //   }
 
-    return input.trim() == this.paginationConfig.nextPage?.choice?.trim()
-  }
+  //   return input.trim() == this.paginationConfig.nextPage?.choice?.trim()
+  // }
 
-  static shouldGoToPreviousPage(input?: string): boolean {
+  private static shouldGoToPreviousPage(input?: string): boolean {
     if (input == null) {
       return false
     }
@@ -187,5 +202,20 @@ export class PaginationHandler {
     return input.trim() == this.paginationConfig.previousPage?.choice?.trim()
   }
 
+  static navigateToPage(state: State) {
+    const input = state.userData?.trim();
+    let { pages, currentPage } = state.pagination[state.menu?.nextMenu!]
 
+    if (currentPage == null) {
+      // We're now rendering first page
+      currentPage = pages.find(i => i.page == 1);
+    } else if (PaginationHandler.shouldGoToPreviousPage(input)) {
+      currentPage = pages.find(i => i.page == currentPage?.previousPage);
+    } else {
+      currentPage = pages.find(i => i.page == currentPage?.nextPage);
+    }
+
+    state.pagination[state.menu?.nextMenu!].currentPage = currentPage
+    return currentPage?.data || [];
+  }
 }

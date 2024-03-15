@@ -7,6 +7,10 @@ export class ClientLogin extends BaseMenu {
     return MenuType.customer;
   }
 
+  // async paginate(): Promise<boolean> {
+  //   return false;
+  // }
+
   async message() {
     return "Enter PIN";
   }
@@ -22,7 +26,9 @@ export class ClientLogin extends BaseMenu {
     });
     if (exists == null) {
       // TODO: add termination of session from here. Possible this.end()
-      return "Wrong PIN. Enter PIN";
+      return true;
+
+      // return "Wrong PIN. Enter PIN";
     }
     await this.session.set("customer", exists._id.toString());
     return true;

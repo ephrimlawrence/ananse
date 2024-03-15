@@ -131,7 +131,8 @@ MenuRouter
       display: "6. Reset Pin",
       next_menu: MenuType.customer_reset_pin,
     },
-  ]);
+  ])
+  .paginate();
 
 // New customer registration, using forms feature
 MenuRouter
