@@ -110,6 +110,9 @@ class Simulator {
 
   reply(data?: any, input?: string): string | { url: string, body: any } {
     if (this.provider == SupportedGateway.wigal) {
+      // If '#' in input, encode i
+      input = input?.replace(/#/g, '%23');
+
       // Wigal reply
       data ??= {};
       data.userdata = input != null ? input : data.userdata;

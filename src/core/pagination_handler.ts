@@ -4,7 +4,7 @@ import { State } from "@src/models";
 import { MenuRouter, DynamicMenu, Menu, Menus } from "@src/menus";
 import { Config, ConfigOptions } from "@src/config";
 import { BaseMenu, MenuAction } from "@src/menus";
-import { buildUserResponse, menuType, validateInput } from "@src/helpers";
+import { buildUserResponse, getMenuActions, menuType, validateInput } from "@src/helpers";
 import { PaginationItem } from "@src/types/pagination.type";
 import { MAXIMUM_CHARACTERS } from "@src/helpers/constants";
 
@@ -29,13 +29,7 @@ export class PaginationHandler {
       return
     }
 
-    let actions: MenuAction[] = []
-
-    if (menuType(this.menu!) == "class") {
-      actions = (await (this.menu as unknown as BaseMenu).actions()) || [];
-    } else {
-      actions = await (this.menu as DynamicMenu).getActions()
-    }
+    let actions: MenuAction[] = await getMenuActions(this.menu)
 
     const pages = await this.generatePaginationItems({
       actions: actions,
@@ -145,7 +139,6 @@ export class PaginationHandler {
       menu: opts.menu,
       actions: temp,
       unpaginatedActions: opts.unpaginatedActions,
-      // item: paginationItem,
       page: opts.page,
       pages: opts.pages
     })
@@ -160,14 +153,6 @@ export class PaginationHandler {
 
     return `\n${conf.previousPage.display}\n${conf.nextPage.display}`
   }
-
-  // goToFirstPage(item: PaginationItem): PaginationItem {
-  //   if (item.previousPage != null && item.page != 1) {
-  //     return this.goToFirstPage(item.previousPage)
-  //   }
-
-  //   return item;
-  // }
 
   static get paginationConfig() {
     return Config.getInstance().options.pagination ?? new PaginationOption();
@@ -186,13 +171,9 @@ export class PaginationHandler {
     return options.includes(input?.trim())
   }
 
-  // static shouldGoToNextPage(input?: string): boolean {
-  //   if (input == null) {
-  //     return false
-  //   }
-
-  //   return input.trim() == this.paginationConfig.nextPage?.choice?.trim()
-  // }
+  static isPageActionSelected(state: State) {
+    return !this.isNavActionSelected(state.userData?.trim())
+  }
 
   private static shouldGoToPreviousPage(input?: string): boolean {
     if (input == null) {
@@ -211,6 +192,12 @@ export class PaginationHandler {
       currentPage = pages.find(i => i.page == 1);
     } else if (PaginationHandler.shouldGoToPreviousPage(input)) {
       currentPage = pages.find(i => i.page == currentPage?.previousPage);
+
+      // No more previous pages, might be on the first page but user input prev page;
+      // navigate to page 1
+      if (currentPage == null) {
+        currentPage = pages.find(i => i.page == 1);
+      }
     } else {
       currentPage = pages.find(i => i.page == currentPage?.nextPage);
     }

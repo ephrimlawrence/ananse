@@ -3,27 +3,8 @@ import { State } from "@src/models";
 import { FormInput } from "@src/types";
 import { Request, Response } from "@src/types/request";
 import { SupportedGateway } from "./constants";
+import { menuType } from "./menu.helper";
 
-export function menuType(val: Menu): "class" | "dynamic" {
-  // TODO: document why this special case is needed
-  if (/^DynamicMenu$/i.test(val.constructor.name)) {
-    return "dynamic";
-  }
-  return "class";
-}
-
-export function instantiateMenu(menu: Menu) {
-  if (menuType(menu) == "class") {
-    if (menu instanceof BaseMenu) {
-      return menu;
-    }
-
-    // @ts-ignore
-    return new menu(this.request, this.response);
-  }
-
-  return menu;
-}
 
 export async function validateInput(opts: {
   state: State;
@@ -132,3 +113,4 @@ export async function buildUserResponse(
 }
 
 export { SupportedGateway }
+export { getMenuActions, menuType } from './menu.helper'
