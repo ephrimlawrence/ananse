@@ -1,3 +1,12 @@
+## [1.5.1](https://github.com/ephrimlawrence/ananse/compare/v1.5.0...v1.5.1) (2024-03-19)
+
+
+### Bug Fixes
+
+* **menus:** `isStart` function not called on classed based menus ([2cc1321](https://github.com/ephrimlawrence/ananse/commit/2cc13212210fbc0e2c51be32cbc7ad485ca4516a))
+
+
+
 # [1.5.0](https://github.com/ephrimlawrence/ananse/compare/v1.4.5...v1.5.0) (2024-03-18)
 
 
@@ -38,15 +47,6 @@
 ### Bug Fixes
 
 * add mssql to session config ([90dd280](https://github.com/ephrimlawrence/ananse/commit/90dd280d1dca20fbbff1b279b84486505e6774fa))
-
-
-
-## [1.4.2](https://github.com/ephrimlawrence/ananse/compare/v1.4.1...v1.4.2) (2024-03-01)
-
-
-### Bug Fixes
-
-* **simulator:** remove logs ([12530b8](https://github.com/ephrimlawrence/ananse/commit/12530b8eb3c56c17e2834ea85c70d24285a89aed))
 
 
 
