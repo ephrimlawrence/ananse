@@ -55,7 +55,7 @@ export class Menus {
           isStart = await menu.isStart()
         } else {
           // @ts-ignore
-          isStart = (await new menu(req, res).isStart)
+          isStart = (await new menu(req, res).isStart())
         }
       } else {
 

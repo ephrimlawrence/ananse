@@ -13,19 +13,19 @@ export abstract class BaseMenu {
     return true;
   }
 
-  async paginate(): Promise<boolean> {
+  paginate(): Promise<boolean> | boolean {
     return false;
   }
 
-  abstract message(): Promise<string>;
+  abstract message(): Promise<string> | string;
 
-  abstract nextMenu(): Promise<string | undefined>;
+  abstract nextMenu(): Promise<string | undefined> | string | undefined;
 
   /**
    * Terminate the current session
    *
    */
-  async end(): Promise<boolean> {
+  end(): Promise<boolean> | boolean {
     return false;
   }
 
@@ -34,8 +34,8 @@ export abstract class BaseMenu {
     return this.request.query?.sessionid!;
   }
 
-  async isStart(): Promise<boolean> {
-    return Promise.resolve(false);
+  isStart(): Promise<boolean> | boolean {
+    return false
   }
 
   get session(): Session {
