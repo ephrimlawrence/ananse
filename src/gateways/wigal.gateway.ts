@@ -20,6 +20,7 @@ export class WigalGateway extends Gateway {
     // await this.session.setState(this.sessionId, _state);
     this.request.state = _state;
     this.request.input = this.request.query?.userdata!;
+    this.request.msisdn = _state.msisdn
 
     return _state;
   }

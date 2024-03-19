@@ -19,6 +19,8 @@ export class Request {
 
   url: string;
 
+  msisdn?: string;
+
   /**
    * The input from the user
    */

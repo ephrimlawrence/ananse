@@ -55,6 +55,13 @@ export abstract class BaseMenu {
     };
   }
 
+  /**
+   * Returns the current msisdn/phone number of the session.
+   */
+  get msisdn(): string {
+    return this.request.state.msisdn
+  }
+
   async back(): Promise<string | undefined> {
     return undefined;
   }
