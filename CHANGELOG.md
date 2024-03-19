@@ -1,3 +1,12 @@
+# [1.6.0](https://github.com/ephrimlawrence/ananse/compare/v1.5.1...v1.6.0) (2024-03-19)
+
+
+### Features
+
+* add helper field/method to retrieve msisdn of the current session ([bee6f84](https://github.com/ephrimlawrence/ananse/commit/bee6f84743bc6c9b3859cee38de487eba922e575))
+
+
+
 ## [1.5.1](https://github.com/ephrimlawrence/ananse/compare/v1.5.0...v1.5.1) (2024-03-19)
 
 
@@ -38,15 +47,6 @@
 ### Bug Fixes
 
 * **session: mysql:** change `data` and `state` column type from json to longtext ([36225b9](https://github.com/ephrimlawrence/ananse/commit/36225b9223a7e058a3987695a6b243e3975c641b))
-
-
-
-## [1.4.3](https://github.com/ephrimlawrence/ananse/compare/v1.4.2...v1.4.3) (2024-03-01)
-
-
-### Bug Fixes
-
-* add mssql to session config ([90dd280](https://github.com/ephrimlawrence/ananse/commit/90dd280d1dca20fbbff1b279b84486505e6774fa))
 
 
 
