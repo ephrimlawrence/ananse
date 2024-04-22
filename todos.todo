@@ -1,13 +1,17 @@
 Pending features:
-    ✔ rewrite cli simulator to support all provider modes @done(23-12-02 15:23)
-    ✔ redis session management @done(23-12-02 17:44)
-    ☐ add 'end' to dyanmic menu actions
-    ☐ add 'end' to action menu class
-    ☐ add session management to dynamic menu
-    ☐ session management
-        ☐ set
-        ☐ get
-        ☐ update
-        ☐ remove
-    ☐ State/session hydration to disk
-        ☐ reload hydated state on request
+    ☐ implement on demand termination from anywhere in the code
+    ☐ add 'socket' params to redis config
+
+Archive:
+  ✔ rewrite cli simulator to support all provider modes @done(23-12-02 15:23) @project(Pending features)
+  ✔ redis session management @done(23-12-02 17:44) @project(Pending features)
+  ✔ add 'end' to dyanmic menu actions @done(24-03-19 07:25) @project(Pending features)
+  ✔ add 'end' to action menu class @done(24-03-19 07:25) @project(Pending features)
+  ✔ add session management to dynamic menu @done(24-03-19 07:25) @project(Pending features)
+  ✔ session management @done(24-03-19 07:25) @project(Pending features)
+  ✔ set @done(24-03-19 07:25) @project(Pending features)
+  ✔ get @done(24-03-19 07:25) @project(Pending features)
+  ✔ update @done(24-03-19 07:25) @project(Pending features)
+  ✔ remove @done(24-03-19 07:25) @project(Pending features)
+  ✔ State/session hydration to disk @done(24-03-19 07:25) @project(Pending features)
+  ✔ reload hydated state on request @done(24-03-19 07:25) @project(Pending features)
