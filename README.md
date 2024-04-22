@@ -115,7 +115,7 @@ export class AmountTypeMenu extends BaseMenu {
 MenuRouter.add(AmountTypeMenu, MenuType.account_type);
 ```
 
-### Star the Server
+### Start the Server
 
 Ananse can be added to an existing express application by simply mount a new route for it.
 
