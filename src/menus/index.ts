@@ -11,80 +11,79 @@ import { MENU_CACHE } from "@src/models";
 import { menuType } from "..";
 
 export class Menus {
-  private static instance: Menus;
+	private static instance: Menus;
 
-  // private items: { [menuId: string]: Type<BaseMenu> | DynamicMenu } = {};
+	// private items: { [menuId: string]: Type<BaseMenu> | DynamicMenu } = {};
 
-  private constructor() { }
+	private constructor() {}
 
-  public static getInstance(): Menus {
-    if (!Menus.instance) {
-      Menus.instance = new Menus();
-    }
+	public static getInstance(): Menus {
+		if (!Menus.instance) {
+			Menus.instance = new Menus();
+		}
 
-    return Menus.instance;
-  }
+		return Menus.instance;
+	}
 
-  add(cls: Type<BaseMenu>, name: string): void {
-    MENU_CACHE[name] = { menu: cls, paginated: false };
-  }
+	add(cls: Type<BaseMenu>, name: string): void {
+		MENU_CACHE[name] = { menu: cls, paginated: false };
+	}
 
-  menu(id: string): DynamicMenu {
-    const _menu = new DynamicMenu(id);
-    MENU_CACHE[id] = { menu: _menu, paginated: false };
+	menu(id: string): DynamicMenu {
+		const _menu = new DynamicMenu(id);
+		MENU_CACHE[id] = { menu: _menu, paginated: false };
 
-    return _menu;
-  }
+		return _menu;
+	}
 
-  get menus() {
-    return MENU_CACHE;
-  }
+	get menus() {
+		return MENU_CACHE;
+	}
 
-  async getStartMenu(
-    req: Request,
-    res: Response,
-  ): Promise<{ id: string; obj: DynamicMenu | Type<BaseMenu>; }> {
-    let startId: string | undefined;
+	async getStartMenu(
+		req: Request,
+		res: Response,
+	): Promise<{ id: string; obj: DynamicMenu | Type<BaseMenu> }> {
+		let startId: string | undefined;
 
-    for (const id in MENU_CACHE) {
-      let isStart = false;
-      const menu = MENU_CACHE[id]?.menu;
+		for (const id in MENU_CACHE) {
+			let isStart = false;
+			const menu = MENU_CACHE[id]?.menu;
 
-      if (menuType(menu) == "class") {
-        if (menu instanceof BaseMenu) {
-          isStart = await menu.isStart()
-        } else {
-          // @ts-ignore
-          isStart = (await new menu(req, res).isStart())
-        }
-      } else {
+			if (menuType(menu) == "class") {
+				if (menu instanceof BaseMenu) {
+					isStart = await menu.isStart();
+				} else {
+					// @ts-ignore
+					isStart = await new menu(req, res).isStart();
+				}
+			} else {
+				isStart = (menu as DynamicMenu).isStart;
+			}
 
-        isStart = (menu as DynamicMenu).isStart
-      }
+			if (isStart) {
+				startId = id;
+				break;
+			}
+		}
 
-      if (isStart) {
-        startId = id;
-        break;
-      }
-    }
+		// console.log(start, MENU_CACHE)
+		if (startId == undefined) {
+			throw new Error("No start menu defined. Please define a start menu");
+		}
 
-    // console.log(start, MENU_CACHE)
-    if (startId == undefined) {
-      throw new Error("No start menu defined. Please define a start menu");
-    }
+		return { id: startId, obj: MENU_CACHE[startId]?.menu };
+	}
 
-    return { id: startId, obj: MENU_CACHE[startId]?.menu };
-  }
+	getMenu(id: string): DynamicMenu | Type<BaseMenu> {
+		const menu = MENU_CACHE[id]?.menu;
 
-  getMenu(id: string): DynamicMenu | Type<BaseMenu> {
-    const menu = MENU_CACHE[id]?.menu;
+		if (menu == undefined) {
+			throw new Error(`Menu #${id} not found`);
+		}
 
-    if (menu == undefined) {
-      throw new Error(`Menu #${id} not found`);
-    }
-
-    return menu;
-  }
+		return menu;
+	}
 }
 
 export type Menu = Type<BaseMenu> | DynamicMenu;

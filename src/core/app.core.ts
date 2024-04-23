@@ -8,82 +8,82 @@ import { RequestHandler } from "./request_handler";
 
 // @ts-ignore
 import type {
-  Request as ExpressRequest,
-  Response as ExpressResponse,
+	Request as ExpressRequest,
+	Response as ExpressResponse,
 } from "express";
 
 export class Ananse {
-  private router: Menus;
+	private router: Menus;
 
-  configure(opts: ConfigOptions) {
-    const instance = Config.getInstance();
-    instance.init(opts);
+	configure(opts: ConfigOptions) {
+		const instance = Config.getInstance();
+		instance.init(opts);
 
-    return this;
-  }
+		return this;
+	}
 
-  listen(port?: number, hostname?: string, listeningListener?: () => void) {
-    return createServer((req, res) => this.requestListener(req, res)).listen(
-      port,
-      hostname,
-      listeningListener,
-    );
-  }
+	listen(port?: number, hostname?: string, listeningListener?: () => void) {
+		return createServer((req, res) => this.requestListener(req, res)).listen(
+			port,
+			hostname,
+			listeningListener,
+		);
+	}
 
-  private async requestListener(req: IncomingMessage, res: ServerResponse) {
-    const request = new Request(parse(req.url!, true), req);
+	private async requestListener(req: IncomingMessage, res: ServerResponse) {
+		const request = new Request(parse(req.url!, true), req);
 
-    if (req.method == "POST" || req.method == "PUT" || req.method == "PATCH") {
-      let data = "";
+		if (req.method == "POST" || req.method == "PUT" || req.method == "PATCH") {
+			let data = "";
 
-      req.on("data", (chunk) => {
-        data += chunk;
-      });
+			req.on("data", (chunk) => {
+				data += chunk;
+			});
 
-      req.on("end", () => {
-        try {
-          if (req.headers["content-type"] == "application/json") {
-            request.body = JSON.parse(data);
-          }
-          // TODO: parse other content types
-        } catch (error) {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({
-              error: "Invalid JSON format in the request body",
-            }),
-          );
-        }
-      });
-    }
+			req.on("end", () => {
+				try {
+					if (req.headers["content-type"] == "application/json") {
+						request.body = JSON.parse(data);
+					}
+					// TODO: parse other content types
+				} catch (error) {
+					res.writeHead(400, { "Content-Type": "application/json" });
+					res.end(
+						JSON.stringify({
+							error: "Invalid JSON format in the request body",
+						}),
+					);
+				}
+			});
+		}
 
-    const handler = new RequestHandler(request, res as Response, this.router);
-    await handler.processRequest();
-  }
+		const handler = new RequestHandler(request, res as Response, this.router);
+		await handler.processRequest();
+	}
 
-  async express(req: ExpressRequest, res: ExpressResponse) {
-    const request = new Request(parse(req.url!, true), req);
+	async express(req: ExpressRequest, res: ExpressResponse) {
+		const request = new Request(parse(req.url!, true), req);
 
-    if (req.method == "POST" || req.method == "PUT" || req.method == "PATCH") {
-      let data = req.body;
+		if (req.method == "POST" || req.method == "PUT" || req.method == "PATCH") {
+			let data = req.body;
 
-      try {
-        if (req.headers["content-type"] == "application/json") {
-          request.body = data;
-        }
-        // TODO: parse other content types
-      } catch (error) {
-        res
-          .status(400)
-          .json({ error: "Invalid JSON format in the request body" });
-      }
-    }
+			try {
+				if (req.headers["content-type"] == "application/json") {
+					request.body = data;
+				}
+				// TODO: parse other content types
+			} catch (error) {
+				res
+					.status(400)
+					.json({ error: "Invalid JSON format in the request body" });
+			}
+		}
 
-    const handler = new RequestHandler(
-      request,
-      res as unknown as Response,
-      this.router,
-    );
-    return await handler.processRequest();
-  }
+		const handler = new RequestHandler(
+			request,
+			res as unknown as Response,
+			this.router,
+		);
+		return await handler.processRequest();
+	}
 }

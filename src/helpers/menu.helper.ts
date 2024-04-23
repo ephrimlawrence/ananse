@@ -14,17 +14,17 @@ import { BaseMenu, DynamicMenu, Menu, MenuAction } from "../menus";
 // }
 
 export function menuType(val: Menu): "class" | "dynamic" {
-  // TODO: document why this special case is needed
-  if (/^DynamicMenu$/i.test(val.constructor.name)) {
-    return "dynamic";
-  }
-  return "class";
+	// TODO: document why this special case is needed
+	if (/^DynamicMenu$/i.test(val.constructor.name)) {
+		return "dynamic";
+	}
+	return "class";
 }
 
 export async function getMenuActions(menu: Menu): Promise<MenuAction[]> {
-  if (menuType(menu!) == "class") {
-    return (await (menu as unknown as BaseMenu).actions()) || [];
-  } else {
-    return await (menu as DynamicMenu).getActions()
-  }
+	if (menuType(menu!) == "class") {
+		return (await (menu as unknown as BaseMenu).actions()) || [];
+	} else {
+		return await (menu as DynamicMenu).getActions();
+	}
 }

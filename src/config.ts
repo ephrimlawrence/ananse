@@ -9,104 +9,104 @@ import { PaginationOption, SessionOptions, Type } from "./types";
 import { EmergentTechnologyGateway } from "./gateways/emergent_technology.gateway";
 
 export class Config {
-  private static instance: Config;
+	private static instance: Config;
 
-  #gateway: Type<Gateway>;
-  #options: ConfigOptions;
+	#gateway: Type<Gateway>;
+	#options: ConfigOptions;
 
-  private _session: BaseSession | undefined = undefined;
+	private _session: BaseSession | undefined = undefined;
 
-  private constructor() { }
+	private constructor() {}
 
-  public static getInstance(): Config {
-    if (!Config.instance) {
-      Config.instance = new Config();
-    }
+	public static getInstance(): Config {
+		if (!Config.instance) {
+			Config.instance = new Config();
+		}
 
-    return Config.instance;
-  }
+		return Config.instance;
+	}
 
-  init(options: ConfigOptions) {
-    this.#options = options;
+	init(options: ConfigOptions) {
+		this.#options = options;
 
-    if (typeof options.gateway == "string") {
-      switch (options.gateway) {
-        case SupportedGateway.wigal:
-          this.#gateway = WigalGateway;
-          break;
-        case SupportedGateway.emergent_technology:
-          this.#gateway = EmergentTechnologyGateway;
-          break;
-      }
-    } else {
-      // TODO: implement for custom gateway class
-    }
+		if (typeof options.gateway == "string") {
+			switch (options.gateway) {
+				case SupportedGateway.wigal:
+					this.#gateway = WigalGateway;
+					break;
+				case SupportedGateway.emergent_technology:
+					this.#gateway = EmergentTechnologyGateway;
+					break;
+			}
+		} else {
+			// TODO: implement for custom gateway class
+		}
 
-    // Resolve session
-    const _session = options.session || "memory";
+		// Resolve session
+		const _session = options.session || "memory";
 
-    // If session is already an instance of Session, then we are good to go
-    if (this._session instanceof BaseSession) {
-      return this;
-    }
+		// If session is already an instance of Session, then we are good to go
+		if (this._session instanceof BaseSession) {
+			return this;
+		}
 
-    if (_session === "memory") {
-      this._session = MemcacheSession.getInstance();
-      return this;
-    }
+		if (_session === "memory") {
+			this._session = MemcacheSession.getInstance();
+			return this;
+		}
 
-    if (typeof _session === "object") {
-      // Configure is provided, so we need to create a new instance of the session
-      if (_session?.type != null) {
-        switch (_session.type) {
-          case "redis":
-            this._session = RedisSession.getInstance();
-            this._session.configure(_session);
-            break;
-          case "postgres":
-            this._session = PostgresSession.getInstance();
-            this._session.configure(_session);
-            break;
-          case "mssql":
-          case "mysql":
-            this._session = MySQLSession.getInstance();
-            this._session.configure(_session);
-            break;
-          // case "mongo":
-          //   throw new Error("Mongo session not implemented yet");
-          default:
-            throw new Error("Invalid session type");
-        }
-      }
-      // A session class is provided, so we need to create a new instance of the session
-      // this._session = _session as unknown as Session;
-    }
+		if (typeof _session === "object") {
+			// Configure is provided, so we need to create a new instance of the session
+			if (_session?.type != null) {
+				switch (_session.type) {
+					case "redis":
+						this._session = RedisSession.getInstance();
+						this._session.configure(_session);
+						break;
+					case "postgres":
+						this._session = PostgresSession.getInstance();
+						this._session.configure(_session);
+						break;
+					case "mssql":
+					case "mysql":
+						this._session = MySQLSession.getInstance();
+						this._session.configure(_session);
+						break;
+					// case "mongo":
+					//   throw new Error("Mongo session not implemented yet");
+					default:
+						throw new Error("Invalid session type");
+				}
+			}
+			// A session class is provided, so we need to create a new instance of the session
+			// this._session = _session as unknown as Session;
+		}
 
-    return this;
-  }
+		return this;
+	}
 
-  get gateway(): Type<Gateway> {
-    return this.#gateway;
-  }
+	get gateway(): Type<Gateway> {
+		return this.#gateway;
+	}
 
-  get gatewayName(): SupportedGateway {
-    return this.#options.gateway as SupportedGateway;
-  }
+	get gatewayName(): SupportedGateway {
+		return this.#options.gateway as SupportedGateway;
+	}
 
-  get session(): BaseSession | undefined {
-    return this._session;
-  }
+	get session(): BaseSession | undefined {
+		return this._session;
+	}
 
-  get options() {
-    return this.#options
-  }
+	get options() {
+		return this.#options;
+	}
 }
 
 type CustomSession = Type<BaseSession>;
 
 export class ConfigOptions {
-  middlewares?: Type<Gateway>[];
-  session?: "memory" | SessionOptions | CustomSession;
-  gateway: keyof typeof SupportedGateway;
-  pagination?: PaginationOption = new PaginationOption()
+	middlewares?: Type<Gateway>[];
+	session?: "memory" | SessionOptions | CustomSession;
+	gateway: keyof typeof SupportedGateway;
+	pagination?: PaginationOption = new PaginationOption();
 }
