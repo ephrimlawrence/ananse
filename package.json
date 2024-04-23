@@ -1,10 +1,11 @@
 {
   "name": "ananse",
   "version": "1.6.1",
-  "description": "Ananse is a simple and fast library for creating USSD applications with NodeJS/Typescript",
+  "description": "Ananse is a simple and fast framework for creating USSD applications with NodeJS/Typescript",
   "git": "https://github.com/ephrimlawrence/ananse",
   "author": "Lawrence Ephrim",
-  "license": "ISC",
+  "homepage": "https://github.com/ephrimlawrence/ananse",
+  "license": "MIT",
   "keywords": [
     "ussd",
     "ussd builder",
