@@ -1,3 +1,7 @@
+## [1.6.1](https://github.com/ephrimlawrence/ananse/compare/v1.6.0...v1.6.1) (2024-04-22)
+
+
+
 # [1.6.0](https://github.com/ephrimlawrence/ananse/compare/v1.5.1...v1.6.0) (2024-03-19)
 
 
@@ -38,15 +42,6 @@
 ### Bug Fixes
 
 * class based menu lookup bugs ([4881765](https://github.com/ephrimlawrence/ananse/commit/4881765372f4a164805f7d3f080a224221096403))
-
-
-
-## [1.4.4](https://github.com/ephrimlawrence/ananse/compare/v1.4.3...v1.4.4) (2024-03-04)
-
-
-### Bug Fixes
-
-* **session: mysql:** change `data` and `state` column type from json to longtext ([36225b9](https://github.com/ephrimlawrence/ananse/commit/36225b9223a7e058a3987695a6b243e3975c641b))
 
 
 
