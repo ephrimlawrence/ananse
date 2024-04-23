@@ -9,5 +9,8 @@ import { Request, Response } from "./request";
 export type ValidationResponse = boolean | string;
 
 export type Validation =
-  | RegExp
-  | ((req: Request, resp: Response) => Promise<ValidationResponse> | ValidationResponse);
+	| RegExp
+	| ((
+			req: Request,
+			resp: Response,
+	  ) => Promise<ValidationResponse> | ValidationResponse);
