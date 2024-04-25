@@ -1,8 +1,7 @@
 ---
 sidebar_position: 1
 ---
-
-# Tutorial Intro
+# Ananse USSD Framework
 
 Let's discover **Docusaurus in less than 5 minutes**.
 

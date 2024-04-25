@@ -4,7 +4,7 @@
   "description": "Ananse is a lightweight NodeJs/Typescript framework with batteries included for building efficient, scalable and maintainable USSD applications.",
   "git": "https://github.com/ephrimlawrence/ananse",
   "author": "Lawrence Ephrim",
-  "homepage": "https://github.com/ephrimlawrence/ananse",
+  "homepage": "https://ephrimlawrence.github.io/ananse",
   "license": "MIT",
   "keywords": [
     "ussd",
