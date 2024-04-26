@@ -14,8 +14,7 @@ const FeatureList: FeatureItem[] = [
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+       Ananse makes building USSD applications a breeze. It is lightweight, efficient, scalable, and incredibly easy to maintain.
       </>
     ),
   },
@@ -24,18 +23,16 @@ const FeatureList: FeatureItem[] = [
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Ananse allows you to focus on your application logic while it takes care of everything else.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'Powered by Typescript',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+       Anaanse is built with Typescript, giving you the power of strong typing and interfaces for a seamless development experience.
       </>
     ),
   },
