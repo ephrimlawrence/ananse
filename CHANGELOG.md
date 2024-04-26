@@ -1,3 +1,12 @@
+## [1.7.1](https://github.com/ephrimlawrence/ananse/compare/v1.7.0...v1.7.1) (2024-04-26)
+
+
+### Bug Fixes
+
+* exclude `docs` from build ([52a0b58](https://github.com/ephrimlawrence/ananse/commit/52a0b587e5e11d77614012577d3a8d127c9c01f4))
+
+
+
 # [1.7.0](https://github.com/ephrimlawrence/ananse/compare/v1.6.2...v1.7.0) (2024-04-26)
 
 
@@ -21,15 +30,6 @@
 ### Features
 
 * add helper field/method to retrieve msisdn of the current session ([bee6f84](https://github.com/ephrimlawrence/ananse/commit/bee6f84743bc6c9b3859cee38de487eba922e575))
-
-
-
-## [1.5.1](https://github.com/ephrimlawrence/ananse/compare/v1.5.0...v1.5.1) (2024-03-19)
-
-
-### Bug Fixes
-
-* **menus:** `isStart` function not called on classed based menus ([2cc1321](https://github.com/ephrimlawrence/ananse/commit/2cc13212210fbc0e2c51be32cbc7ad485ca4516a))
 
 
 
