@@ -18,11 +18,14 @@ const config: Config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'ephrimawrence/ananse', // Usually your GitHub org/user name.
+  organizationName: 'github.com/ephrimawrence', // Usually your GitHub org/user name.
   projectName: 'ananse', // Usually your repo name.
+  deploymentBranch: "gh-pages",
+  trailingSlash: false,
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
+
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -73,7 +76,7 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: 'Guide',
+          label: 'Docs',
         },
         // { to: '/blog', label: 'Blog', position: 'left' },
         {
