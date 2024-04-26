@@ -5,6 +5,7 @@
     "tests/**",
     "bin",
     "dist",
+    "docs",
     "**/*spec.ts",
     "tsup.config.ts"
   ]
