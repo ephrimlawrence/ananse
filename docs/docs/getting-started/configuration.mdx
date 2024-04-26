@@ -1,0 +1,246 @@
+---
+sidebar_position: 3
+---
+
+# Configuration
+
+Before starting the project, there are a few things that need to be configured, such as session storage backend, USSD gateway, and pagination.
+
+## Session storage
+
+Ananse supports several backends for storing user sessions - in memory, Redis, MySQL and Postgres. In-memory session storage is used by default but can be changed to another backend. The session storage can be configured using the `session` option in the `configure` method.
+
+
+```typescript
+import { Ananse } from "ananse";
+
+const ananse = new Ananse().configure({
+  session: { type: "redis" }, // Database to store session data. Eg. mysql, postgres and redis
+  ...
+});
+
+export default ananse;
+```
+
+Below is a list of supported session storage backends:
+
+- `memory` - In-memory session storage
+- `redis` - Redis session storage
+- `mysql` - MySQL session storage
+- `postgres` - Postgres session storage
+
+Refer to [session storage](/docs/session-storage) guide on how to create a custom session storage.
+
+{/* TODO: Writeup on how to create custom session storage */}
+
+## USSD Gateway
+
+Ananse can be configured to support any USSD gateway. The USSD gateway to use can be configured using the `gateway` option in the `configure` method.
+
+```typescript
+const ananse = new Ananse().configure({
+  gateway: "hubtel", // USSD gateway to use, eg. hubtel, africas_talking.
+  ...
+});
+```
+
+Below is a list of supported USSD gateways:
+
+| Gateway                                                      | Key         | Supported           |
+| ------------------------------------------------------------ | ----------- | ------------------- |
+| [Wigal USSD v1](https://frog.wigal.com.gh/developers/docs/ussd)   | `wigal`     | :white_check_mark:  |
+| [Wigal USSD v2](https://frog.wigal.com.gh/developers/docs/ussd)   |      | :x:  |
+| Emergent Technology USSD              |  `emergent_technology`        | :white_check_mark:  |
+| [AfricasTalking USSD](https://africastalking.com)             |         | :x:  |
+
+Is your USSD gateway not supported? Feel free to open an issue or create a pull request to add support for it.
+
+## Middlewares
+
+Ananse supports middleware, which are custom classes, that can access the request and response object in the application’s request-response cycle. The [USSD gateways](#ussd-gateway) are implemented as middleware classes. Middleware can perform the following tasks:
+
+- Execute any code.
+- Make changes to the request and the response objects.
+- End the request-response cycle.
+
+Middleware can be added to the application using the `middlewares` option in the `configure` method.
+
+```typescript
+const ananse = new Ananse().configure({
+  middlewares: [MyCustomGateway, MyOtherMiddleware],
+  ...
+});
+```
+
+:::danger
+
+The order in which middleware are added is important. Middleware are executed in the order they are added.
+
+:::
+
+## Pagination
+
+Pagination is enabled by default, it is triggered if the menu content exceeds the **182* character limit. Set the `enabled` option to `false` to disable pagination. The navigation options can be configured using the `pagination` option in the `configure` method.
+
+```typescript
+const ananse = new Ananse().configure({
+  pagination: {
+    enabled: true,
+    nextPage: {
+      display: "*. More",
+      choice: "*",
+    },
+    previousPage: {
+      display: "#. Back",
+      choice: "#",
+    },
+  },
+  ...
+});
+```
+
+
+## Front Matter
+
+Markdown documents have metadata at the top called [Front Matter](https://jekyllrb.com/docs/front-matter/):
+
+```text title="my-doc.md"
+// highlight-start
+---
+id: my-doc-id
+title: My document title
+description: My document description
+slug: /my-custom-url
+---
+// highlight-end
+
+## Markdown heading
+
+Markdown text with [links](./hello.md)
+```
+
+## Links
+
+Regular Markdown links are supported, using url paths or relative file paths.
+
+```md
+Let's see how to ddd.
+```
+
+```md
+Let's see how to ss.
+```
+
+**Result:** Let's see how to ss.
+
+## Images
+
+Regular Markdown images are supported.
+
+You can use absolute paths to reference images in the static directory (`static/img/docusaurus.png`):
+
+```md
+![Docusaurus logo](/img/docusaurus.png)
+```
+
+![Docusaurus logo](/img/docusaurus.png)
+
+You can reference images relative to the current file as well. This is particularly useful to colocate images close to the Markdown files using them:
+
+```md
+![Docusaurus logo](./img/docusaurus.png)
+```
+
+## Code Blocks
+
+Markdown code blocks are supported with Syntax highlighting.
+
+````md
+```jsx title="src/components/HelloDocusaurus.js"
+function HelloDocusaurus() {
+  return <h1>Hello, Docusaurus!</h1>;
+}
+```
+````
+
+```jsx title="src/components/HelloDocusaurus.js"
+function HelloDocusaurus() {
+  return <h1>Hello, Docusaurus!</h1>;
+}
+```
+
+## Admonitions
+
+Docusaurus has a special syntax to create admonitions and callouts:
+
+```md
+:::tip My tip
+
+Use this awesome feature option
+
+:::
+
+:::danger Take care
+
+This action is dangerous
+
+:::
+```
+
+:::tip My tip
+
+Use this awesome feature option
+
+:::
+
+:::danger Take care
+
+This action is dangerous
+
+:::
+
+## MDX and React Components
+
+[MDX](https://mdxjs.com/) can make your documentation more **interactive** and allows using any **React components inside Markdown**:
+
+```jsx
+export const Highlight = ({children, color}) => (
+  <span
+    style={{
+      backgroundColor: color,
+      borderRadius: '20px',
+      color: '#fff',
+      padding: '10px',
+      cursor: 'pointer',
+    }}
+    onClick={() => {
+      alert(`You clicked the color ${color} with label ${children}`)
+    }}>
+    {children}
+  </span>
+);
+
+This is <Highlight color="#25c2a0">Docusaurus green</Highlight> !
+
+This is <Highlight color="#1877F2">Facebook blue</Highlight> !
+```
+
+export const Highlight = ({children, color}) => (
+  <span
+    style={{
+      backgroundColor: color,
+      borderRadius: '20px',
+      color: '#fff',
+      padding: '10px',
+      cursor: 'pointer',
+    }}
+    onClick={() => {
+      alert(`You clicked the color ${color} with label ${children}`);
+    }}>
+    {children}
+  </span>
+);
+
+This is <Highlight color="#25c2a0">Docusaurus green</Highlight> !
+
+This is <Highlight color="#1877F2">Facebook blue</Highlight> !
