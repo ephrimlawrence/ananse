@@ -3,44 +3,27 @@ sidebar_position: 1
 ---
 # Ananse USSD Framework
 
-Let's discover **Docusaurus in less than 5 minutes**.
+Ananse is a full-stack framework for developing USSD applications in NodeJs. Ananse comes with batteries included, suitable for USSD projects of any size.
 
-## Getting Started
+## Features
 
-Get started by **creating a new site**.
+- Intuitive menu routing
+- Supports any USSD gateway (Wigal, Hubtel, AfricasTalking, etc)
+- Out-of-the-box session state management
+- Session storage
+- Input validation
+- Pagination
+- Command line simulator
+- End-to-end testing with [Japa](https://japa.dev)
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+## Motivation
 
-### What you'll need
+Due to the nature of USSD menu flows, using traditional frameworks like ExpressJS is difficult, even more so when debugging complex menu flows. This project aims to provide a framework that maximizes developers' productivity in building USSD applications.
 
-- [Node.js](https://nodejs.org/en/download/) version 18.0 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+## Installation
 
-## Generate a new site
+Use your favourite NodeJS package manager to install [ananse](https://www.npmjs.com/package/ananse).
 
-Generate a new Docusaurus site using the **classic template**.
-
-The classic template will automatically be added to your project after you run the command:
-
-```bash
-npm init docusaurus@latest my-website classic
+```bash npm2yarn
+npm install ananse
 ```
-
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
-
-The command also installs all necessary dependencies you need to run Docusaurus.
-
-## Start your site
-
-Run the development server:
-
-```bash
-cd my-website
-npm run start
-```
-
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
-
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
-
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
