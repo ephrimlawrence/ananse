@@ -1,3 +1,7 @@
+## [1.6.2](https://github.com/ephrimlawrence/ananse/compare/v1.6.1...v1.6.2) (2024-04-23)
+
+
+
 ## [1.6.1](https://github.com/ephrimlawrence/ananse/compare/v1.6.0...v1.6.1) (2024-04-22)
 
 
@@ -33,15 +37,6 @@
 ### Features
 
 * implement pagination ([994919a](https://github.com/ephrimlawrence/ananse/commit/994919a3884ddddce6cd82deeb8d8fbe8ef19b02))
-
-
-
-## [1.4.5](https://github.com/ephrimlawrence/ananse/compare/v1.4.4...v1.4.5) (2024-03-10)
-
-
-### Bug Fixes
-
-* class based menu lookup bugs ([4881765](https://github.com/ephrimlawrence/ananse/commit/4881765372f4a164805f7d3f080a224221096403))
 
 
 
