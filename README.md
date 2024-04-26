@@ -4,11 +4,13 @@
 
 <p align="center">A lightweight <a href="http://nodejs.org" target="blank">Node.js</a> framework with batteries included for building efficient, scalable and maintainable USSD applications.</p>
 
-<p align="center">
+<center>
+
 [![https://nodei.co/npm/ananse.png?downloads=true&downloadRank=true&stars=true](https://nodei.co/npm/ananse.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/ananse)
+
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
 
-</p>
+</center>
 
 [Ananse](https://www.npmjs.com/package/ananse/) is a lightweight NodeJs/Typescript framework with batteries included for building efficient, scalable and maintainable USSD applications. It provides intuitive and flexible APIs for building USSD menus.
 
