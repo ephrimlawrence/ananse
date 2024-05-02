@@ -1,3 +1,12 @@
+## [1.7.4](https://github.com/ephrimlawrence/ananse/compare/v1.7.3...v1.7.4) (2024-05-02)
+
+
+### Bug Fixes
+
+* **simulator:** replace `^` with `\n` when rendering wigal response ([86da412](https://github.com/ephrimlawrence/ananse/commit/86da412698a52b2b39fa4babf9fd160307c4866e))
+
+
+
 ## [1.7.3](https://github.com/ephrimlawrence/ananse/compare/v1.7.2...v1.7.3) (2024-05-02)
 
 
@@ -31,10 +40,6 @@
 ### Features
 
 * **docs:** setup docusaurus ([a929ada](https://github.com/ephrimlawrence/ananse/commit/a929ada568ec504798764f184ab3647eede0a0fc))
-
-
-
-## [1.6.2](https://github.com/ephrimlawrence/ananse/compare/v1.6.1...v1.6.2) (2024-04-23)
 
 
 
