@@ -16,7 +16,7 @@ export type FormInput = {
 	validate: Validation;
 	display: string | ((req: Request) => Promise<string> | string);
 	handler?: (req: Request) => Promise<void>;
-	next_input?: string | ((req: Request) => Promise<string>);
+	next_input?: string | ((req: Request) => Promise<string> | string);
 	end?: boolean | ((req: Request) => boolean);
 	next_menu?: NextMenu;
 };
