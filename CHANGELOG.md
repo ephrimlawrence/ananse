@@ -1,3 +1,12 @@
+## [1.7.5](https://github.com/ephrimlawrence/ananse/compare/v1.7.4...v1.7.5) (2024-05-02)
+
+
+### Bug Fixes
+
+* **form:** input navigation bug ([b10ffdc](https://github.com/ephrimlawrence/ananse/commit/b10ffdc3a2dc2b4885955f0ec2725058c6839a2c))
+
+
+
 ## [1.7.4](https://github.com/ephrimlawrence/ananse/compare/v1.7.3...v1.7.4) (2024-05-02)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * exclude `docs` from build ([52a0b58](https://github.com/ephrimlawrence/ananse/commit/52a0b587e5e11d77614012577d3a8d127c9c01f4))
-
-
-
-# [1.7.0](https://github.com/ephrimlawrence/ananse/compare/v1.6.2...v1.7.0) (2024-04-26)
-
-
-### Features
-
-* **docs:** setup docusaurus ([a929ada](https://github.com/ephrimlawrence/ananse/commit/a929ada568ec504798764f184ab3647eede0a0fc))
 
 
 
