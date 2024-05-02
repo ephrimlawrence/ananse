@@ -1,3 +1,12 @@
+## [1.7.2](https://github.com/ephrimlawrence/ananse/compare/v1.7.1...v1.7.2) (2024-05-02)
+
+
+### Bug Fixes
+
+* **gateway: wigal:** replace `\n` with `^` when rendering response ([aefdcdd](https://github.com/ephrimlawrence/ananse/commit/aefdcdd76e0d85f3e64555a22744eb7ffb1b5ddc))
+
+
+
 ## [1.7.1](https://github.com/ephrimlawrence/ananse/compare/v1.7.0...v1.7.1) (2024-04-26)
 
 
@@ -21,15 +30,6 @@
 
 
 ## [1.6.1](https://github.com/ephrimlawrence/ananse/compare/v1.6.0...v1.6.1) (2024-04-22)
-
-
-
-# [1.6.0](https://github.com/ephrimlawrence/ananse/compare/v1.5.1...v1.6.0) (2024-03-19)
-
-
-### Features
-
-* add helper field/method to retrieve msisdn of the current session ([bee6f84](https://github.com/ephrimlawrence/ananse/commit/bee6f84743bc6c9b3859cee38de487eba922e575))
 
 
 
