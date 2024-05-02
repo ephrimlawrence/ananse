@@ -1,3 +1,12 @@
+## [1.7.3](https://github.com/ephrimlawrence/ananse/compare/v1.7.2...v1.7.3) (2024-05-02)
+
+
+### Bug Fixes
+
+* **forms:** allow nullable `next_input` value ([74a1e8e](https://github.com/ephrimlawrence/ananse/commit/74a1e8e12f81a1b5cef89d3dccd93f2aad50b160))
+
+
+
 ## [1.7.2](https://github.com/ephrimlawrence/ananse/compare/v1.7.1...v1.7.2) (2024-05-02)
 
 
@@ -26,10 +35,6 @@
 
 
 ## [1.6.2](https://github.com/ephrimlawrence/ananse/compare/v1.6.1...v1.6.2) (2024-04-23)
-
-
-
-## [1.6.1](https://github.com/ephrimlawrence/ananse/compare/v1.6.0...v1.6.1) (2024-04-22)
 
 
 
