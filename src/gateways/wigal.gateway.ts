@@ -34,7 +34,7 @@ export class WigalGateway extends Gateway {
   private async wigalResponse(): Promise<string> {
     const data = (await this.state)!;
     return `${this.request.query?.network}|${data?.mode}|${data?.msisdn}|${data?.sessionId
-      }|${this.response.data?.replace('\n', '^') ?? ''}|${this.request.query?.username}|${this.request.query?.trafficid
+      }|${this.response.data?.replace(/\n/g, '^') ?? ''}|${this.request.query?.username}|${this.request.query?.trafficid
       }|${data?.menu?.nextMenu || ""}`;
   }
 }

@@ -143,14 +143,14 @@ export class FormMenuHandler {
 	}
 
 	private async resolveNextInput() {
-		if (
-			this.#currentInput?.next_input != null &&
-			this.#currentInput?.next_menu != null
-		) {
-			throw new Error(
-				`Input #${this.#currentInput} has both next_input and next_menu defined. Please define only one`,
-			);
-		}
+		// if (
+		// 	this.#currentInput?.next_input != null &&
+		// 	this.#currentInput?.next_menu != null
+		// ) {
+		// 	throw new Error(
+		// 		`Input #${this.#currentInput} has both next_input and next_menu defined. Please define only one`,
+		// 	);
+		// }
 
 		// No next input & next menu, terminate the session
 		if (
