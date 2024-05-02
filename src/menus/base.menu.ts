@@ -66,7 +66,7 @@ export abstract class BaseMenu {
 		return undefined;
 	}
 
-	abstract actions(): Promise<MenuAction[]>;
+	abstract actions(): Promise<MenuAction[]> | MenuAction[];
 
 	async inputs(): Promise<FormInput[]> {
 		return [];
