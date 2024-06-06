@@ -174,7 +174,7 @@ class Simulator {
 				mode: resp[1] as any,
 				msisdn: resp[2],
 				sessionid: resp[3],
-				userdata: resp[4].replace(/\^/g, '\n'),
+				userdata: resp[4].replace(/\^/g, "\n"),
 				username: resp[5],
 				trafficid: resp[6],
 				other: resp[7],
