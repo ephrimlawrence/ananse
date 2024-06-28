@@ -33,7 +33,8 @@
     "simulate": "tsx src/cli/simulator.ts",
     "bundle": "npm run build && npm run prebuild && tsup",
     "prebuild": "rimraf dist",
-    "format": "biome format --write ./src ./tests"
+    "format": "biome format --write ./src ./tests",
+    "biome": "biome"
   },
   "bin": {
     "simulator": "dist/cli/simulator.js"

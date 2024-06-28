@@ -84,7 +84,7 @@ export class PaginationHandler {
 		});
 
 		// No more actions, return pagination tree
-		if (actions.length == 0) {
+		if (actions.length === 0) {
 			return opts.pages;
 		}
 

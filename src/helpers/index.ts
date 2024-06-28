@@ -1,13 +1,13 @@
-import {
+import type {
 	BaseMenu,
 	DynamicMenu,
 	Menu,
 	MenuAction,
 	ValidationResponse,
 } from "@src/menus";
-import { State } from "@src/models";
-import { FormInput } from "@src/types";
-import { Request, Response } from "@src/types/request";
+import type { State } from "@src/models";
+import type { FormInput, Null } from "@src/types";
+import type { Request, Response } from "@src/types/request";
 import { SupportedGateway } from "./constants";
 import { menuType } from "./menu.helper";
 
@@ -27,8 +27,8 @@ export async function validateInput(opts: {
 	let resp: { error: string | undefined; valid: boolean } = {
 			valid: true,
 			error: undefined,
-		},
-		status: ValidationResponse = true;
+		};
+	let status: ValidationResponse = true;
 
 	if (menu != null) {
 		if (menuType(menu) == "class") {
@@ -80,8 +80,8 @@ export async function buildUserResponse(opts: {
 
 	// TODO: build paginated response
 
-	let message: string | undefined = undefined;
-	if (menuType(menu!) == "class") {
+	let message: string | Null = undefined;
+	if (menuType(menu!) === "class") {
 		message = await (menu as unknown as BaseMenu).message();
 	} else {
 		message = await (menu as DynamicMenu).getMessage(request, response);
@@ -96,7 +96,7 @@ export async function buildUserResponse(opts: {
 	let actions: MenuAction[] | undefined = opts.actions;
 
 	if (actions == null) {
-		if (menuType(menu!) == "class") {
+		if (menuType(menu!) === "class") {
 			actions = (await (menu as unknown as BaseMenu).actions()) || [];
 		} else {
 			actions = await (menu as DynamicMenu).getActions();
@@ -106,10 +106,10 @@ export async function buildUserResponse(opts: {
 	for await (const action of actions) {
 		if (action.display == null) continue;
 
-		if (typeof action.display == "function") {
-			message += "\n" + (await action.display(this.request, this.response));
+		if (typeof action.display === "function") {
+			message += `\n${await action.display(request, response)}`;
 		} else {
-			message += "\n" + action.display || "";
+			message += `\n${action.display}`;
 		}
 	}
 
