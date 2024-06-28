@@ -1,3 +1,12 @@
+## [1.7.6](https://github.com/ephrimlawrence/ananse/compare/v1.7.5...v1.7.6) (2024-06-28)
+
+
+### Bug Fixes
+
+* menu action handling bugs ([4c1223f](https://github.com/ephrimlawrence/ananse/commit/4c1223fa7df5000feca800413848dd089d2783a7))
+
+
+
 ## [1.7.5](https://github.com/ephrimlawrence/ananse/compare/v1.7.4...v1.7.5) (2024-05-02)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * **gateway: wigal:** replace `\n` with `^` when rendering response ([aefdcdd](https://github.com/ephrimlawrence/ananse/commit/aefdcdd76e0d85f3e64555a22744eb7ffb1b5ddc))
-
-
-
-## [1.7.1](https://github.com/ephrimlawrence/ananse/compare/v1.7.0...v1.7.1) (2024-04-26)
-
-
-### Bug Fixes
-
-* exclude `docs` from build ([52a0b58](https://github.com/ephrimlawrence/ananse/commit/52a0b587e5e11d77614012577d3a8d127c9c01f4))
 
 
 
