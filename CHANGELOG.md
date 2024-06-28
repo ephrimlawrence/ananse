@@ -1,3 +1,12 @@
+# [1.8.0](https://github.com/ephrimlawrence/ananse/compare/v1.7.6...v1.8.0) (2024-06-28)
+
+
+### Features
+
+* **session: postgres:** implement `remove` method for deleting items from session ([1f4b9b6](https://github.com/ephrimlawrence/ananse/commit/1f4b9b694b2152dfcf1645317d512033c1a7d74b))
+
+
+
 ## [1.7.6](https://github.com/ephrimlawrence/ananse/compare/v1.7.5...v1.7.6) (2024-06-28)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * **forms:** allow nullable `next_input` value ([74a1e8e](https://github.com/ephrimlawrence/ananse/commit/74a1e8e12f81a1b5cef89d3dccd93f2aad50b160))
-
-
-
-## [1.7.2](https://github.com/ephrimlawrence/ananse/compare/v1.7.1...v1.7.2) (2024-05-02)
-
-
-### Bug Fixes
-
-* **gateway: wigal:** replace `\n` with `^` when rendering response ([aefdcdd](https://github.com/ephrimlawrence/ananse/commit/aefdcdd76e0d85f3e64555a22744eb7ffb1b5ddc))
 
 
 
