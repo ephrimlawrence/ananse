@@ -1,3 +1,12 @@
+## [1.8.1](https://github.com/ephrimlawrence/ananse/compare/v1.8.0...v1.8.1) (2024-06-28)
+
+
+### Bug Fixes
+
+* **session:** build error ([1cac0a8](https://github.com/ephrimlawrence/ananse/commit/1cac0a85c8a4036e05b153c83b1dfa91e7aef673))
+
+
+
 # [1.8.0](https://github.com/ephrimlawrence/ananse/compare/v1.7.6...v1.8.0) (2024-06-28)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * **simulator:** replace `^` with `\n` when rendering wigal response ([86da412](https://github.com/ephrimlawrence/ananse/commit/86da412698a52b2b39fa4babf9fd160307c4866e))
-
-
-
-## [1.7.3](https://github.com/ephrimlawrence/ananse/compare/v1.7.2...v1.7.3) (2024-05-02)
-
-
-### Bug Fixes
-
-* **forms:** allow nullable `next_input` value ([74a1e8e](https://github.com/ephrimlawrence/ananse/commit/74a1e8e12f81a1b5cef89d3dccd93f2aad50b160))
 
 
 
