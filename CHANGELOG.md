@@ -1,3 +1,12 @@
+# [1.9.0](https://github.com/ephrimlawrence/ananse/compare/v1.8.1...v1.9.0) (2024-06-28)
+
+
+### Features
+
+* **session:** implement `remove` method for deleting items from session for all drivers ([72f4d13](https://github.com/ephrimlawrence/ananse/commit/72f4d13af53abf88e667380712ea148957b5e055))
+
+
+
 ## [1.8.1](https://github.com/ephrimlawrence/ananse/compare/v1.8.0...v1.8.1) (2024-06-28)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * **form:** input navigation bug ([b10ffdc](https://github.com/ephrimlawrence/ananse/commit/b10ffdc3a2dc2b4885955f0ec2725058c6839a2c))
-
-
-
-## [1.7.4](https://github.com/ephrimlawrence/ananse/compare/v1.7.3...v1.7.4) (2024-05-02)
-
-
-### Bug Fixes
-
-* **simulator:** replace `^` with `\n` when rendering wigal response ([86da412](https://github.com/ephrimlawrence/ananse/commit/86da412698a52b2b39fa4babf9fd160307c4866e))
 
 
 
