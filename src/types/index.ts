@@ -1,10 +1,7 @@
 import { Request, Response } from "./request";
 import { Validation, ValidationResponse } from "./validation.type";
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-// biome-ignore lint/complexity/noBannedTypes: <explanation>
 export interface Type<T = any> extends Function {
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   new(...args: any[]): T;
 }
 
@@ -12,6 +9,7 @@ export type Session = {
   get: <T>(key: string, defaultValue?: any) => Promise<T | undefined>;
   getAll: <T>() => Promise<T | undefined> | undefined;
   set: (key: string, val: any) => Promise<void> | undefined;
+  remove: (key: string) => Promise<void> | undefined;
 };
 
 export type FormInput = {

@@ -107,12 +107,12 @@ export class PostgresSession extends BaseSession {
 		return val == null ? undefined : State.fromJSON(JSON.parse(val.state));
 	}
 
-	clear(sessionId: string): void | State {
+	clear(sessionId: string):  State {
 		const _state = this.states[sessionId];
 		delete this.states[sessionId];
 		delete this.data[sessionId];
 
-		if (this.config.softDelete == false || this.config.softDelete == null) {
+		if (this.config.softDelete === false || this.config.softDelete == null) {
 			this.db
 				.none("DELETE FROM $1~.$2~ WHERE session_id = $3", [
 					this.config.schema,
@@ -149,6 +149,20 @@ export class PostgresSession extends BaseSession {
 				this.config.tableName,
 				key,
 				JSON.stringify(value),
+				new Date().toISOString(),
+				sessionId,
+			],
+		);
+		return val;
+	}
+
+	async remove(sessionId: string, key: string): Promise<void> {
+		const val = await this.db.one(
+			`UPDATE $1~.$2~ SET data = data - '{$3}', updated_at = $4 WHERE session_id = $5 ${this.softDeleteQuery} RETURNING *`,
+			[
+				this.config.schema,
+				this.config.tableName,
+				key,
 				new Date().toISOString(),
 				sessionId,
 			],
