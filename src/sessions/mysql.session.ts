@@ -106,12 +106,12 @@ export class MySQLSession extends BaseSession {
 		return State.fromJSON(JSON.parse(resp[0].state));
 	}
 
-	clear(sessionId: string): void | State {
+	clear(sessionId: string):  State {
 		const _state = this.states[sessionId];
 		delete this.states[sessionId];
 		delete this.data[sessionId];
 
-		if (this.config.softDelete == false || this.config.softDelete == null) {
+		if (this.config.softDelete === false || this.config.softDelete == null) {
 			this.db
 				.query(`DELETE FROM ${this.tableName} WHERE session_id = ?`, [
 					sessionId,
@@ -136,6 +136,16 @@ export class MySQLSession extends BaseSession {
 	async set(sessionId: string, key: string, value: any): Promise<void> {
 		this.data[sessionId] ??= {};
 		this.data[sessionId][key] = value;
+
+		await this.db.query(
+			`UPDATE ${this.tableName} SET data = ? WHERE session_id = ? ${this.softDeleteQuery}`,
+			[JSON.stringify(this.data[sessionId]), sessionId],
+		);
+	}
+
+	async remove(sessionId: string, key: string): Promise<void> {
+		this.data[sessionId] ??= {};
+    delete this.data[sessionId][key];
 
 		await this.db.query(
 			`UPDATE ${this.tableName} SET data = ? WHERE session_id = ? ${this.softDeleteQuery}`,

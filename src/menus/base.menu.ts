@@ -52,6 +52,8 @@ export abstract class BaseMenu {
 			},
 			set: (key: string, val: any) =>
 				Config.getInstance().session?.set(this.sessionId!, key, val),
+      remove: (key: string) =>
+        Config.getInstance().session?.remove(this.sessionId!, key),
 		};
 	}
 

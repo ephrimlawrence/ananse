@@ -76,7 +76,7 @@ export class RedisSession extends BaseSession {
 		return val == null ? undefined : State.fromJSON(JSON.parse(val));
 	}
 
-	clear(sessionId: string): void | State {
+	clear(sessionId: string): State {
 		const _state = this.states[sessionId];
 		delete this.states[sessionId];
 		delete this.data[sessionId];
