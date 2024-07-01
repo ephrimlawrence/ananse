@@ -64,11 +64,11 @@ export class Ananse {
 	async express(req: ExpressRequest, res: ExpressResponse) {
 		const request = new Request(parse(req.url!, true), req);
 
-		if (req.method == "POST" || req.method == "PUT" || req.method == "PATCH") {
-			let data = req.body;
+		if (req.method === "POST" || req.method === "PUT" || req.method === "PATCH") {
+			const data = req.body;
 
 			try {
-				if (req.headers["content-type"] == "application/json") {
+				if (req.headers["content-type"] === "application/json") {
 					request.body = data;
 				}
 				// TODO: parse other content types

@@ -3,7 +3,7 @@ import { BaseSession } from "./base.session";
 
 // @ts-ignore
 import type { RedisClientType } from "redis";
-import { RedisSessionOptions } from "@src/types";
+import type { RedisSessionOptions } from "@src/types";
 
 export class RedisSession extends BaseSession {
 	private static instance: RedisSession;
@@ -92,6 +92,18 @@ export class RedisSession extends BaseSession {
 
 		const data = JSON.parse(val || "{}");
 		data[key] = value;
+
+		await this.redisClient().then((client) =>
+			client.set(`${sessionId}:data`, JSON.stringify(data)),
+		);
+	}
+
+	async remove(sessionId: string, key: string): Promise<void> {
+		await this.redisClient();
+		const val = await this.CLIENT.get(`${sessionId}:data`);
+
+		const data = JSON.parse(val || "{}");
+		delete data[key]
 
 		await this.redisClient().then((client) =>
 			client.set(`${sessionId}:data`, JSON.stringify(data)),
