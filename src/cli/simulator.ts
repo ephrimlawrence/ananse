@@ -120,7 +120,7 @@ class Simulator {
 	}
 
 	reply(data?: any, input?: string): string | { url: string; body: any } {
-		if (this.provider == SupportedGateway.wigal) {
+		if (this.provider === SupportedGateway.wigal) {
 			// If '#' in input, encode i
 			input = input?.replace(/#/g, "%23");
 
@@ -192,7 +192,7 @@ class Simulator {
 
 	log(data: any) {
 		// this.args.debug = true;
-		if (this.args.debug == true || this.args.debug == "true") {
+		if (this.args.debug === true || this.args.debug === "true") {
 			console.log("");
 			console.log(data);
 			console.log("");
@@ -200,5 +200,5 @@ class Simulator {
 	}
 }
 
-let simulator = new Simulator();
+const simulator = new Simulator();
 simulator.init().then(() => simulator.start());

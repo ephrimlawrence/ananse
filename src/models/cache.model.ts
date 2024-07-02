@@ -7,6 +7,6 @@ export const MENU_CACHE: {
 	[menuId: string]: { paginated: boolean; menu: Type<BaseMenu> | DynamicMenu };
 } = {};
 
-export const PAGINATION_CACHE: {
-	[menuId: string]: { [page: number | string]: PaginationItem };
-} = {};
+// export const PAGINATION_CACHE: {
+// 	[menuId: string]: { [page: number | string]: PaginationItem };
+// } = {};
