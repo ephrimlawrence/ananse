@@ -39,11 +39,12 @@
   "bin": {
     "simulator": "dist/cli/simulator.js"
   },
-  "optionalDependencies": {
+  "peerDependencies": {
     "express": "^4.19.2",
     "mysql2": "^3.9.7",
     "pg-promise": "^11.6.0",
-    "redis": "^4.6.13"
+    "redis": "^4.6.13",
+    "@japa/runner": "3.1.4"
   },
   "devDependencies": {
     "@biomejs/biome": "1.7.1",
