@@ -11,7 +11,8 @@
                 "noExplicitAny": "off"
             },
             "style": {
-              "useImportType": "off"
+              "useImportType": "off",
+              "noInferrableTypes": "off"
             }
         }
     },
