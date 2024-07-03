@@ -2,7 +2,7 @@ import { State } from "@src/models";
 import { BaseSession } from "./base.session";
 
 // @ts-ignore
-import type { RedisClientType } from "redis";
+import { createClient, type RedisClientType } from "redis";
 import type { RedisSessionOptions } from "@src/types";
 
 export class RedisSession extends BaseSession {
@@ -138,15 +138,13 @@ export class RedisSession extends BaseSession {
   }
 
   private async redisClient() {
-    const redis = await import("redis");
-
     if (this.CLIENT == null) {
       if (this.config.url != null) {
-        this.CLIENT = redis.createClient({
+        this.CLIENT = createClient({
           url: this.config.url,
         });
       } else {
-        this.CLIENT = redis.createClient({
+        this.CLIENT = createClient({
           username: this.config.username!,
           socket: {
             host: this.config.host || "localhost",

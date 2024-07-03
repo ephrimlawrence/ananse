@@ -1,10 +1,10 @@
-// @ts-ignore
-import type { TestContext } from "@japa/runner/core";
-import type { getActiveTest } from "@japa/runner";
+import { getActiveTest } from "@japa/runner";
 import type { Ananse } from "../index";
 import { randomUUID } from "node:crypto";
 import { Config as AnanseConfig } from "@src/config";
 import { SupportedGateway } from "@src/helpers/constants";
+// @ts-ignore
+import { TestContext } from "@japa/runner/core";
 
 class UssdTestRunner {
   #inputs: string[] = [];
@@ -71,7 +71,6 @@ class UssdTestRunner {
 
     // const server = createServer(callback)
     // try {
-    // @ts-ignore
     const test = getActiveTest();
     test?.cleanup(() => this.stopServer());
 
@@ -241,6 +240,12 @@ export function anansePlugin(config: Config) {
   // @ts-ignore
   // biome-ignore lint/complexity/useArrowFunction: <explanation>
   return function ({ emitter, runner, cliArgs, config }) {
+    // return function (emitter, config, runner, { Test, TestContext, Group }) {
+    console.log(emitter)
+    console.log(config)
+    console.log(runner)
+    console.log(cliArgs)
+
     obj.debug(false);
 
     emitter.on("test:cleanup", async function () {
@@ -265,13 +270,10 @@ export function anansePlugin(config: Config) {
       console.log("test ended");
     });
 
-    // @ts-ignore
     // biome-ignore lint/complexity/useArrowFunction: <explanation>
     TestContext.getter("ussd", function () {
       return obj;
     });
-
-    // console.log("hello world from myCustomPlugin");
   };
 }
 
@@ -281,6 +283,13 @@ interface Config {
   gateway: SupportedGateway;
   phone?: string;
   session?: string; //TODO: same props used in core
+}
+// @ts-ignore
+
+declare module '@japa/runner/core' {
+  interface TestContext {
+    ussd: UssdTestRunner
+  }
 }
 
 // declare module "@japa/runner" {
