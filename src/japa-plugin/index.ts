@@ -1,7 +1,7 @@
 // @ts-ignore
-import { TestContext } from "@japa/runner/core";
-import { getActiveTest } from "@japa/runner";
-import { Gateway, type Ananse } from "../index";
+import type { TestContext } from "@japa/runner/core";
+import type { getActiveTest } from "@japa/runner";
+import type { Ananse } from "../index";
 import { randomUUID } from "node:crypto";
 import { Config as AnanseConfig } from "@src/config";
 import { SupportedGateway } from "@src/helpers/constants";
@@ -71,6 +71,7 @@ class UssdTestRunner {
 
     // const server = createServer(callback)
     // try {
+    // @ts-ignore
     const test = getActiveTest();
     test?.cleanup(() => this.stopServer());
 
@@ -230,6 +231,10 @@ class UssdTestRunner {
   }
 }
 
+/**
+ * Japa plugin for testing ussd applications
+ *
+ */
 export function anansePlugin(config: Config) {
   const obj = new UssdTestRunner(config);
 
@@ -260,6 +265,8 @@ export function anansePlugin(config: Config) {
       console.log("test ended");
     });
 
+    // @ts-ignore
+    // biome-ignore lint/complexity/useArrowFunction: <explanation>
     TestContext.getter("ussd", function () {
       return obj;
     });

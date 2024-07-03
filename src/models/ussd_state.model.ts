@@ -1,5 +1,5 @@
-import { PaginationItem } from "@src/types/pagination.type";
-import { Menu, MenuAction } from "../menus";
+import type { PaginationItem } from "@src/types/pagination.type";
+import type { MenuAction } from "../menus";
 
 export enum StateMode {
 	start = "start",
