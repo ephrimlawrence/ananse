@@ -114,7 +114,6 @@ export class TestRunner {
       );
     }
 
-    // const temp = [...this.#inputs];
     for (const step of this.#inputs) {
       try {
         const resp = await fetch(this.reply(step, url), { headers: this.#config.headers ?? {} });
@@ -127,30 +126,19 @@ export class TestRunner {
           throw e;
         }
         console.log(e.message);
-        break;
-      } finally {
-        this.#isRequestSent = true;
       }
     }
 
     return {
       text: () => {
-        console.log(this.#rawResponse);
-        // if (this.#isRequestSent === false) {
-        //   await this.send();
-        // }
+        if (this.#debug) {
+          console.log(this.#rawResponse);
+        }
 
-        // let val = "Unable to parse text from response";
         if (this.#provider === SupportedGateway.wigal) {
           return this.#rawResponse.userdata.replace(/\^/g, "\n")
         }
         throw new Error(`Text parsing is not implemented for ${this.#provider}`);
-
-        // if (this.#debug) {
-        //   console.log(val);
-        // }
-
-        // return this.#rawResponse.userdata;
       },
       raw: () => {
         return this.#rawResponse;
@@ -158,10 +146,6 @@ export class TestRunner {
     };
   }
 
-  // TODO
-  // 1. bootstrap application, pass as config
-  // 2. make request to url and parse response like in simulator
-  // 3. add helper functions
 
   get #provider(): SupportedGateway {
     return this.#config.gateway as SupportedGateway;
