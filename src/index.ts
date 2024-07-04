@@ -1,5 +1,5 @@
 export { Ananse } from "./core/app.core";
-export { anansePlugin } from "./japa-plugin";
+export { anansePlugin, TestRunner } from "./japa-plugin";
 export * from "./menus";
 export * from "./menus/action.menu";
 export * from "./menus/base.menu";

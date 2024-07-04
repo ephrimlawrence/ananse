@@ -6,7 +6,7 @@ import { SupportedGateway } from "@src/helpers/constants";
 // @ts-ignore
 import { TestContext } from "@japa/runner/core";
 
-class UssdTestRunner {
+export class TestRunner {
   #inputs: string[] = [];
   // #provider: Gateway;
   #phone: string | undefined = undefined;
@@ -37,19 +37,21 @@ class UssdTestRunner {
     return this;
   }
 
-  input(value: string) {
+  input(value: string | number) {
     this.#inputs ??= [];
-    this.#inputs.push(value);
+    this.#inputs.push(value.toString());
 
     return this;
   }
 
   phone(val: string) {
     this.#phone = val;
+    return this;
   }
 
   debug(val: boolean) {
     this.#debug = val;
+    return this
   }
 
   sessionId(val: string) {
@@ -67,19 +69,15 @@ class UssdTestRunner {
       return this;
     }
 
-    console.log("here");
+    const url = new URL(this.#url)
+    // const test = getActiveTest();
+    // test?.cleanup(() => this.stopServer());
 
-    // const server = createServer(callback)
-    // try {
-    const test = getActiveTest();
-    test?.cleanup(() => this.stopServer());
-
-    this.#server = this.#config.app?.listen(3000, "localhost", () => {
-      this.#config.url = "http://localhost:3000";
-
-      console.log(this.#config.url);
+    this.#server = this.#config.app?.listen(+url.port, url.hostname, () => {
+      if (this.#debug) {
+        console.log(`Server started at: ${this.#url}`);
+      }
     });
-    this.#config.url = "http://localhost:3000";
     return this.#server;
     // } catch (error) {}
     // server.listen(somePort)
@@ -168,7 +166,7 @@ class UssdTestRunner {
   }
 
   get #url(): string {
-    let val: string = this.#config.url || "";
+    let val: string = this.#config.url || "http://localhost:3000";
 
     if (val.startsWith("localhost")) {
       val = `http://${val}`;
@@ -235,7 +233,7 @@ class UssdTestRunner {
  *
  */
 export function anansePlugin(config: Config) {
-  const obj = new UssdTestRunner(config);
+  const obj = new TestRunner(config);
 
   // @ts-ignore
   // biome-ignore lint/complexity/useArrowFunction: <explanation>
@@ -278,8 +276,22 @@ export function anansePlugin(config: Config) {
 }
 
 interface Config {
+  /**
+   * Instance of the Ananse application to use. This is required if the `url` is not provided.
+   */
   app?: Ananse;
+
+  /**
+   * USSD server URL to make request to. Required if the `app` is not provided
+   * Defaults to http://localhost:3000
+   */
   url?: string;
+
+  /**
+   * Additional headers to send with the HTTP request
+   */
+  headers?: Record<string, string>;
+
   gateway: SupportedGateway;
   phone?: string;
   session?: string; //TODO: same props used in core
@@ -288,7 +300,7 @@ interface Config {
 
 declare module '@japa/runner/core' {
   interface TestContext {
-    ussd: UssdTestRunner
+    ussd: TestRunner
   }
 }
 
