@@ -1,19 +1,16 @@
 import { getActiveTest } from "@japa/runner";
 import type { Ananse } from "../index";
 import { randomUUID } from "node:crypto";
-import { Config as AnanseConfig } from "@src/config";
 import { SupportedGateway } from "@src/helpers/constants";
 // @ts-ignore
 import { TestContext } from "@japa/runner/core";
 
 export class TestRunner {
   #inputs: string[] = [];
-  // #provider: Gateway;
   #phone: string | undefined = undefined;
   #debug: boolean = false;
   #sessionId: string | undefined = undefined;
   #rawResponse: Record<string, any> = {};
-  #isRequestSent: boolean = false;
   #server: any = undefined;
   #config: Config = {} as Config;
 
@@ -65,6 +62,11 @@ export class TestRunner {
       );
     }
 
+    // If url is provided, run tests against the url instead of starting a server
+    if (this.#config.app == null && this.#url != null) {
+      return
+    }
+
     if (this.#server != null) {
       return this;
     }
@@ -106,13 +108,7 @@ export class TestRunner {
       );
     }
 
-    if (url != null) {
-      this.#isRequestSent = true;
-    }
-
-    this.#inputs.unshift("");
-
-    if ((this.#inputs || []).length === 0) {
+    if (this.#inputs.length === 0) {
       throw new Error(
         "No input provided. Please provide input using the input() or steps() method",
       );
@@ -121,16 +117,16 @@ export class TestRunner {
     // const temp = [...this.#inputs];
     for (const step of this.#inputs) {
       try {
-        const resp = await fetch(this.reply(step));
+        const resp = await fetch(this.reply(step, url), { headers: this.#config.headers ?? {} });
 
         const data = await resp.text();
 
         await this.parseResponse(data);
       } catch (e) {
-        if (this.#debug === true) {
+        if (this.#debug) {
           throw e;
         }
-        console.log("Simulator error: ", e.message);
+        console.log(e.message);
         break;
       } finally {
         this.#isRequestSent = true;
@@ -138,17 +134,23 @@ export class TestRunner {
     }
 
     return {
-      text: async () => {
-        if (this.#isRequestSent === false) {
-          await this.send();
-        }
+      text: () => {
+        console.log(this.#rawResponse);
+        // if (this.#isRequestSent === false) {
+        //   await this.send();
+        // }
 
-        let val = "Unable to parse text from response";
-        if (this.#provider === AnanseConfig.getInstance().gatewayName) {
-          val = this.#rawResponse.userdata;
+        // let val = "Unable to parse text from response";
+        if (this.#provider === SupportedGateway.wigal) {
+          return this.#rawResponse.userdata.replace(/\^/g, "\n")
         }
+        throw new Error(`Text parsing is not implemented for ${this.#provider}`);
 
-        return val.replace(/\^/g, "\n");
+        // if (this.#debug) {
+        //   console.log(val);
+        // }
+
+        // return this.#rawResponse.userdata;
       },
       raw: () => {
         return this.#rawResponse;
@@ -198,7 +200,7 @@ export class TestRunner {
     }
   }
 
-  private reply(input?: string) {
+  private reply(input?: string, severUrl?: string) {
     let data = { ...this.#rawResponse };
 
     let url = "";
@@ -206,7 +208,7 @@ export class TestRunner {
       data ??= {};
       const sessionId = data.sessionid || this.#sessionId || randomUUID();
 
-      url = `${this.#url}?network=${data.network || "wigal_mtn_gh"
+      url = `${severUrl || this.#url}?network=${data.network || "wigal_mtn_gh"
         }&sessionid=${sessionId}&mode=${data.mode || "start"}&msisdn=${data.msisdn || this.#phone
         }&userdata=${input}&username=${data.username || "test_user"
         }&trafficid=${randomUUID()}&other=${data.other || ""}`;
