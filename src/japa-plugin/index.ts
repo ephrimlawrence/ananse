@@ -29,7 +29,7 @@ export class TestRunner {
     return this;
   }
 
-  steps(...steps: string[] | number[]) {
+  steps(...steps: (string[] | number[])) {
     this.#inputs = this.#inputs.concat(steps.map((step) => step.toString()));
     return this;
   }
@@ -53,6 +53,7 @@ export class TestRunner {
 
   sessionId(val: string) {
     this.#sessionId = val;
+    return this;
   }
 
   async startServer() {
@@ -114,7 +115,8 @@ export class TestRunner {
       );
     }
 
-    for (const step of this.#inputs) {
+    const temp = [...this.#inputs];
+    for (const step of temp) {
       try {
         const resp = await fetch(this.reply(step, url), { headers: this.#config.headers ?? {} });
 
@@ -126,6 +128,8 @@ export class TestRunner {
           throw e;
         }
         console.log(e.message);
+      } finally {
+        this.#inputs.shift();
       }
     }
 
@@ -190,10 +194,13 @@ export class TestRunner {
     let url = "";
     if (this.#provider === SupportedGateway.wigal) {
       data ??= {};
-      const sessionId = data.sessionid || this.#sessionId || randomUUID();
+      data.mode ??= "start"
+
+      const sessionId = this.#sessionId || data.sessionid || randomUUID();
+      const mode = data.mode === "end" ? "start" : data.mode;
 
       url = `${severUrl || this.#url}?network=${data.network || "wigal_mtn_gh"
-        }&sessionid=${sessionId}&mode=${data.mode || "start"}&msisdn=${data.msisdn || this.#phone
+        }&sessionid=${sessionId}&mode=${mode}&msisdn=${this.#phone
         }&userdata=${input}&username=${data.username || "test_user"
         }&trafficid=${randomUUID()}&other=${data.other || ""}`;
     } else {
@@ -225,13 +232,6 @@ export function anansePlugin(config: Config) {
   // biome-ignore lint/complexity/useArrowFunction: <explanation>
   return function ({ emitter, runner, cliArgs, config }) {
     // return function (emitter, config, runner, { Test, TestContext, Group }) {
-    console.log(emitter)
-    console.log(config)
-    console.log(runner)
-    console.log(cliArgs)
-
-    obj.debug(false);
-
     emitter.on("test:cleanup", async function () {
       // await obj.startServer();
       // TODO: stop server
