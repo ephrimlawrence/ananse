@@ -1,9 +1,8 @@
-import { getActiveTest } from "@japa/runner";
 import type { Ananse } from "../index";
 import { randomUUID } from "node:crypto";
 import { SupportedGateway } from "@src/helpers/constants";
 // @ts-ignore
-import { TestContext } from "@japa/runner/core";
+// import { TestContext } from "@japa/runner/core";
 
 export class TestRunner {
   #inputs: string[] = [];
@@ -255,9 +254,9 @@ export function anansePlugin(config: Config) {
     });
 
     // biome-ignore lint/complexity/useArrowFunction: <explanation>
-    TestContext.getter("ussd", function () {
-      return obj;
-    });
+    // TestContext.getter("ussd", function () {
+    //   return obj;
+    // });
   };
 }
 
@@ -284,11 +283,11 @@ interface Config {
 }
 // @ts-ignore
 
-declare module '@japa/runner/core' {
-  interface TestContext {
-    ussd: TestRunner
-  }
-}
+// declare module '@japa/runner/core' {
+//   interface TestContext {
+//     ussd: TestRunner
+//   }
+// }
 
 // declare module "@japa/runner" {
 //   interface TestContext {
