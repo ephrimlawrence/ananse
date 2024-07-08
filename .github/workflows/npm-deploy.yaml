@@ -40,7 +40,7 @@ jobs:
 
       - name: Build package
         run: |
-          npm ci --legacy-peer-deps
+          npm install
           npm run bundle
 
       - name: Create release

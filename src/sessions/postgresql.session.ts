@@ -1,6 +1,6 @@
 import { State } from "@src/models";
 import { BaseSession } from "./base.session";
-import { SQLSessionOptions } from "@src/types";
+import type { SQLSessionOptions } from "@src/types";
 
 /**
  * PostgreSQL session manager
