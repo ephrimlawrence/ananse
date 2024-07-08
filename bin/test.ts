@@ -1,14 +1,15 @@
 import { configure, processCLIArgs, run } from "@japa/runner";
 import { assert } from "@japa/assert";
-import { scorpionPlugin } from "../src/cli/japa-plugin";
+import { ananseJapaPlugin } from "../src/cli/japa-plugin";
 import app from "../tests/test_app";
+import { SupportedGateway } from "@src/index";
 
 processCLIArgs(process.argv.splice(2));
 configure({
   files: ["tests/**/*.spec.ts"],
   plugins: [
     assert(),
-    scorpionPlugin({ phone: "23324143443", gateway: "wigal", app: app }),
+    ananseJapaPlugin({ phone: "23324143443", gateway: SupportedGateway.wigal, app: app }),
   ],
 });
 

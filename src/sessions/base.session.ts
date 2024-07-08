@@ -33,9 +33,7 @@ export abstract class BaseSession {
    * @param   {string}         sessionId  The session ID, must be unique for each user
    * @param   {string}         key        The key to remove along with its value from the session
    */
-  remove(sessionId: string, key: string): Promise<void> {
-    throw new Error("Method not implemented for the session driver. Feel free to create a pull request to implement this method!");
-  }
+  abstract remove(sessionId: string, key: string): Promise<void>;
 
   abstract get<T>(
     sessionId: string,
