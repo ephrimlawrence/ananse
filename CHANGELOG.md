@@ -1,3 +1,7 @@
+## [1.9.1](https://github.com/ephrimlawrence/ananse/compare/v1.9.0...v1.9.1) (2024-07-08)
+
+
+
 # [1.9.0](https://github.com/ephrimlawrence/ananse/compare/v1.8.1...v1.9.0) (2024-06-28)
 
 
@@ -31,15 +35,6 @@
 ### Bug Fixes
 
 * menu action handling bugs ([4c1223f](https://github.com/ephrimlawrence/ananse/commit/4c1223fa7df5000feca800413848dd089d2783a7))
-
-
-
-## [1.7.5](https://github.com/ephrimlawrence/ananse/compare/v1.7.4...v1.7.5) (2024-05-02)
-
-
-### Bug Fixes
-
-* **form:** input navigation bug ([b10ffdc](https://github.com/ephrimlawrence/ananse/commit/b10ffdc3a2dc2b4885955f0ec2725058c6839a2c))
 
 
 
