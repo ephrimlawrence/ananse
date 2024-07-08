@@ -1,6 +1,6 @@
 {
   "name": "ananse",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "description": "Ananse is a lightweight NodeJs framework with batteries included for building efficient, scalable and maintainable USSD applications.",
   "git": "https://github.com/ephrimlawrence/ananse",
   "author": "Lawrence Ephrim",

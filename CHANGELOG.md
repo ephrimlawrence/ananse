@@ -1,3 +1,7 @@
+## [1.9.2](https://github.com/ephrimlawrence/ananse/compare/v1.9.1...v1.9.2) (2024-07-08)
+
+
+
 ## [1.9.1](https://github.com/ephrimlawrence/ananse/compare/v1.9.0...v1.9.1) (2024-07-08)
 
 
@@ -26,15 +30,6 @@
 ### Features
 
 * **session: postgres:** implement `remove` method for deleting items from session ([1f4b9b6](https://github.com/ephrimlawrence/ananse/commit/1f4b9b694b2152dfcf1645317d512033c1a7d74b))
-
-
-
-## [1.7.6](https://github.com/ephrimlawrence/ananse/compare/v1.7.5...v1.7.6) (2024-06-28)
-
-
-### Bug Fixes
-
-* menu action handling bugs ([4c1223f](https://github.com/ephrimlawrence/ananse/commit/4c1223fa7df5000feca800413848dd089d2783a7))
 
 
 
