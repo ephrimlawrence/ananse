@@ -1,3 +1,12 @@
+## [1.9.4](https://github.com/ephrimlawrence/ananse/compare/v1.9.3...v1.9.4) (2024-07-08)
+
+
+### Bug Fixes
+
+* remove all japa imports ([0baaa48](https://github.com/ephrimlawrence/ananse/commit/0baaa48368bc93d91d2db3c15540dff0233e5d03))
+
+
+
 ## [1.9.3](https://github.com/ephrimlawrence/ananse/compare/v1.9.2...v1.9.3) (2024-07-08)
 
 
@@ -16,15 +25,6 @@
 ### Features
 
 * **session:** implement `remove` method for deleting items from session for all drivers ([72f4d13](https://github.com/ephrimlawrence/ananse/commit/72f4d13af53abf88e667380712ea148957b5e055))
-
-
-
-## [1.8.1](https://github.com/ephrimlawrence/ananse/compare/v1.8.0...v1.8.1) (2024-06-28)
-
-
-### Bug Fixes
-
-* **session:** build error ([1cac0a8](https://github.com/ephrimlawrence/ananse/commit/1cac0a85c8a4036e05b153c83b1dfa91e7aef673))
 
 
 
