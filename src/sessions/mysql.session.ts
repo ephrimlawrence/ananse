@@ -23,163 +23,164 @@ import { SQLSessionOptions } from "@src/types";
  * ```
  */
 export class MySQLSession extends BaseSession {
-	private static instance: MySQLSession;
+  private static instance: MySQLSession;
 
-	private config: SQLSessionOptions;
-	private db: any;
+  private config: SQLSessionOptions;
+  private db: any;
 
-	private constructor() {
-		super();
-	}
+  private constructor() {
+    super();
+  }
 
-	public static getInstance(): MySQLSession {
-		if (!MySQLSession.instance) {
-			MySQLSession.instance = new MySQLSession();
-		}
+  public static getInstance(): MySQLSession {
+    if (!MySQLSession.instance) {
+      MySQLSession.instance = new MySQLSession();
+    }
 
-		return MySQLSession.instance;
-	}
+    return MySQLSession.instance;
+  }
 
-	async configure(options: SQLSessionOptions): Promise<void> {
-		if (options == null) {
-			throw new Error("Postgres session configuration is required!");
-		}
-		this.config = options;
-		this.config.tableName ??= "ussd_sessions";
+  async configure(options: SQLSessionOptions): Promise<void> {
+    if (options == null) {
+      throw new Error("Postgres session configuration is required!");
+    }
+    this.config = options;
+    this.config.tableName ??= "ussd_sessions";
 
-		let mysql;
+    let mysql;
 
-		try {
-			mysql = await import("mysql2/promise");
-		} catch (error) {
-			throw new Error(
-				"'mysql2/promise' module is required for postgres session. Please install it using 'npm install mysql2/promise' or 'yarn add mysql2/promise'",
-			);
-		}
+    try {
+      mysql = await import("mysql2/promise");
+    } catch (error) {
+      throw new Error(
+        "'mysql2/promise' module is required for postgres session. Please install it using 'npm install mysql2/promise' or 'yarn add mysql2/promise'",
+      );
+    }
 
-		this.db = await mysql.createConnection({
-			host: this.config?.host || "localhost",
-			user: this.config.username || "root",
-			database: this.config.database,
-			password: this.config.password as string,
-		});
-	}
+    this.db = await mysql.createConnection({
+      host: this.config?.host || "localhost",
+      user: this.config.username || "root",
+      database: this.config.database,
+      password: this.config.password as string,
+    });
+  }
 
-	private get softDeleteQuery() {
-		if (this.config.softDelete == false || this.config.softDelete == null)
-			return "";
+  private get softDeleteQuery() {
+    if (this.config.softDelete == false || this.config.softDelete == null)
+      return "";
 
-		return "AND deleted_at IS NULL";
-	}
+    return "AND deleted_at IS NULL";
+  }
 
-	private get tableName() {
-		return this.config.tableName!;
-	}
+  private get tableName() {
+    return this.config.tableName!;
+  }
 
-	async setState(sessionId: string, state: State) {
-		this.states[sessionId] = state;
+  async setState(sessionId: string, state: State) {
+    this.states[sessionId] = state;
 
-		// Write postgres query to insert or update state
-		await this.db.query(
-			`INSERT INTO ${this.tableName} (session_id, state, created_at, updated_at) VALUES (?, ?, NOW(), NOW())
+    // Write postgres query to insert or update state
+    await this.db.query(
+      `INSERT INTO ${this.tableName} (session_id, state, created_at, updated_at) VALUES (?, ?, NOW(), NOW())
      ON DUPLICATE KEY UPDATE state = ?`,
-			[
-				sessionId,
-				JSON.stringify(state.toJSON()),
-				JSON.stringify(state.toJSON()),
-				sessionId,
-			],
-		);
-		return state;
-	}
+      [
+        sessionId,
+        JSON.stringify(state.toJSON()),
+        JSON.stringify(state.toJSON()),
+        sessionId,
+      ],
+    );
+    return state;
+  }
 
-	async getState(sessionId: string) {
-		const [resp, _fields] = await this.db.query(
-			`SELECT state, data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery} LIMIT 1`,
-			[sessionId],
-		);
+  async getState(sessionId: string) {
+    const [resp, _fields] = await this.db.query(
+      `SELECT state, data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery} LIMIT 1`,
+      [sessionId],
+    );
 
-		if (resp.length == 0) return undefined;
+    if (resp.length === 0) return undefined;
 
-		this.data[sessionId] = JSON.parse(resp[0].data);
+    const val = typeof resp[0] === "string" ? JSON.parse(resp[0]) : resp[0];
+    this.data[sessionId] = JSON.parse(val.data);
+    return State.fromJSON(val.state);
+  }
 
-		return State.fromJSON(JSON.parse(resp[0].state));
-	}
+  clear(sessionId: string): State {
+    const _state = this.states[sessionId];
+    delete this.states[sessionId];
+    delete this.data[sessionId];
 
-	clear(sessionId: string):  State {
-		const _state = this.states[sessionId];
-		delete this.states[sessionId];
-		delete this.data[sessionId];
+    if (this.config.softDelete === false || this.config.softDelete == null) {
+      this.db
+        .query(`DELETE FROM ${this.tableName} WHERE session_id = ?`, [
+          sessionId,
+        ])
+        .catch((error: Error) => {
+          throw error;
+        });
+    } else {
+      this.db
+        .query(
+          `UPDATE ${this.tableName} SET deleted_at = ? WHERE session_id = ? ${this.softDeleteQuery}`,
+          [new Date().toISOString(), sessionId],
+        )
+        .catch((error: Error) => {
+          throw error;
+        });
+    }
 
-		if (this.config.softDelete === false || this.config.softDelete == null) {
-			this.db
-				.query(`DELETE FROM ${this.tableName} WHERE session_id = ?`, [
-					sessionId,
-				])
-				.catch((error: Error) => {
-					throw error;
-				});
-		} else {
-			this.db
-				.query(
-					`UPDATE ${this.tableName} SET deleted_at = ? WHERE session_id = ? ${this.softDeleteQuery}`,
-					[new Date().toISOString(), sessionId],
-				)
-				.catch((error: Error) => {
-					throw error;
-				});
-		}
+    return _state;
+  }
 
-		return _state;
-	}
+  async set(sessionId: string, key: string, value: any): Promise<void> {
+    this.data[sessionId] ??= {};
+    this.data[sessionId][key] = value;
 
-	async set(sessionId: string, key: string, value: any): Promise<void> {
-		this.data[sessionId] ??= {};
-		this.data[sessionId][key] = value;
+    await this.db.query(
+      `UPDATE ${this.tableName} SET data = ? WHERE session_id = ? ${this.softDeleteQuery}`,
+      [JSON.stringify(this.data[sessionId]), sessionId],
+    );
+  }
 
-		await this.db.query(
-			`UPDATE ${this.tableName} SET data = ? WHERE session_id = ? ${this.softDeleteQuery}`,
-			[JSON.stringify(this.data[sessionId]), sessionId],
-		);
-	}
-
-	async remove(sessionId: string, key: string): Promise<void> {
-		this.data[sessionId] ??= {};
+  async remove(sessionId: string, key: string): Promise<void> {
+    this.data[sessionId] ??= {};
     delete this.data[sessionId][key];
 
-		await this.db.query(
-			`UPDATE ${this.tableName} SET data = ? WHERE session_id = ? ${this.softDeleteQuery}`,
-			[JSON.stringify(this.data[sessionId]), sessionId],
-		);
-	}
+    await this.db.query(
+      `UPDATE ${this.tableName} SET data = ? WHERE session_id = ? ${this.softDeleteQuery}`,
+      [JSON.stringify(this.data[sessionId]), sessionId],
+    );
+  }
 
-	async get<T>(
-		sessionId: string,
-		key: string,
-		defaultValue?: T,
-	): Promise<T | undefined> {
-		const [val, _fields] = await this.db.query(
-			`SELECT data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery} LIMIT 1`,
-			[sessionId],
-		);
+  async get<T>(
+    sessionId: string,
+    key: string,
+    defaultValue?: T,
+  ): Promise<T | undefined> {
+    const [resp, _fields] = await this.db.query(
+      `SELECT data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery} LIMIT 1`,
+      [sessionId],
+    );
 
-		if (val == null) {
-			return defaultValue;
-		}
+    if (resp == null) {
+      return defaultValue;
+    }
 
-		return (JSON.parse(val[0]?.data || "{}")[key] || defaultValue) as T;
-	}
+    const val = typeof resp[0] === "string" ? JSON.parse(resp[0]) : resp[0];
+    return ((val?.data || "{}")[key] || defaultValue) as T;
+  }
 
-	async getAll<T>(sessionId: string): Promise<T | undefined> {
-		const [[val]] = await this.db.query(
-			`SELECT data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery}`,
-			[sessionId],
-		);
+  async getAll<T>(sessionId: string): Promise<T | undefined> {
+    const [[val]] = await this.db.query(
+      `SELECT data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery}`,
+      [sessionId],
+    );
 
-		if (val == null) {
-			return undefined;
-		}
+    if (val == null) {
+      return undefined;
+    }
 
-		return JSON.parse(val.data || "{}") as T;
-	}
+    return JSON.parse(val.data || "{}") as T;
+  }
 }
