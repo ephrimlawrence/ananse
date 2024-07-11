@@ -1,3 +1,12 @@
+## [1.9.5](https://github.com/ephrimlawrence/ananse/compare/v1.9.4...v1.9.5) (2024-07-11)
+
+
+### Bug Fixes
+
+* **session: mysql:** handle cases where session query result are returned as JSON object instead of string on some sql versions ([c33d0c1](https://github.com/ephrimlawrence/ananse/commit/c33d0c1d5f7db20f318d298ce6db313f610ef2f7))
+
+
+
 ## [1.9.4](https://github.com/ephrimlawrence/ananse/compare/v1.9.3...v1.9.4) (2024-07-08)
 
 
@@ -16,15 +25,6 @@
 
 
 ## [1.9.1](https://github.com/ephrimlawrence/ananse/compare/v1.9.0...v1.9.1) (2024-07-08)
-
-
-
-# [1.9.0](https://github.com/ephrimlawrence/ananse/compare/v1.8.1...v1.9.0) (2024-06-28)
-
-
-### Features
-
-* **session:** implement `remove` method for deleting items from session for all drivers ([72f4d13](https://github.com/ephrimlawrence/ananse/commit/72f4d13af53abf88e667380712ea148957b5e055))
 
 
 
