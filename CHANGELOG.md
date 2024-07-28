@@ -1,3 +1,12 @@
+## [1.9.6](https://github.com/ephrimlawrence/ananse/compare/v1.9.5...v1.9.6) (2024-07-28)
+
+
+### Bug Fixes
+
+* **express:** json content reading error ([429d3fa](https://github.com/ephrimlawrence/ananse/commit/429d3fac74b2e0027723805ddfd9221273f2114c))
+
+
+
 ## [1.9.5](https://github.com/ephrimlawrence/ananse/compare/v1.9.4...v1.9.5) (2024-07-11)
 
 
@@ -21,10 +30,6 @@
 
 
 ## [1.9.2](https://github.com/ephrimlawrence/ananse/compare/v1.9.1...v1.9.2) (2024-07-08)
-
-
-
-## [1.9.1](https://github.com/ephrimlawrence/ananse/compare/v1.9.0...v1.9.1) (2024-07-08)
 
 
 
