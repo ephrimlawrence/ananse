@@ -68,7 +68,7 @@ export class Ananse {
 			const data = req.body;
 
 			try {
-				if (req.headers["content-type"] === "application/json") {
+				if (req.headers["content-type"] != null && req.headers["content-type"]?.indexOf("application/json") > -1) {
 					request.body = data;
 				}
 				// TODO: parse other content types

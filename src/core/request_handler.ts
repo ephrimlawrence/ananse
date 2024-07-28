@@ -398,7 +398,7 @@ export class RequestHandler {
   }
 
   private async resolveGateway(stage: "request" | "response") {
-    if (stage == "request") {
+    if (stage === "request") {
       const item = new this.config.gateway(this.request, this.response);
       const _state = (await item.handleRequest(this.request, this.response))!;
       await this.session.setState(_state.sessionId, _state)!;
@@ -406,7 +406,7 @@ export class RequestHandler {
       return _state;
     }
 
-    if (stage == "response") {
+    if (stage === "response") {
       const item = new this.config.gateway(this.request, this.response);
       await item.handleResponse(this.request, this.response);
     }
