@@ -102,7 +102,7 @@ export class MySQLSession extends BaseSession {
     if (resp.length === 0) return undefined;
 
     const val = typeof resp[0] === "string" ? JSON.parse(resp[0]) : resp[0];
-    this.data[sessionId] = JSON.parse(val.data);
+    this.data[sessionId] = val.data;
     return State.fromJSON(val.state);
   }
 
