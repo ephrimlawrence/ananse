@@ -1,3 +1,12 @@
+## [1.9.7](https://github.com/ephrimlawrence/ananse/compare/v1.9.6...v1.9.7) (2024-08-08)
+
+
+### Bug Fixes
+
+* **session: mysql:** state json parsing error ([c0845b7](https://github.com/ephrimlawrence/ananse/commit/c0845b71284831a7330aaafcfe58903797e7f36f))
+
+
+
 ## [1.9.6](https://github.com/ephrimlawrence/ananse/compare/v1.9.5...v1.9.6) (2024-07-28)
 
 
@@ -26,10 +35,6 @@
 
 
 ## [1.9.3](https://github.com/ephrimlawrence/ananse/compare/v1.9.2...v1.9.3) (2024-07-08)
-
-
-
-## [1.9.2](https://github.com/ephrimlawrence/ananse/compare/v1.9.1...v1.9.2) (2024-07-08)
 
 
 
