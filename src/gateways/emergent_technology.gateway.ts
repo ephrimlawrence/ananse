@@ -30,10 +30,11 @@ export class EmergentTechnologyGateway extends Gateway {
 
 		this.request.state = _state;
 		this.request.msisdn = _state.msisdn;
+		this.request.serviceCode = body.ServiceCode;
 
 		// The content of Message for session initiation is always the service short code value
-		// We don't really need it given that is start of a session
-		if (_state.mode == StateMode.start) {
+		// We don't really need it, given that it is start of a session
+		if (_state.mode === StateMode.start) {
 			this.request.input = "";
 		} else {
 			this.request.input = body.Message;

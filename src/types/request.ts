@@ -19,7 +19,15 @@ export class Request {
 
 	url: string;
 
+	/**
+	 * The msisdn of the user
+	 */
 	msisdn?: string;
+
+	/**
+	 * USSD service short code. Set only for Emergent Technology USSD
+	 */
+	serviceCode?: string;
 
 	/**
 	 * The input from the user
@@ -33,9 +41,13 @@ export class Request {
 	query?: Record<string, string>;
 
 	/**
-	 * Current USSD state. Is null until the request is processed by the middlewares
+	 * Current USSD state. Null until the request is processed by the middlewares
 	 */
 	state: State;
+
+	/**
+	 * Current session. Null until the request is processed by the middlewares
+	 */
 	session: Session;
 
 	constructor(_url: Url, req: IncomingMessage) {
