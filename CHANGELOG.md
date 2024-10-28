@@ -1,3 +1,12 @@
+## [1.9.8](https://github.com/ephrimlawrence/ananse/compare/v1.9.7...v1.9.8) (2024-10-28)
+
+
+### Bug Fixes
+
+* add `serviceCode` to request object ([8406e8d](https://github.com/ephrimlawrence/ananse/commit/8406e8d1703eb19240529cb4bee1970e4452e5a4))
+
+
+
 ## [1.9.7](https://github.com/ephrimlawrence/ananse/compare/v1.9.6...v1.9.7) (2024-08-08)
 
 
@@ -31,10 +40,6 @@
 ### Bug Fixes
 
 * remove all japa imports ([0baaa48](https://github.com/ephrimlawrence/ananse/commit/0baaa48368bc93d91d2db3c15540dff0233e5d03))
-
-
-
-## [1.9.3](https://github.com/ephrimlawrence/ananse/compare/v1.9.2...v1.9.3) (2024-07-08)
 
 
 
