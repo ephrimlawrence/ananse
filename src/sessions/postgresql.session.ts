@@ -48,6 +48,7 @@ export class PostgresSession extends BaseSession {
 		}
 		this.config = options;
 		this.config.tableName ??= "ussd_sessions";
+		this.config.schema ??= options?.schema ?? "public";
 
 		let pgPromise;
 
@@ -61,7 +62,7 @@ export class PostgresSession extends BaseSession {
 
 		const pgp = pgPromise.default({
 			capSQL: true, // capitalize all generated SQL
-			schema: [options?.schema || "public"],
+			schema: [this.config.schema],
 		});
 
 		this.db = pgp({
@@ -99,15 +100,16 @@ export class PostgresSession extends BaseSession {
 	}
 
 	async getState(sessionId: string) {
-		const val = await this.db.one(
-			`SELECT state FROM $1~.$2~ WHERE session_id = $3 ${this.softDeleteQuery}`,
+		console.log("here");
+		const [val] = await this.db.any(
+			`SELECT state FROM $1~.$2~ WHERE session_id = $3 ${this.softDeleteQuery} LIMIT 1`,
 			[this.config.schema, this.config.tableName, sessionId],
 		);
 
 		return val == null ? undefined : State.fromJSON(JSON.parse(val.state));
 	}
 
-	clear(sessionId: string):  State {
+	clear(sessionId: string): State {
 		const _state = this.states[sessionId];
 		delete this.states[sessionId];
 		delete this.data[sessionId];
@@ -175,8 +177,8 @@ export class PostgresSession extends BaseSession {
 		key: string,
 		defaultValue?: T,
 	): Promise<T | undefined> {
-		const val = await this.db.one(
-			`SELECT data FROM $1~.$2~ WHERE session_id = $3 ${this.softDeleteQuery}`,
+		const [val] = await this.db.any(
+			`SELECT data FROM $1~.$2~ WHERE session_id = $3 ${this.softDeleteQuery} LIMIT 1`,
 			[this.config.schema, this.config.tableName, sessionId],
 		);
 
@@ -188,8 +190,8 @@ export class PostgresSession extends BaseSession {
 	}
 
 	async getAll<T>(sessionId: string): Promise<T | undefined> {
-		const val = await this.db.one(
-			`SELECT data FROM $1~.$2~ WHERE session_id = $3 ${this.softDeleteQuery}`,
+		const [val] = await this.db.one(
+			`SELECT data FROM $1~.$2~ WHERE session_id = $3 ${this.softDeleteQuery} LIMIT 1`,
 			[this.config.schema, this.config.tableName, sessionId],
 		);
 
