@@ -9,7 +9,7 @@ import type { SQLSessionOptions } from "@src/types";
  * It is assumed that database has a session table with following schema:
  * ```sql
  * CREATE TABLE ussd_sessions (
- *   id UUID PRIMARY KEY,
+ *   id UUID PRIMARY KEY DEFAULT uuid_generate_v5(),
  *   session_id VARCHAR(255),
  *  state JSONB DEFAULT '{}',
  *   data JSONB DEFAULT '{}',
@@ -87,7 +87,7 @@ export class PostgresSession extends BaseSession {
 		// Write postgres query to insert or update state
 		await this.db.none(
 			`INSERT INTO $1~.$2~ (session_id, state, created_at, updated_at, deleted_at) VALUES ($3, $4::jsonb, $5, $5, NULL)
-     ON CONFLICT (session_uniq_key) DO UPDATE SET state = $4::jsonb, updated_at = $5 WHERE $1~.$2~.session_id = $3 ${this.softDeleteQuery}`,
+     ON CONFLICT (session_id) DO UPDATE SET state = $4::jsonb, updated_at = $5 WHERE $1~.$2~.session_id = $3 ${this.softDeleteQuery}`,
 			[
 				this.config.schema,
 				this.config.tableName,
@@ -106,7 +106,11 @@ export class PostgresSession extends BaseSession {
 			[this.config.schema, this.config.tableName, sessionId],
 		);
 
-		return val == null ? undefined : State.fromJSON(JSON.parse(val.state));
+		if (val == null) return undefined;
+
+		if (typeof val === "object") return State.fromJSON(val.state);
+
+		return State.fromJSON(JSON.parse(val.state));
 	}
 
 	clear(sessionId: string): State {
@@ -145,7 +149,7 @@ export class PostgresSession extends BaseSession {
 
 	async set(sessionId: string, key: string, value: any): Promise<void> {
 		const val = await this.db.one(
-			`UPDATE $1~.$2~ SET data = jsonb_set(data, '{$3}', $4::jsonb), updated_at = $4 WHERE session_id = $5 ${this.softDeleteQuery} RETURNING *`,
+			`UPDATE $1~.$2~ SET data = jsonb_set(data, '{$3~}', $4::jsonb), updated_at = $5 WHERE session_id = $6 ${this.softDeleteQuery} RETURNING *`,
 			[
 				this.config.schema,
 				this.config.tableName,
@@ -184,6 +188,10 @@ export class PostgresSession extends BaseSession {
 
 		if (val == null) {
 			return defaultValue;
+		}
+
+		if (typeof val === "object") {
+			return val[key] || defaultValue;
 		}
 
 		return (JSON.parse(val)[key] || defaultValue) as T;
