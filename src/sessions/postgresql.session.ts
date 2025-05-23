@@ -100,7 +100,6 @@ export class PostgresSession extends BaseSession {
 	}
 
 	async getState(sessionId: string) {
-		console.log("here");
 		const [val] = await this.db.any(
 			`SELECT state FROM $1~.$2~ WHERE session_id = $3 ${this.softDeleteQuery} LIMIT 1`,
 			[this.config.schema, this.config.tableName, sessionId],
