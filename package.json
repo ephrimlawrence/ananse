@@ -41,7 +41,7 @@
   },
   "peerDependencies": {
     "express": "^4.19.2",
-    "mysql2": "^3.9.7",
+    "mysql2": "^3.14.1",
     "pg-promise": "^11.6.0",
     "redis": "^4.6.13",
     "@japa/runner": "3.1.4"

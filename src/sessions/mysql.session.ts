@@ -47,6 +47,7 @@ export class MySQLSession extends BaseSession {
     this.config = options;
     this.config.tableName ??= "ussd_sessions";
 
+    // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
     let mysql;
 
     try {
@@ -57,22 +58,29 @@ export class MySQLSession extends BaseSession {
       );
     }
 
-    this.db = await mysql.createConnection({
+    this.db = await mysql.createPool({
       host: this.config?.host || "localhost",
       user: this.config.username || "root",
       database: this.config.database,
       password: this.config.password as string,
+      enableKeepAlive:true
     });
+
+
+    // Based on https://github.com/sidorares/node-mysql2/issues/836#issuecomment-414281593
+    // To prevent connection timeout
+    this.db.query('select 1 + 1', (_err: any, _rows: any) => { /* */ });
   }
 
   private get softDeleteQuery() {
-    if (this.config.softDelete == false || this.config.softDelete == null)
+    if (this.config.softDelete === false || this.config.softDelete == null)
       return "";
 
     return "AND deleted_at IS NULL";
   }
 
   private get tableName() {
+    // biome-ignore lint/style/noNonNullAssertion: <explanation>
     return this.config.tableName!;
   }
 
