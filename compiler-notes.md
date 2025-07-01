@@ -207,7 +207,7 @@ menu confirm_large_transfer {
 
 menu transfer_success {
   display "Transfer successful! Reference: {{transfer_result.reference}}"; // Assuming transfer_result has a reference
-  option "0. Back" -> Welcome;
+  option "0. Back" -> back;
 }
 
 menu transfer_failed {
