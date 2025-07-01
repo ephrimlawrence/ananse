@@ -1,5 +1,4 @@
-module Lexer
-  # --- Lexer (Tokenization) ---
+module Scanner
   enum TokenType
     KEYWORD_MENU
     KEYWORD_DISPLAY

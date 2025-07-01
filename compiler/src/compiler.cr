@@ -13,12 +13,18 @@ module Compiler
     # file.close
 
     p! @@program
-    lexer = Lexer::Lexer.new(@@program)
-    loop do
-      token = lexer.next_token
-      puts token
-      break if token.type == Lexer::TokenType::EOF
-    end
+    lexer = Scanner::Lexer.new(@@program)
+
+    parser = Parser.new(lexer)
+    program = parser.parse_program
+    puts "Parsing successful! Generated AST (simplified output):"
+    p! program
+
+    # loop do
+    #   token = lexer.next_token
+    #   puts token
+    #   break if token.type == Scanner::TokenType::EOF
+    # end
   end
 
   def self.read_script
