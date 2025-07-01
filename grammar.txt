@@ -14,9 +14,9 @@
 
 <end_brace>			::= "}"
 
-<menu_body> 		::= (<statements> "\n")+ ("end" <end_statment>)?
+<menu_body> 		::= (<statement_list> "\n")+ ("end" <end_statment>)?
 
-<statements> 		::= (<display_statment> | <option_statement> | <action_statement>)+ <input_statement>
+<statement_list> 		::= <display_statment> | <option_statement> | <action_statement> | <if_statement> | <input_statement>
 
 <display_statment> 	::= "display" <space> <string_literal> <end_statment>
 
@@ -25,7 +25,7 @@
 <option_target> 	::= <digit> | <regex_literal> | <string_literal>
 
 /* string_literal is a call to js function */
-<action_statement>		::= <space>? "action" <space> <quoted_identifier> (<space> "with" <space> "{" (<identifier> ":" <identifier> ",")* "}" )?
+<action_statement>		::= <space>? "action" <space> <quoted_identifier> (<space> "with" <space> "{" (<identifier> ":" <identifier> ",")* "}" )? (<space> "as" <space> <identifier>)?
 
 <input_statement> 	::= "input" <space> <identifier> <end_statment>
 
@@ -34,6 +34,22 @@
 <goto_stmt>			::= "goto" <space> (<identifier> | <navigate_stmt>)
 
 <navigate_stmt>		::= "end" | "back"
+
+<if_statement> ::= "if" "(" <condition> ")" "{" <statement_list> "}" ("else" "{" <statement_list> "}" )?
+
+<for_each_statement>  ::= "for" <space> "each" "(" <identifier> ("," <space> <identifier> )? <space> "in" <space> <identifier> ")"
+                            "{" <statement_list> "}"
+
+<condition>    ::= <expression>
+
+/* Re-use existing rules for: */
+<expression>          ::= <identifier> <comparison_operator> <literal> | <identifier> <comparison_operator> <identifier>
+
+<comparison_operator> ::= "==" | "!=" | "<" | ">" | "<=" | ">=" | "||" | "!"
+
+<literal>             ::= <string_literal> | <number_literal> | "true" | "false"
+
+<number_literal>      ::= "-"? (<digit>)+  ( "." <digit> )?
 
 <end_statment> 		::= ";"
 
