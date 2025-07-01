@@ -1,0 +1,13 @@
+<program> ::= "start" <space> <menu_declaration>
+
+<space> 			::= " "
+
+<menu_declaration> 	::= "menu" <space> <identifier>
+
+<identifier> 		::= <letter> (<letter> | <digit> | "_")*
+
+<letter>          	::= ([a-z] | [A-Z])+
+
+<digit>           	::= [0-9]
+
+/* <identifier> */
