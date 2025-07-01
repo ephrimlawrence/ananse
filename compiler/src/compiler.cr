@@ -13,11 +13,11 @@ module Compiler
     # file.close
 
     p! @@program
-    lexer = Scanner::Lexer.new(@@program)
+    lexer = Lexer::Lexer.new(@@program)
     loop do
       token = lexer.next_token
       puts token
-      break if token.type == Scanner::TokenType::EOF
+      break if token.type == Lexer::TokenType::EOF
     end
   end
 

@@ -1,4 +1,4 @@
-module Scanner
+module Lexer
   # --- Lexer (Tokenization) ---
   enum TokenType
     KEYWORD_MENU
@@ -282,7 +282,7 @@ module Scanner
                 end
               when ';' then Token.new(TokenType::SEMICOLON, @char.to_s, current_location)
               when '=' then Token.new(TokenType::ASSIGN, @char.to_s, current_location)
-              when ':' then Token.new(TokenType::COLON, @char.to_s, current_location)
+              # when ':' then Token.new(TokenType::COLON, @char.to_s, current_location)
               when ',' then Token.new(TokenType::COMMA, @char.to_s, current_location)
               when '-'
                 if peek_char == '>'
@@ -316,9 +316,9 @@ module Scanner
                 end
               end
 
-      read_char # Consume the character for the next token, unless already consumed by read_identifier/read_number/read_string/read_regex/read_arrow
+      read_char
 
-      token
+      return token
     end
   end
 end
