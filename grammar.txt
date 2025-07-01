@@ -1,13 +1,55 @@
-<program> ::= "start" <space> <menu_declaration>
+<program> ::= "start" <space> <menu_declaration> (<menu_declaration>)*
 
 <space> 			::= " "
 
-<menu_declaration> 	::= "menu" <space> <identifier>
+<menu_declaration> 	::= "menu" <space> <identifier> <space>? <start_brace> <menu_body> <end_brace>
 
 <identifier> 		::= <letter> (<letter> | <digit> | "_")*
 
 <letter>          	::= ([a-z] | [A-Z])+
 
-<digit>           	::= [0-9]
+<digit>           	::= [0-9]+
 
-/* <identifier> */
+<start_brace> 		::= "{"
+
+<end_brace>			::= "}"
+
+<menu_body> 		::= (<statements> "\n")+ ("end" <end_statment>)?
+
+<statements> 		::= (<display_statment> | <option_statement> | <action_statement>)+ <input_statement>
+
+<display_statment> 	::= "display" <space> <string_literal> <end_statment>
+
+<option_statement> 	::= "option" <space> <option_target> <space> <string_literal> (<goto_symbol_stmt> | <goto_stmt> | <action_statement>)? <end_statment>
+
+<option_target> 	::= <digit> | <regex_literal> | <string_literal>
+
+/* string_literal is a call to js function */
+<action_statement>		::= <space>? "action" <space> <quoted_identifier> (<space> "with" <space> "{" (<identifier> ":" <identifier> ",")* "}" )?
+
+<input_statement> 	::= "input" <space> <identifier> <end_statment>
+
+<goto_symbol_stmt>	::= "->" <space> (<identifier> | <navigate_stmt>)
+
+<goto_stmt>			::= "goto" <space> (<identifier> | <navigate_stmt>)
+
+<navigate_stmt>		::= "end" | "back"
+
+<end_statment> 		::= ";"
+
+<quoted_identifier> 	::= "\"" <identifier> "\"" | "'" <identifier> "'"
+
+<string_literal>    ::= <double_quoted_string> | <single_quoted_string>
+
+<double_quoted_string> ::= "\"" ( "\\\"" | <escape_sequences> | <variable_interpolation> | <digit> | <letter> )* "\""
+
+/* newline, tab, \\ */
+<escape_sequences> 		::= "\\n" | "\t" | "\\\\"
+
+<single_quoted_string> 	::= "'" ( "\\'" | <escape_sequences> | <variable_interpolation> | <digit> | <letter> )* "'"
+
+<variable_interpolation> ::= "{{" <identifier> "}}"
+
+
+/* Regular expression statement. Pattern is incomplete. Will be handled by the base lang*/
+<regex_literal> ::= "/" ([a-z]* [A-Z]*) "/" ( <letter> )*
