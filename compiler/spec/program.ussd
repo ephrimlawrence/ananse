@@ -1,4 +1,4 @@
-[start] menu welcome {
+start menu welcome {
   display "Welcome to our service!";
   option "1. Check Balance" -> check_balance;
   option "2. Transfer Funds" -> transfer_funds;

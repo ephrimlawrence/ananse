@@ -1,5 +1,6 @@
 # TODO: Write documentation for `Compiler`
 require "./parser.cr"
+require "./lexer.cr"
 
 module Compiler
   VERSION = "0.1.0"
@@ -7,11 +8,17 @@ module Compiler
   @@program : String = ""
 
   def self.run
-    file = File.new("spec/program.ussd")
-    @@program = file.gets_to_end
-    file.close
+    @@program = File.read("spec/program.ussd")
+    # @@program = file.gets_to_end
+    # file.close
 
     p! @@program
+    lexer = Scanner::Lexer.new(@@program)
+    loop do
+      token = lexer.next_token
+      puts token
+      break if token.type == Scanner::TokenType::EOF
+    end
   end
 
   def self.read_script
