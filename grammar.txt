@@ -14,20 +14,20 @@
 
 <end_brace>			::= "}"
 
-<menu_body> 		::= (<statement_list> "\n")+ ("end" <end_statment>)?
+<menu_body> 		::= (<statement_list> "\n")+ ("end" ";")?
 
 <statement_list> 		::= <display_statment> | <option_statement> | <action_statement> | <if_statement> | <input_statement>
 
-<display_statment> 	::= "display" <space> <string_literal> <end_statment>
+<display_statment> 	::= "display" <space> <string_literal> ";"
 
-<option_statement> 	::= "option" <space> <option_target> <space> <string_literal> (<goto_symbol_stmt> | <goto_stmt> | <action_statement>)? <end_statment>
+<option_statement> 	::= "option" <space> <option_target> <space> <string_literal> (<goto_symbol_stmt> | <goto_stmt> | <action_statement>)? ";"
 
 <option_target> 	::= <digit> | <regex_literal> | <string_literal>
 
 /* string_literal is a call to js function */
 <action_statement>		::= <space>? "action" <space> <quoted_identifier> (<space> "with" <space> "{" (<identifier> ":" <identifier> ",")* "}" )? (<space> "as" <space> <identifier>)?
 
-<input_statement> 	::= "input" <space> <identifier> <end_statment>
+<input_statement> 	::= "input" <space> <identifier> ";"
 
 <goto_symbol_stmt>	::= "->" <space> (<identifier> | <navigate_stmt>)
 
@@ -50,8 +50,6 @@
 <literal>             ::= <string_literal> | <number_literal> | "true" | "false"
 
 <number_literal>      ::= "-"? (<digit>)+  ( "." <digit> )?
-
-<end_statment> 		::= ";"
 
 <quoted_identifier> 	::= "\"" <identifier> "\"" | "'" <identifier> "'"
 
