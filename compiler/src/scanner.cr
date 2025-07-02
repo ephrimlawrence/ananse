@@ -62,6 +62,10 @@ module Scanner
     private def scan_token
       char : Char = advance()
 
+      if char == ' ' || char == '\t' || char == '\r'
+        return # skip whitespace
+      end
+
       case char
       when '('
         add_token(TokenType::LEFT_PAREN)
@@ -91,7 +95,19 @@ module Scanner
         add_token(match('=') ? TokenType::LESS_EQUAL : TokenType::LESS)
       when '>'
         add_token(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER)
+      when '\n'
+          @line += 1
+          @column = 0
         # TODO: add '{{'  '}}' for string interpol?
+      when '/'
+        if match '/' # comment start with //
+          # A comment goes until the end of the line.
+          while peek != '\n' && !is_at_end?
+            advance
+          end
+        else
+          add_token TokenType::SLASH
+        end
       else
         CompilerError.new.error(Location.new(@line, @column), "Unexpected character.")
       end
@@ -118,6 +134,14 @@ module Scanner
       @current += 1
       @column += 1
       return true
+    end
+
+    private def peek : Char
+      if is_at_end?
+        return '\0'
+      end
+
+      return @source[@current]
     end
 
     private def is_at_end? : Bool
