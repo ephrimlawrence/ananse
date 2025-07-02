@@ -1,4 +1,5 @@
 require "./token.cr"
+require "./error.cr"
 
 module Scanner
   class Scan
@@ -63,13 +64,36 @@ module Scanner
 
       case char
       when '('
-        add_token(TokenType::RIGHT_PAREN)
+        add_token(TokenType::LEFT_PAREN)
       when ')'
-        add_token TokenType::LEFT_PAREN
+        add_token TokenType::RIGHT_PAREN
       when '{'
-        add_token(TokenType::RIGHT_BRACE)
-      when '}'
         add_token(TokenType::LEFT_BRACE)
+      when '}'
+        add_token(TokenType::RIGHT_BRACE)
+      when ','
+        add_token(TokenType::COMMA)
+        # when '.' # TODO: might have to delete this
+        #   add_token(TokenType::DOT)
+      when '-'
+        add_token(TokenType::MINUS)
+      when '+'
+        add_token(TokenType::PLUS)
+      when ';'
+        add_token(TokenType::SEMICOLON)
+      when '*'
+        add_token(TokenType::STAR)
+      when '!'
+        add_token(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG)
+      when '='
+        add_token(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL)
+      when '<'
+        add_token(match('=') ? TokenType::LESS_EQUAL : TokenType::LESS)
+      when '>'
+        add_token(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER)
+        # TODO: add '{{'  '}}' for string interpol?
+      else
+        CompilerError.new.error(Location.new(@line, @column), "Unexpected character.")
       end
     end
 
@@ -79,7 +103,21 @@ module Scanner
 
     private def add_token(type : TokenType, literal : String?)
       location = Location.new(@line, @column)
-      @tokens << Token.new(type: type, value: @source[@start..@current], location: location)
+      @tokens << Token.new(type: type, value: @source[@start...@current], location: location)
+    end
+
+    private def match(expected : Char) : Bool
+      if is_at_end?
+        return false
+      end
+
+      if @source[@current] != expected
+        return false
+      end
+
+      @current += 1
+      @column += 1
+      return true
     end
 
     private def is_at_end? : Bool
