@@ -23,18 +23,31 @@ enum TokenType
   REGEX_LITERAL  # For the content of /.../
 
   # Operators and Symbols
-  LPAREN        # (
-  RPAREN        # )
-  LBRACE        # {
-  RBRACE        # }
+  LEFT_PAREN        # (
+  RIGHT_PAREN        # )
+  LEFT_BRACE        # {
+  RIGHT_BRACE        # }
   SEMICOLON     # ;
   ASSIGN        # =
   COLON         # :
+  PLUS          # +
+  MINUS         # -
+  STAR         # *
   COMMA         # ,
   ARROW         # ->
   DOUBLE_LBRACE # {{
   DOUBLE_RBRACE # }}
   SLASH         # / (for regex start/end)
+
+  # One or two character tokens.
+  BANG         # !
+  BANG_EQUAL   # !=
+  EQUAL        # =
+  EQUAL_EQUAL  # ==
+  GREATER      # >
+  GREATER_EQUAL # >=
+  LESS         # <
+  LESS_EQUAL    # <=
 
   EOF     # End of File
   UNKNOWN # For unrecognised characters
