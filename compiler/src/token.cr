@@ -68,6 +68,7 @@ end
 struct Token
   property type : TokenType
   property value : String
+  property lateral : String? # Raw value passed, eg. string with quotes
   property location : Location
 
   def initialize(@type, @value, @location)
