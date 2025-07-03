@@ -96,8 +96,8 @@ module Scanner
       when '>'
         add_token(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER)
       when '\n'
-          @line += 1
-          @column = 0
+        @line += 1
+        @column = 0
         # TODO: add '{{'  '}}' for string interpol?
       when '/'
         if match '/' # comment start with //
@@ -108,9 +108,32 @@ module Scanner
         else
           add_token TokenType::SLASH
         end
+      when '"'
+        read_string()
       else
-        CompilerError.new.error(Location.new(@line, @column), "Unexpected character.")
+        CompilerError.new.error(get_location, "Unexpected character.")
       end
+    end
+
+    private def read_string
+      while peek != '"' && !is_at_end?
+        if peek == '\n'
+          @line += 1
+        end
+        advance
+      end
+
+      if is_at_end?
+        CompilerError.new.error(get_location, "Unterminated string.")
+        return
+      end
+
+      # The closing ".
+      advance
+
+      # Trim the surrounding quotes.
+      value : String = @source[@start + 1...@current - 1]
+      add_token(TokenType::STRING, value)
     end
 
     private def add_token(type : TokenType)
@@ -118,8 +141,14 @@ module Scanner
     end
 
     private def add_token(type : TokenType, literal : String?)
+      # TODO; settle on Token properties
       location = Location.new(@line, @column)
-      @tokens << Token.new(type: type, value: @source[@start...@current], location: location)
+      @tokens << Token.new(
+        type: type,
+        value: @source[@start...@current],
+        location: location,
+        literal: literal
+      )
     end
 
     private def match(expected : Char) : Bool
@@ -155,6 +184,10 @@ module Scanner
       @current += 1
       @column += 1
       return value
+    end
+
+    def get_location : Location
+      Location.new(@line, @column)
     end
   end
 end

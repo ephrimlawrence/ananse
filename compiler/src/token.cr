@@ -19,7 +19,7 @@ enum TokenType
 
   IDENTIFIER
   NUMBER_LITERAL
-  STRING_LITERAL # For the content of "..." or '...'
+  STRING # For the content of "..." or '...'
   REGEX_LITERAL  # For the content of /.../
 
   # Operators and Symbols
@@ -68,10 +68,10 @@ end
 struct Token
   property type : TokenType
   property value : String
-  property lateral : String? # Raw value passed, eg. string with quotes
+  property literal : String? # Raw value passed, eg. string with quotes
   property location : Location
 
-  def initialize(@type, @value, @location)
+  def initialize(@type, @value, @location, @literal)
   end
 
   def to_s
