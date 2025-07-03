@@ -1,6 +1,8 @@
 require "./token.cr"
 
 module Expression
+  alias LiteralValue = String | Int32 | Float64 | Bool | Nil
+
   # Visitor interface
   abstract class Visitor(R)
     # abstract def visit_assign_expr(expr : Assign) : R

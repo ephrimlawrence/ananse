@@ -2,8 +2,9 @@
 require "./scanner.cr"
 require "./parser.cr"
 require "./ast_printer.cr"
-# require "./lexer.cr"
+require "./code_generator.cr"
 
+# require "./lexer.cr"
 
 module Compiler
   VERSION = "0.1.0"
@@ -26,7 +27,10 @@ module Compiler
       return
     end
 
-    puts AstPrinter.new.print(expression)
+    # puts AstPrinter.new.print(expression)
+    code_gen = CodeGenerator.new
+    code_gen.generate(expression.as(Expression::Expr))
+
     # puts scanner.scan_tokens
 
     # p! scanner
