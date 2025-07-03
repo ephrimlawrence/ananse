@@ -101,6 +101,7 @@ module Scanner
         @column = 0
         # TODO: add '{{'  '}}' for string interpol?
       when '/'
+        # TODO: pass regex
         if match '/' # comment start with //
           # A comment goes until the end of the line.
           while peek != '\n' && !is_at_end?
@@ -116,13 +117,12 @@ module Scanner
       when .ascii_letter?
         read_identifier
       else
-        puts char
         CompilerError.new.error(get_location, "Unexpected character.")
       end
     end
 
     private def read_identifier
-      while (peek.ascii_alphanumeric? || peek == "_")
+      while peek.ascii_alphanumeric? || peek == '_'
         advance()
       end
 
