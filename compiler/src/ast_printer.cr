@@ -1,7 +1,11 @@
 require "./expression.cr"
 
 class AstPrinter < Expression::Visitor(String)
-  def print(expr : Expression::Expr) : String
+  def print(expr : Expression::Expr?) : String?
+    if expr.nil?
+      return
+    end
+
     return expr.accept(self)
   end
 
@@ -10,34 +14,28 @@ class AstPrinter < Expression::Visitor(String)
       expr.left, expr.right)
   end
 
-  #  @Override
-  # public String visitBinaryExpr(Expr.Binary expr) {
-  #   return parenthesize(expr.operator.lexeme,
-  #                       expr.left, expr.right);
-  # }
+  def visit_grouping_expr(expr : Expression::Grouping) : String
+    return parenthesize("group", expr.expression)
+  end
 
-  # @Override
-  # public String visitGroupingExpr(Expr.Grouping expr) {
-  #   return parenthesize("group", expr.expression);
-  # }
+  def visit_literal_expr(expr : Expression::Literal) : String
+    if expr.value.nil?
+      return "null"
+    end
 
-  # @Override
-  # public String visitLiteralExpr(Expr.Literal expr) {
-  #   if (expr.value == null) return "nil";
-  #   return expr.value.toString();
-  # }
+    return expr.value.to_s
+  end
 
-  # @Override
-  # public String visitUnaryExpr(Expr.Unary expr) {
-  #   return parenthesize(expr.operator.lexeme, expr.right);
-  # }
+  def visit_unary_expr(expr : Expression::Unary) : String
+    return parenthesize(expr.operator.value, expr.right)
+  end
 
-  private def parenthesize(name : String, *exprs : Expression::Exr) : String
+  private def parenthesize(name : String, *exprs : Expression::Expr) : String
     buffer = String.build do |s|
       s << "(" << name
 
       exprs.each do |value|
-        s << " " << expr.accept(self)
+        s << " " << value.accept(self)
       end
 
       s << ")"

@@ -1,24 +1,41 @@
 # TODO: Write documentation for `Compiler`
+require "./scanner.cr"
 require "./parser.cr"
-require "./lexer.cr"
+require "./ast_printer.cr"
+# require "./lexer.cr"
+
 
 module Compiler
   VERSION = "0.1.0"
 
   @@program : String = ""
+  @@had_error : Bool = false
 
   def self.run
-    @@program = File.read("spec/program.ussd")
+    source : String = File.read("spec/program.ussd")
     # @@program = file.gets_to_end
     # file.close
 
-    p! @@program
-    lexer = Scanner::Lexer.new(@@program)
+    # p! @@program
+    scanner : Scanner::Scan = Scanner::Scan.new(source)
+    parser : Parser = Parser.new(scanner.scan_tokens)
+    expression : Expression::Expr? = parser.parse
 
-    parser = Parser.new(lexer)
-    program = parser.parse_program
-    puts "Parsing successful! Generated AST (simplified output):"
-    p! program
+    # // Stop if there was a syntax error.
+    if @@had_error
+      return
+    end
+
+    puts AstPrinter.new.print(expression)
+    # puts scanner.scan_tokens
+
+    # p! scanner
+    # lexer = Scanner::Lexer.new(@@program)
+
+    # parser = Parser.new(lexer)
+    # program = parser.parse_program
+    # puts "Parsing successful! Generated AST (simplified output):"
+    # p! program
 
     # loop do
     #   token = lexer.next_token

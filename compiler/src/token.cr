@@ -1,22 +1,22 @@
 enum TokenType
-  KEYWORD_MENU
-  KEYWORD_DISPLAY
-  KEYWORD_OPTION
-  KEYWORD_INPUT
-  KEYWORD_ACTION
-  KEYWORD_WITH
-  KEYWORD_AS
-  KEYWORD_IF
-  KEYWORD_ELSE
-  KEYWORD_FOR
-  KEYWORD_EACH
-  KEYWORD_IN
-  KEYWORD_GOTO
-  KEYWORD_START
-  KEYWORD_END
-  KEYWORD_JS # for js.
-  KEYWORD_TRUE
-  KEYWORD_FALSE
+  MENU
+  DISPLAY
+  OPTION
+  INPUT
+  ACTION
+  WITH
+  AS
+  IF
+  ELSE
+  FOR
+  EACH
+  IN
+  GOTO
+  START
+  END
+  # JS # for js.
+  TRUE
+  FALSE
 
   IDENTIFIER
   NUMBER
@@ -69,7 +69,7 @@ end
 struct Token
   property type : TokenType
   property value : String                        # same as lexeme
-  property literal : String? | Int32? | Float64? # Raw value passed, eg. string with quotes
+  property literal : String? | Int32? | Float64? | Bool? # Raw value passed, eg. string with quotes
   property location : Location
 
   def initialize(@type, @value, @location, @literal)
@@ -78,4 +78,9 @@ struct Token
   def to_s
     "Token(#{type}, '#{value}', #{location})"
   end
+end
+
+enum LiteralType
+  String
+  Bool
 end
