@@ -18,7 +18,7 @@ enum TokenType
   KEYWORD_FALSE
 
   IDENTIFIER
-  NUMBER_LITERAL
+  NUMBER
   STRING # For the content of "..." or '...'
   REGEX_LITERAL  # For the content of /.../
 
@@ -68,7 +68,7 @@ end
 struct Token
   property type : TokenType
   property value : String
-  property literal : String? # Raw value passed, eg. string with quotes
+  property literal : String? | Int32? | Float64? # Raw value passed, eg. string with quotes
   property location : Location
 
   def initialize(@type, @value, @location, @literal)

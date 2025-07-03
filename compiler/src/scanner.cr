@@ -111,8 +111,27 @@ module Scanner
       when '"'
         read_string()
       else
-        CompilerError.new.error(get_location, "Unexpected character.")
+        if char.ascii_number?
+          read_number
+        else
+          CompilerError.new.error(get_location, "Unexpected character.")
+        end
       end
+    end
+
+    private def read_number
+      while peek.ascii_number?
+        advance()
+      end
+
+      if peek == '.' && peek_next.ascii_number? # Likely decimal value
+        advance()                               # consume '.'
+        while peek.ascii_number?
+          advance
+        end
+      end
+
+      add_token(TokenType::NUMBER, @source[@start..@current].to_f)
     end
 
     private def read_string
@@ -140,7 +159,7 @@ module Scanner
       add_token(type, nil)
     end
 
-    private def add_token(type : TokenType, literal : String?)
+    private def add_token(type : TokenType, literal : String? | Int32? | Float64?)
       # TODO; settle on Token properties
       location = Location.new(@line, @column)
       @tokens << Token.new(
@@ -171,6 +190,13 @@ module Scanner
       end
 
       return @source[@current]
+    end
+
+    private def peek_next : Char
+      if @current + 1 >= source.size
+        return '\0'
+      end
+      return source[@current + 1]
     end
 
     private def is_at_end? : Bool
