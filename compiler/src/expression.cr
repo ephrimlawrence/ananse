@@ -2,9 +2,9 @@ require "./token.cr"
 
 module Expression
   # Visitor interface
-  module Visitor(R)
+  abstract  class Visitor(R)
     # abstract def visit_assign_expr(expr : Assign) : R
-    abstract def visit_binary_expr(expr : Binary) : R
+    abstract def visit_binary_expr(expr : Binary) forall R
     # abstract def visit_call_expr(expr : Call) : R
     # abstract def visit_get_expr(expr : Get) : R
     # abstract def visit_grouping_expr(expr : Grouping) : R

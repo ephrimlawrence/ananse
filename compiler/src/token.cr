@@ -20,20 +20,20 @@ enum TokenType
 
   IDENTIFIER
   NUMBER
-  STRING # For the content of "..." or '...'
-  REGEX_LITERAL  # For the content of /.../
+  STRING        # For the content of "..." or '...'
+  REGEX_LITERAL # For the content of /.../
 
   # Operators and Symbols
-  LEFT_PAREN        # (
-  RIGHT_PAREN        # )
-  LEFT_BRACE        # {
-  RIGHT_BRACE        # }
+  LEFT_PAREN    # (
+  RIGHT_PAREN   # )
+  LEFT_BRACE    # {
+  RIGHT_BRACE   # }
   SEMICOLON     # ;
   ASSIGN        # =
   COLON         # :
   PLUS          # +
   MINUS         # -
-  STAR         # *
+  STAR          # *
   COMMA         # ,
   ARROW         # ->
   DOUBLE_LBRACE # {{
@@ -41,13 +41,13 @@ enum TokenType
   SLASH         # / (for regex start/end)
 
   # One or two character tokens.
-  BANG         # !
-  BANG_EQUAL   # !=
-  EQUAL        # =
-  EQUAL_EQUAL  # ==
-  GREATER      # >
+  BANG          # !
+  BANG_EQUAL    # !=
+  EQUAL         # =
+  EQUAL_EQUAL   # ==
+  GREATER       # >
   GREATER_EQUAL # >=
-  LESS         # <
+  LESS          # <
   LESS_EQUAL    # <=
 
   EOF     # End of File
@@ -68,7 +68,7 @@ end
 
 struct Token
   property type : TokenType
-  property value : String
+  property value : String                        # same as lexeme
   property literal : String? | Int32? | Float64? # Raw value passed, eg. string with quotes
   property location : Location
 
