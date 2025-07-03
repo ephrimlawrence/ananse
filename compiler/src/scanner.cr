@@ -32,6 +32,7 @@ module Scanner
       "in"      => TokenType::KEYWORD_IN,
       "goto"    => TokenType::KEYWORD_GOTO,
       "end"     => TokenType::KEYWORD_END,
+      "start"   => TokenType::KEYWORD_START,
       # "js"      => TokenType::KEYWORD_JS,
       "true"  => TokenType::KEYWORD_TRUE,
       "false" => TokenType::KEYWORD_FALSE,
@@ -80,7 +81,7 @@ module Scanner
         # when '.' # TODO: might have to delete this
         #   add_token(TokenType::DOT)
       when '-'
-        add_token(TokenType::MINUS)
+        add_token(match('>') ? TokenType::ARROW : TokenType::MINUS)
       when '+'
         add_token(TokenType::PLUS)
       when ';'
@@ -110,13 +111,23 @@ module Scanner
         end
       when '"'
         read_string()
+      when .ascii_number?
+        read_number
+      when .ascii_letter?
+        read_identifier
       else
-        if char.ascii_number?
-          read_number
-        else
-          CompilerError.new.error(get_location, "Unexpected character.")
-        end
+        puts char
+        CompilerError.new.error(get_location, "Unexpected character.")
       end
+    end
+
+    private def read_identifier
+      while (peek.ascii_alphanumeric? || peek == "_")
+        advance()
+      end
+
+      text : String = @source[@start...@current]
+      add_token(KEYWORDS.fetch(text, TokenType::IDENTIFIER), text)
     end
 
     private def read_number
