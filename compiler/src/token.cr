@@ -79,8 +79,3 @@ struct Token
     "Token(#{type}, '#{value}', #{location})"
   end
 end
-
-enum LiteralType
-  String
-  Bool
-end
