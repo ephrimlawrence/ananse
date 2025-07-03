@@ -1,5 +1,6 @@
-require "./expression.cr"
 require "./token.cr"
+require "./expression.cr"
+require "./stmt.cr"
 
 class Parser
   property tokens : Array(Token) = [] of Token
@@ -8,16 +9,38 @@ class Parser
   def initialize(@tokens)
   end
 
-  def parse
-    begin
-      return expression()
-    rescue error : ParseError
-      return nil
+  def parse : Array(Statement::Stmt)
+    statements : Array(Statement::Stmt) = [] of Statement::Stmt
+    while !is_at_end?
+      statements << statement
     end
+
+    statements
   end
 
   private def expression : Expression::Expr
     equality
+  end
+
+  private def statement : Statement::Stmt
+    if match(TokenType::PRINT)
+      return print_statement()
+    end
+
+    return expression_statement()
+  end
+
+  private def print_statement : Statement::Print
+    value : Expression::Expr = expression()
+    #  TODO: remove this, not needed in our grammar
+    consume(TokenType::SEMICOLON, "Expect ';' after value.")
+    return Statement::Print.new(value)
+  end
+
+  private def expression_statement : Statement::ExpressionStmt
+    expr : Expression::Expr = expression()
+    consume(TokenType::SEMICOLON, "Expect ';' after expression.")
+    return Statement::ExpressionStmt.new(expr)
   end
 
   private def equality : Expression::Expr

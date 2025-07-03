@@ -53,26 +53,6 @@ class CodeGenerator < Expression::Visitor(Object)
     op : String = expr.operator.value
 
     "#{left} #{op} #{right}"
-
-    # case expr.operator.type
-    # when TokenType::MINUS
-    #   return "#{left} - #{right}"
-    # when TokenType::PLUS
-    #   if left.is_a?(Float) && right.is_a?(Float)
-    #     return "#{left} + #{right}"
-    #   end
-
-    #   if left.is_a?(String) && right.is_a?(String)
-    #     return "#{left} #{right}"
-    #   end
-    # when TokenType::SLASH
-    #   return "#{left} / #{right}"
-    # when TokenType::STAR
-    #   return "#{left} * #{right}"
-    # end
-
-    # # // Unreachable.
-    # return nil
   end
 
   # private def is_truthy?(object : ExpressionType) : Bool

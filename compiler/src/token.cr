@@ -14,6 +14,7 @@ enum TokenType
   GOTO
   START
   END
+  PRINT
   # JS # for js.
   TRUE
   FALSE

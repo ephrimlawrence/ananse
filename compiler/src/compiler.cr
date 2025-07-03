@@ -3,13 +3,14 @@ require "./scanner.cr"
 require "./parser.cr"
 require "./ast_printer.cr"
 require "./code_generator.cr"
+require "./stmt.cr"
 
 # require "./lexer.cr"
 
 module Compiler
   VERSION = "0.1.0"
 
-  @@program : String = ""
+  # @@program : String = ""
   @@had_error : Bool = false
 
   def self.run
@@ -20,16 +21,17 @@ module Compiler
     # p! @@program
     scanner : Scanner::Scan = Scanner::Scan.new(source)
     parser : Parser = Parser.new(scanner.scan_tokens)
-    expression : Expression::Expr? = parser.parse
+    program : Array(Statement::Stmt) = parser.parse
 
     # // Stop if there was a syntax error.
     if @@had_error
       return
     end
 
+    puts program
     # puts AstPrinter.new.print(expression)
-    code_gen = CodeGenerator.new
-    code_gen.generate(expression.as(Expression::Expr))
+    # code_gen = CodeGenerator.new
+    # code_gen.generate(expression.as(Expression::Expr))
 
     # puts scanner.scan_tokens
 

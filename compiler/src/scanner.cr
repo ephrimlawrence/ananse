@@ -33,6 +33,7 @@ module Scanner
       "goto"    => TokenType::GOTO,
       "end"     => TokenType::END,
       "start"   => TokenType::START,
+      "print"   => TokenType::PRINT,
       # "js"      => TokenType::KEYWORD_JS,
       "true"  => TokenType::TRUE,
       "false" => TokenType::FALSE,
