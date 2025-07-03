@@ -43,11 +43,23 @@
 <condition>    ::= <expression>
 
 /* Re-use existing rules for: */
-<expression>          ::= <identifier> <comparison_operator> <literal> | <identifier> <comparison_operator> <identifier>
+/* <expression>          ::= <identifier> <comparison_operator> <literal> | <identifier> <comparison_operator> <identifier>*/
 
-<comparison_operator> ::= "==" | "!=" | "<" | ">" | "<=" | ">=" | "||" | "!"
+<expression>    ::= <literal> | <unary> | <binary>  | <grouping>
 
-<literal>             ::= <string_literal> | <number_literal> | "true" | "false"
+<literal>       ::= <digit> | <string_literal> | "true" | "false" | "nil"
+
+<grouping>      ::= "(" <expression> ")"
+
+<unary>         ::= ( "-" | "!" ) <expression>
+
+<binary>		::= <expression> <operator> <expression>
+
+<operator>      ::= "==" | "!=" | "<" | "<=" | ">" | ">=" | "+"  | "-"  | "*" | "/"
+
+/* <comparison_operator> ::= "==" | "!=" | "<" | ">" | "<=" | ">=" | "||" | "!" */
+/* <literal>             ::= <string_literal> | <number_literal> | "true" | "false" */
+
 
 <number_literal>      ::= "-"? (<digit>)+  ( "." <digit> )?
 
