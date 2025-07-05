@@ -143,7 +143,7 @@ module Scanner
         end
       end
 
-      add_token(TokenType::NUMBER, @source[@start...@current].to_f)
+      add_token(TokenType::NUMBER, @source[@start...@current])
     end
 
     private def read_string

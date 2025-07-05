@@ -1,10 +1,9 @@
-require "./expression.cr"
-require "./stmt.cr"
+require "./ast.cr"
 
-class CodeGenerator < Statement::Visitor(Nil)
-  alias ExpressionType = String | Int32 | Float64 | Bool | Expression::Expr | Nil
+class CodeGenerator < AST::Visitor(Object)
+  alias ExpressionType = String | Int32 | Float64 | Bool | AST::Expr | Nil
 
-  def generate(statements : Array(Statement::Stmt))
+  def generate(statements : Array(AST::Stmt))
     begin
       # stmt_instance = StatementGenerator.new
 
@@ -16,8 +15,8 @@ class CodeGenerator < Statement::Visitor(Nil)
     end
   end
 
-  # class ExpressionGenerator < Expression::Visitor(Object)
-  # def generate(expression : Expression::Expr)
+  # class ExpressionGenerator < AST::Visitor(Object)
+  # def generate(expression : AST::Expr)
   #   begin
   #     value = evaluate(expression)
   #     puts value
@@ -28,7 +27,7 @@ class CodeGenerator < Statement::Visitor(Nil)
   #   end
   # end
 
-  def visit_literal_expr(expr : Expression::Literal) : String
+  def visit_literal_expr(expr : AST::Literal) : String
     value = expr.value
     case value
     when String
@@ -40,11 +39,11 @@ class CodeGenerator < Statement::Visitor(Nil)
     end
   end
 
-  def visit_grouping_expr(expr : Expression::Grouping) : ExpressionType
+  def visit_grouping_expr(expr : AST::Grouping) : ExpressionType
     "(#{evaluate(expr.expression)})"
   end
 
-  def visit_unary_expr(expr : Expression::Unary) : String?
+  def visit_unary_expr(expr : AST::Unary) : String?
     right : ExpressionType = evaluate(expr.right)
     op : String = expr.operator.value
 
@@ -61,7 +60,7 @@ class CodeGenerator < Statement::Visitor(Nil)
     # return nil
   end
 
-  def visit_binary_expr(expr : Expression::Binary) : String?
+  def visit_binary_expr(expr : AST::Binary) : String?
     left : ExpressionType = evaluate(expr.left)
     right : ExpressionType = evaluate(expr.right)
     op : String = expr.operator.value
@@ -81,34 +80,34 @@ class CodeGenerator < Statement::Visitor(Nil)
   #   return true
   # end
 
-  private def evaluate(expr : Expression::Expr) : ExpressionType
+  private def evaluate(expr : AST::Expr) : ExpressionType
     expr.accept(self)
   end
 
   # end
 
-  # class StatementGenerator < Statement::Visitor(Nil)
-  def visit_expression_stmt(stmt : Statement::Expression) : Nil
+  # class StatementGenerator < AST::Visitor(Nil)
+  def visit_expression_stmt(stmt : AST::ExpressionStmt) : Nil
     evaluate(stmt.expression)
     return nil
   end
 
-  def visit_print_stmt(stmt : Statement::Print) : Nil
+  def visit_print_stmt(stmt : AST::Print) : Nil
     value : ExpressionType = evaluate(stmt.expression)
     puts "console.log(#{value})"
     return nil
   end
 
-  def execute(stmt : Statement::Stmt) : String
+  def execute(stmt : AST::Stmt)
     stmt.accept(self)
   end
 
-  # private def evaluate(expr : Expression::Expr) : ExpressionType
+  # private def evaluate(expr : AST::Expr) : ExpressionType
   #   expr.accept(self)
   # end
   # end
 end
 
-# class CodeGenerator < Statement::Visitor(Nil)
+# class CodeGenerator < AST::Visitor(Nil)
 #   extend ExpressionCodeGenerator
 # end

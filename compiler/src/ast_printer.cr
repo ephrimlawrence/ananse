@@ -1,4 +1,4 @@
-require "./expression.cr"
+require "./ast.cr"
 
 class AstPrinter < Expression::Visitor(String)
   def print(expr : Expression::Expr?) : String?

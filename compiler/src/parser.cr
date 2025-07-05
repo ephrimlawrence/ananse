@@ -1,6 +1,5 @@
 require "./token.cr"
-require "./expression.cr"
-require "./stmt.cr"
+require "./ast.cr"
 
 class Parser
   property tokens : Array(Token) = [] of Token
@@ -9,8 +8,8 @@ class Parser
   def initialize(@tokens)
   end
 
-  def parse : Array(Statement::Stmt)
-    statements : Array(Statement::Stmt) = [] of Statement::Stmt
+  def parse : Array(AST::Stmt)
+    statements : Array(AST::Stmt) = [] of AST::Stmt
     while !is_at_end?
       statements << statement
     end
@@ -18,11 +17,11 @@ class Parser
     statements
   end
 
-  private def expression : Expression::Expr
+  private def expression : AST::Expr
     equality
   end
 
-  private def statement : Statement::Stmt
+  private def statement : AST::Stmt
     if match(TokenType::PRINT)
       return print_statement()
     end
@@ -30,94 +29,94 @@ class Parser
     return expression_statement()
   end
 
-  private def print_statement : Statement::Print
-    value : Expression::Expr = expression()
+  private def print_statement : AST::Print
+    value : AST::Expr = expression()
     #  TODO: remove this, not needed in our grammar
     consume(TokenType::SEMICOLON, "Expect ';' after value.")
-    return Statement::Print.new(value)
+    return AST::Print.new(value)
   end
 
-  private def expression_statement : Statement::ExpressionStmt
-    expr : Expression::Expr = expression()
+  private def expression_statement : AST::ExpressionStmt
+    expr : AST::Expr = expression()
     consume(TokenType::SEMICOLON, "Expect ';' after expression.")
-    return Statement::ExpressionStmt.new(expr)
+    return AST::ExpressionStmt.new(expr)
   end
 
-  private def equality : Expression::Expr
-    expr : Expression::Expr = comparison
+  private def equality : AST::Expr
+    expr : AST::Expr = comparison
 
     while (match(TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL))
       operator : Token = previous
-      right : Expression::Expr = comparison
-      expr = Expression::Binary.new(expr, operator, right)
+      right : AST::Expr = comparison
+      expr = AST::Binary.new(expr, operator, right)
     end
 
     expr
   end
 
-  private def comparison : Expression::Expr
-    expr : Expression::Expr = term()
+  private def comparison : AST::Expr
+    expr : AST::Expr = term()
 
     while (match(TokenType::GREATER, TokenType::GREATER_EQUAL, TokenType::LESS, TokenType::LESS_EQUAL))
       operator : Token = previous
-      right : Expression::Expr = term
-      expr = Expression::Binary.new(expr, operator, right)
+      right : AST::Expr = term
+      expr = AST::Binary.new(expr, operator, right)
     end
 
     expr
   end
 
-  private def term : Expression::Expr
-    expr : Expression::Expr = factor()
+  private def term : AST::Expr
+    expr : AST::Expr = factor()
 
     while match(TokenType::MINUS, TokenType::PLUS)
       operator : Token = previous
-      right : Expression::Expr = factor
-      expr = Expression::Binary.new(expr, operator, right)
+      right : AST::Expr = factor
+      expr = AST::Binary.new(expr, operator, right)
     end
 
     expr
   end
 
-  private def factor : Expression::Expr
-    expr : Expression::Expr = unary
+  private def factor : AST::Expr
+    expr : AST::Expr = unary
 
     while match(TokenType::SLASH, TokenType::STAR)
       operator : Token = previous
-      right : Expression::Expr = unary
-      expr = Expression::Binary.new(expr, operator, right)
+      right : AST::Expr = unary
+      expr = AST::Binary.new(expr, operator, right)
     end
 
     expr
   end
 
-  private def unary : Expression::Expr
+  private def unary : AST::Expr
     if match(TokenType::BANG, TokenType::MINUS)
       operator : Token = previous()
-      right : Expression::Expr = unary()
-      return Expression::Unary.new(operator, right)
+      right : AST::Expr = unary()
+      return AST::Unary.new(operator, right)
     end
 
     primary
   end
 
-  private def primary : Expression::Expr
+  private def primary : AST::Expr
     if match(TokenType::FALSE)
-      return Expression::Literal.new(peek, false)
+      return AST::Literal.new(peek, false)
     end
 
     if match(TokenType::TRUE)
-      return Expression::Literal.new(peek, true)
+      return AST::Literal.new(peek, true)
     end
 
     if match(TokenType::NUMBER, TokenType::STRING)
-      return Expression::Literal.new(peek, previous.literal)
+      return AST::Literal.new(peek, previous.literal)
     end
 
     if match(TokenType::LEFT_PAREN)
-      expr : Expression::Expr = expression()
+      expr : AST::Expr = expression()
       consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.")
-      return Expression::Grouping.new(expr)
+      return AST::Grouping.new(expr)
     end
 
     raise error(peek, "Expect expression.")

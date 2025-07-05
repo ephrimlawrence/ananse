@@ -1,11 +1,11 @@
 require "./token.cr"
 
-module Expression
-  alias LiteralValue = String | Int32 | Float64 | Bool | Nil
-
+module AST
   # Visitor interface
   abstract class Visitor(R)
-    # abstract def visit_assign_expr(expr : Assign) : R
+    #
+    # Expression visitors
+    #
     abstract def visit_binary_expr(expr : Binary) forall R
     # abstract def visit_call_expr(expr : Call) : R
     # abstract def visit_get_expr(expr : Get) : R
@@ -17,9 +17,50 @@ module Expression
     # abstract def visit_this_expr(expr : This) : R
     abstract def visit_unary_expr(expr : Unary) : R
     # abstract def visit_variable_expr(expr : Variable) : R
+
+    #
+    # Statement visitors
+    #
+    abstract def visit_print_stmt(stmt : Print) forall R
+    #     R visitBlockStmt(Block stmt);
+    # R visitClassStmt(Class stmt);
+    abstract def visit_expression_stmt(stmt : ExpressionStmt) forall R
+    # R visitFunctionStmt(Function stmt);
+    # R visitIfStmt(If stmt);
+    # R visitPrintStmt(Print stmt);
+    # R visitReturnStmt(Return stmt);
+    # R visitVarStmt(Var stmt);
+    # R visitWhileStmt(While stmt);
   end
 
-  # Base class for all expressions
+  # Statement AST #
+  abstract class Stmt
+    abstract def accept(visitor : Visitor(R)) forall R
+  end
+
+  class ExpressionStmt < Stmt
+    property expression : Expr
+
+    def initialize(@expression)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_expression_stmt(self)
+    end
+  end
+
+  class Print < Stmt
+    property expression : Expr
+
+    def initialize(@expression)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_print_stmt(self)
+    end
+  end
+
+  # Expression AST #
   abstract class Expr
     abstract def accept(visitor : Visitor(R)) forall R
   end

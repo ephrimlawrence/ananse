@@ -1,11 +1,1 @@
-start menu welcome {
-  display "Welcome to our service!";
-  option "1. Check Balance" -> check_balance;
-  option "2. Transfer Funds" -> transfer_funds;
-  option "0. Exit" -> exit;
-
-  option "1. Confirm" action "transferLogic.js:initiateTransfer" with {
-    param1 = x, param2 = y
-  };
-
-}
+print 333;

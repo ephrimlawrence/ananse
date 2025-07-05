@@ -1,9 +1,9 @@
 # TODO: Write documentation for `Compiler`
 require "./scanner.cr"
 require "./parser.cr"
-require "./ast_printer.cr"
+# require "./ast_printer.cr"
 require "./code_generator.cr"
-require "./stmt.cr"
+require "./ast.cr"
 
 # require "./lexer.cr"
 
@@ -21,7 +21,7 @@ module Compiler
     # p! @@program
     scanner : Scanner::Scan = Scanner::Scan.new(source)
     parser : Parser = Parser.new(scanner.scan_tokens)
-    program : Array(Statement::Stmt) = parser.parse
+    program : Array(AST::Stmt) = parser.parse
 
     # // Stop if there was a syntax error.
     if @@had_error
@@ -30,7 +30,7 @@ module Compiler
 
     puts program
     # puts AstPrinter.new.print(expression)
-    code_gen = CodeGenerator.new.generate(program)
+    CodeGenerator.new.generate(program)
     # code_gen.generate(expression.as(Expression::Expr))
 
     # puts scanner.scan_tokens
