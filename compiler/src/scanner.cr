@@ -140,6 +140,7 @@ module Scanner
         end
       end
 
+      # TODO; typecast to float if value contains "." else int
       add_token(TokenType::NUMBER, @source[@start...@current].to_f)
     end
 
