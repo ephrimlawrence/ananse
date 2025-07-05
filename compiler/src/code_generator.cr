@@ -3,29 +3,21 @@ require "./ast.cr"
 class CodeGenerator < AST::Visitor(Object)
   alias ExpressionType = String | Int32 | Float64 | Bool | AST::Expr | Nil
 
-  def generate(statements : Array(AST::Stmt))
+  def generate(statements : Array(AST::Stmt)) : String?
     begin
       # stmt_instance = StatementGenerator.new
-
-      statements.each do |statement|
-        execute(statement)
+      typescript = String.build do |s|
+        statements.each do |statement|
+          s << execute(statement) << "\n"
+        end
       end
+
+      puts typescript
+      return typescript.to_s
     rescue error
       puts error
     end
   end
-
-  # class ExpressionGenerator < AST::Visitor(Object)
-  # def generate(expression : AST::Expr)
-  #   begin
-  #     value = evaluate(expression)
-  #     puts value
-  #     # System.out.println(stringify(value));
-  #   rescue error
-  #     puts error
-  #     # raise CompilerError.error(expression.type, error.message)
-  #   end
-  # end
 
   def visit_literal_expr(expr : AST::Literal) : String
     value = expr.value
@@ -87,27 +79,16 @@ class CodeGenerator < AST::Visitor(Object)
   # end
 
   # class StatementGenerator < AST::Visitor(Nil)
-  def visit_expression_stmt(stmt : AST::ExpressionStmt) : Nil
+  def visit_expression_stmt(stmt : AST::ExpressionStmt) : String
     evaluate(stmt.expression)
-    return nil
   end
 
-  def visit_print_stmt(stmt : AST::Print) : Nil
+  def visit_print_stmt(stmt : AST::Print) : String
     value : ExpressionType = evaluate(stmt.expression)
-    puts "console.log(#{value})"
-    return nil
+    return "console.log(#{value})"
   end
 
-  def execute(stmt : AST::Stmt)
+  def execute(stmt : AST::Stmt) : String
     stmt.accept(self)
   end
-
-  # private def evaluate(expr : AST::Expr) : ExpressionType
-  #   expr.accept(self)
-  # end
-  # end
 end
-
-# class CodeGenerator < AST::Visitor(Nil)
-#   extend ExpressionCodeGenerator
-# end

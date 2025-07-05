@@ -45,9 +45,6 @@ module Scanner
       @line = 1
       @column = 0
       # @char = ' '
-
-      puts @source
-      # read_char # Initialize char with the first character
     end
 
     def scan_tokens : Array(Token)
@@ -143,7 +140,7 @@ module Scanner
         end
       end
 
-      add_token(TokenType::NUMBER, @source[@start...@current])
+      add_token(TokenType::NUMBER, @source[@start...@current].to_f)
     end
 
     private def read_string

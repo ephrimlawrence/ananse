@@ -28,9 +28,10 @@ module Compiler
       return
     end
 
-    puts program
+    # puts program
     # puts AstPrinter.new.print(expression)
-    CodeGenerator.new.generate(program)
+    code = CodeGenerator.new.generate(program)
+    # puts code
     # code_gen.generate(expression.as(Expression::Expr))
 
     # puts scanner.scan_tokens
