@@ -30,7 +30,7 @@ module Compiler
 
     puts program
     # puts AstPrinter.new.print(expression)
-    # code_gen = CodeGenerator.new
+    code_gen = CodeGenerator.new.generate(program)
     # code_gen.generate(expression.as(Expression::Expr))
 
     # puts scanner.scan_tokens

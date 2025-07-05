@@ -1,18 +1,32 @@
 require "./expression.cr"
+require "./stmt.cr"
 
-class CodeGenerator < Expression::Visitor(Object)
+class CodeGenerator < Statement::Visitor(Nil)
   alias ExpressionType = String | Int32 | Float64 | Bool | Expression::Expr | Nil
 
-  def generate(expression : Expression::Expr)
+  def generate(statements : Array(Statement::Stmt))
     begin
-      value = evaluate(expression)
-      puts value
-      # System.out.println(stringify(value));
+      # stmt_instance = StatementGenerator.new
+
+      statements.each do |statement|
+        execute(statement)
+      end
     rescue error
       puts error
-      # raise CompilerError.error(expression.type, error.message)
     end
   end
+
+  # class ExpressionGenerator < Expression::Visitor(Object)
+  # def generate(expression : Expression::Expr)
+  #   begin
+  #     value = evaluate(expression)
+  #     puts value
+  #     # System.out.println(stringify(value));
+  #   rescue error
+  #     puts error
+  #     # raise CompilerError.error(expression.type, error.message)
+  #   end
+  # end
 
   def visit_literal_expr(expr : Expression::Literal) : String
     value = expr.value
@@ -70,4 +84,31 @@ class CodeGenerator < Expression::Visitor(Object)
   private def evaluate(expr : Expression::Expr) : ExpressionType
     expr.accept(self)
   end
+
+  # end
+
+  # class StatementGenerator < Statement::Visitor(Nil)
+  def visit_expression_stmt(stmt : Statement::Expression) : Nil
+    evaluate(stmt.expression)
+    return nil
+  end
+
+  def visit_print_stmt(stmt : Statement::Print) : Nil
+    value : ExpressionType = evaluate(stmt.expression)
+    puts "console.log(#{value})"
+    return nil
+  end
+
+  def execute(stmt : Statement::Stmt) : String
+    stmt.accept(self)
+  end
+
+  # private def evaluate(expr : Expression::Expr) : ExpressionType
+  #   expr.accept(self)
+  # end
+  # end
 end
+
+# class CodeGenerator < Statement::Visitor(Nil)
+#   extend ExpressionCodeGenerator
+# end
