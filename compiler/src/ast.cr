@@ -16,7 +16,7 @@ module AST
     # abstract def visit_super_expr(expr : Super) : R
     # abstract def visit_this_expr(expr : This) : R
     abstract def visit_unary_expr(expr : Unary) : R
-    # abstract def visit_variable_expr(expr : Variable) : R
+    abstract def visit_variable_expr(expr : Variable) : R
 
     #
     # Statement visitors
@@ -25,6 +25,7 @@ module AST
     #     R visitBlockStmt(Block stmt);
     # R visitClassStmt(Class stmt);
     abstract def visit_expression_stmt(stmt : ExpressionStmt) forall R
+    abstract def visit_variable_stmt(stmt : VariableStmt) forall R
     # R visitFunctionStmt(Function stmt);
     # R visitIfStmt(If stmt);
     # R visitPrintStmt(Print stmt);
@@ -46,6 +47,18 @@ module AST
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_expression_stmt(self)
+    end
+  end
+
+  class VariableStmt < Stmt
+    property name : Token
+    property initializer : Expr?
+
+    def initialize(@name, @initializer)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_variable_stmt(self)
     end
   end
 
@@ -110,6 +123,17 @@ module AST
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_grouping_expr(self)
+    end
+  end
+
+  class Variable < Expr
+    property name : Token
+
+    def initialize(@name)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_variable_expr(self)
     end
   end
 end

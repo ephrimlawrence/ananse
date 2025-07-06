@@ -22,14 +22,14 @@ struct CompilerError
   end
 end
 
-# class RuntimeError < Exception
-#   property token : Token
+class RuntimeErr < Exception
+  property token : Token
 
-#   def initialize(message : String, @token : Token)
-#     super(message)
-#   end
+  def initialize(message : String, @token : Token)
+    super(message)
+  end
 
-#   def to_s(io : IO)
-#     io << "Parse Error at #{@token.location.line}:#{@token.location.column}: #{message}"
-#   end
-# end
+  def to_s(io : IO)
+    io << "Parse Error at #{@token.location.line}:#{@token.location.column}: #{message}"
+  end
+end

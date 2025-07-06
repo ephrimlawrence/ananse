@@ -34,6 +34,7 @@ module Scanner
       "end"     => TokenType::END,
       "start"   => TokenType::START,
       "print"   => TokenType::PRINT,
+      "var"   => TokenType::VAR,
       # "js"      => TokenType::KEYWORD_JS,
       "true"  => TokenType::TRUE,
       "false" => TokenType::FALSE,

@@ -18,6 +18,7 @@ enum TokenType
   # JS # for js.
   TRUE
   FALSE
+  VAR # TODO: remove var, not in our grammar
 
   IDENTIFIER
   NUMBER

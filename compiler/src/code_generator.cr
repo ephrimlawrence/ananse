@@ -1,6 +1,9 @@
 require "./ast.cr"
+require "./environment.cr"
 
 class CodeGenerator < AST::Visitor(Object)
+  property environment : Environment = Environment.new
+
   alias ExpressionType = String | Int32 | Float64 | Bool | AST::Expr | Nil
 
   def generate(statements : Array(AST::Stmt)) : String?
@@ -60,6 +63,10 @@ class CodeGenerator < AST::Visitor(Object)
     "#{left} #{op} #{right}"
   end
 
+  def visit_variable_expr(expr : AST::Variable) : Object
+    return @environment.get(expr.name)
+  end
+
   # private def is_truthy?(object : ExpressionType) : Bool
   #   if object == "null"
   #     return false
@@ -86,6 +93,16 @@ class CodeGenerator < AST::Visitor(Object)
   def visit_print_stmt(stmt : AST::Print) : String
     value : ExpressionType = evaluate(stmt.expression)
     return "console.log(#{value})"
+  end
+
+  def visit_variable_stmt(stmt : AST::VariableStmt)
+    value : String = ""
+    if !stmt.initializer.nil?
+      value = evaluate(stmt.initializer.as(AST::Expr))
+    end
+
+    @environment.define(stmt.name.value, value)
+    return value
   end
 
   def execute(stmt : AST::Stmt) : String

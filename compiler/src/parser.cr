@@ -11,7 +11,10 @@ class Parser
   def parse : Array(AST::Stmt)
     statements : Array(AST::Stmt) = [] of AST::Stmt
     while !is_at_end?
-      statements << statement
+      val = declaration()
+      if !val.nil?
+        statements << val
+      end
     end
 
     statements
@@ -19,6 +22,18 @@ class Parser
 
   private def expression : AST::Expr
     equality
+  end
+
+  private def declaration : AST::Stmt?
+    begin
+      if match(TokenType::VAR)
+        return var_declaration()
+      end
+      return statement()
+    rescue exception
+      synchronize()
+      return nil
+    end
   end
 
   private def statement : AST::Stmt
@@ -34,6 +49,17 @@ class Parser
     #  TODO: remove this, not needed in our grammar
     consume(TokenType::SEMICOLON, "Expect ';' after value.")
     return AST::Print.new(value)
+  end
+
+  private def var_declaration : AST::VariableStmt
+    name : Token = consume(TokenType::IDENTIFIER, "Expect variable name.")
+    initializer : AST::Expr? = nil
+    if match(TokenType::EQUAL)
+      initializer = expression()
+    end
+
+    consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.")
+    return AST::VariableStmt.new(name, initializer)
   end
 
   private def expression_statement : AST::ExpressionStmt
@@ -113,6 +139,10 @@ class Parser
       return AST::Literal.new(peek, previous.literal)
     end
 
+    if match(TokenType::IDENTIFIER)
+      return AST::Variable.new(previous())
+    end
+
     if match(TokenType::LEFT_PAREN)
       expr : AST::Expr = expression()
       consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.")
@@ -161,9 +191,9 @@ class Parser
     error(peek, message)
   end
 
-  private def error(token : Token, message : String) : ParseError
+  private def error(token : Token, message : String) : Token
     CompilerError.new.error(token, message)
-    ParseError.new(message, token)
+    raise ParseError.new(message, token)
   end
 
   private def match(*types : TokenType) : Bool
