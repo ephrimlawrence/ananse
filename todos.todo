@@ -1,11 +1,13 @@
 Compiler:
   ☐ statements implementation
-    ☐ display
+    ✔ display @done(25-07-08 08:46)
+    ☐ input
     ☐ option
     ☐ input
     ☐ menu
     ☐ action
     ☐ goto
+    ☐ string interpolation
 
 Pending features:
     ☐ implement on demand termination from anywhere in the code

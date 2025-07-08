@@ -48,6 +48,16 @@ class Parser
     return expression_statement()
   end
 
+  # Parse display statement
+  #   "display" <expression> "\n"
+  #
+  # Example:
+  # ```
+  # display "Welcome to first menu"
+  # display "Welcome {{ username }}"
+  # display "Welcome {{ 2 }}"
+  # display 3
+  # ```
   private def display_statement : AST::DisplayStmt
     expr : AST::Expr = expression()
     consume(TokenType::NEW_LINE, "Expected new line after value.")
