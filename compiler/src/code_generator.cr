@@ -106,7 +106,7 @@ class CodeGenerator < AST::Visitor(Object)
   def visit_input_stmt(stmt : AST::InputStatement) : String
     # TODO: store the variable definitions, along with their types somewhere to type generation
     name = stmt.variable.value
-    @environment.define(name, "")
+    @environment.define(name, "true")
 
     code = String.build do |s|
       s << "input(async (req, res) => {\n"
@@ -126,19 +126,20 @@ class CodeGenerator < AST::Visitor(Object)
 
   # TODO: remove this
   def visit_variable_stmt(stmt : AST::VariableStmt)
-    value : String = ""
-    if !stmt.initializer.nil?
-      value = evaluate(stmt.initializer.as(AST::Expr))
-    end
+    # value : String = ""
+    # if !stmt.initializer.nil?
+    #   value = evaluate(stmt.initializer.as(AST::Expr))
+    # end
 
-    @environment.define(stmt.name.value, value)
+    @environment.define(stmt.name.value, "false")
     return "const #{stmt.name.value} = value;"
   end
 
   def visit_variable_stmt(stmt : AST::VariableStatement) : String
     name = evaluate(stmt.name)
-    # @environment.define(stmt.name.value, "")
-    return name
+    # @environment.define(stmt.name, false)
+    # TODO: relook at this
+    return "#TODO: to be implemented"
   end
 
   def execute(stmt : AST::Stmt) : String
