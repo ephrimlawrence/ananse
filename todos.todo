@@ -1,9 +1,13 @@
 Compiler:
   ☐ statements implementation
-    ☐ option
-    ☐ action
+    ✔ option @done(25-07-08 23:06)
+    ✔ action @done(25-07-08 23:06)
     ☐ string interpolation
     ☐ end
+    ☐ group menu options as one list
+
+  ☐ semantic analysis
+    ☐ 'action' with input & display; without any option
 
 Pending features:
   ☐ input validation error display

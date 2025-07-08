@@ -1,5 +1,6 @@
 require "./ast.cr"
 require "./environment.cr"
+require "./utils.cr"
 
 # todo: create a map/enum/const for ananse typescript types
 class CodeGenerator < AST::Visitor(Object)
@@ -90,12 +91,17 @@ class CodeGenerator < AST::Visitor(Object)
 
   def visit_action_expr(expr : AST::Action) : String
     code = String.build do |s|
+      var_name = Util.generate_variable_name()
+
+      s << "const #{var_name} = "
       s << "await " << expr.func_name.value << "({"
       expr.params.each_key do |key|
         s << key.value << ":"
         s << "await req.session.get('" << expr.params[key].value << "')"
       end
-      s << "})"
+      s << "});"
+
+      s << "await req.session.set('#{var_name}', #{var_name});"
     end
 
     return code.to_s
