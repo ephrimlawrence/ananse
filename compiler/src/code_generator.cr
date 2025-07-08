@@ -92,7 +92,7 @@ class CodeGenerator < AST::Visitor(Object)
 
   def visit_print_stmt(stmt : AST::Print) : String
     value : ExpressionType = evaluate(stmt.expression)
-    return "console.log(#{value})"
+    return "console.log(#{value});"
   end
 
   def visit_variable_stmt(stmt : AST::VariableStmt)
@@ -102,7 +102,7 @@ class CodeGenerator < AST::Visitor(Object)
     end
 
     @environment.define(stmt.name.value, value)
-    return value
+    return "const #{stmt.name.value} = value;"
   end
 
   def execute(stmt : AST::Stmt) : String
