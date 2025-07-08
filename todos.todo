@@ -10,6 +10,8 @@ Compiler:
     ☐ string interpolation
 
 Pending features:
+    ☐ implement menu.input((req, res)) => NextMenu
+      ☐ needed for language 'input <variable>' syntax
     ☐ implement on demand termination from anywhere in the code
     ☐ add 'socket' params to redis config
 

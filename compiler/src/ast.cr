@@ -25,8 +25,12 @@ module AST
     #     R visitBlockStmt(Block stmt);
     # R visitClassStmt(Class stmt);
     abstract def visit_expression_stmt(stmt : ExpressionStmt) forall R
+    abstract def visit_variable_stmt(stmt : VariableStatement) forall R
+    abstract def visit_display_stmt(stmt : DisplayStatement) forall R
+    abstract def visit_input_stmt(stmt : InputStatement) forall R
+
+    # TODO: remove this
     abstract def visit_variable_stmt(stmt : VariableStmt) forall R
-    abstract def visit_display_stmt(stmt : DisplayStmt) forall R
     # R visitFunctionStmt(Function stmt);
     # R visitIfStmt(If stmt);
     # R visitPrintStmt(Print stmt);
@@ -51,6 +55,8 @@ module AST
     end
   end
 
+  # @deprecated
+  # TODO: remove this
   class VariableStmt < Stmt
     property name : Token
     property initializer : Expr?
@@ -63,6 +69,8 @@ module AST
     end
   end
 
+  # @deprecated
+  # TODO: remove this
   class Print < Stmt
     property expression : Expr
 
@@ -74,7 +82,7 @@ module AST
     end
   end
 
-  class DisplayStmt < Stmt
+  class DisplayStatement < Stmt
     property expression : Expr
 
     def initialize(@expression)
@@ -82,6 +90,28 @@ module AST
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_display_stmt(self)
+    end
+  end
+
+  class InputStatement < Stmt
+    property variable : Token
+
+    def initialize(@variable)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_input_stmt(self)
+    end
+  end
+
+  class VariableStatement < Stmt
+    property name : Expr
+
+    def initialize(@name)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_variable_stmt(self)
     end
   end
 

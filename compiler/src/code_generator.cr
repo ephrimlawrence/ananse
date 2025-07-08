@@ -91,12 +91,8 @@ class CodeGenerator < AST::Visitor(Object)
     evaluate(stmt.expression)
   end
 
-  def visit_print_stmt(stmt : AST::Print) : String
-    value : ExpressionType = evaluate(stmt.expression)
-    return "console.log(#{value});"
-  end
-
-  def visit_display_stmt(stmt : AST::DisplayStmt) : String
+  # Generates corresponding Menu.message function
+  def visit_display_stmt(stmt : AST::DisplayStatement) : String
     value : ExpressionType = evaluate(stmt.expression)
     code = String.build do |s|
       s << "message (async(req, res)  => {\n"
@@ -106,6 +102,29 @@ class CodeGenerator < AST::Visitor(Object)
     return code.to_s
   end
 
+  # Generates corresponding Menu.input function
+  def visit_input_stmt(stmt : AST::InputStatement) : String
+    # TODO: store the variable definitions, along with their types somewhere to type generation
+    name = stmt.variable.value
+    @environment.define(name, "")
+
+    code = String.build do |s|
+      s << "input(async (req, res) => {\n"
+      s << "await req.session.set(\"#{name}\", "
+      s << "req.input!" << "\");"
+      s << "\n})"
+    end
+    return code.to_s
+  end
+
+  # TODO: remove this
+  # FIXME: rename to log?
+  def visit_print_stmt(stmt : AST::Print) : String
+    value : ExpressionType = evaluate(stmt.expression)
+    return "console.log(#{value});"
+  end
+
+  # TODO: remove this
   def visit_variable_stmt(stmt : AST::VariableStmt)
     value : String = ""
     if !stmt.initializer.nil?
@@ -114,6 +133,12 @@ class CodeGenerator < AST::Visitor(Object)
 
     @environment.define(stmt.name.value, value)
     return "const #{stmt.name.value} = value;"
+  end
+
+  def visit_variable_stmt(stmt : AST::VariableStatement) : String
+    name = evaluate(stmt.name)
+    # @environment.define(stmt.name.value, "")
+    return name
   end
 
   def execute(stmt : AST::Stmt) : String

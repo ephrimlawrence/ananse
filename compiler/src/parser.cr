@@ -38,7 +38,11 @@ class Parser
 
   private def statement : AST::Stmt
     if match(TokenType::DISPLAY)
-      return display_statement
+      return display_statement()
+    end
+
+    if match(TokenType::INPUT)
+      return input_statement()
     end
 
     # if match(TokenType::PRINT)
@@ -58,12 +62,32 @@ class Parser
   # display "Welcome {{ 2 }}"
   # display 3
   # ```
-  private def display_statement : AST::DisplayStmt
+  private def display_statement : AST::DisplayStatement
     expr : AST::Expr = expression()
     consume(TokenType::NEW_LINE, "Expected new line after value.")
-    return AST::DisplayStmt.new(expr)
+    return AST::DisplayStatement.new(expr)
   end
 
+  # Parse input statement
+  #   "input" <identifier> "\n"
+  #
+  # Example:
+  # ```
+  # input variable_name
+  # ```
+  private def input_statement : AST::InputStatement
+    name : Token = consume(TokenType::IDENTIFIER, "Expect variable name.")
+    consume(TokenType::NEW_LINE, "Expected new line after variable.")
+    return AST::InputStatement.new(name)
+  end
+
+  private def var_definition : AST::Variable
+    name : Token = consume(TokenType::IDENTIFIER, "Expect variable name.")
+    return AST::Variable.new(name)
+  end
+
+  # @deprecated
+  # TODO: remove this
   private def print_statement : AST::Print
     value : AST::Expr = expression()
     #  TODO: remove this, not needed in our grammar
@@ -71,6 +95,8 @@ class Parser
     return AST::Print.new(value)
   end
 
+  # @deprecated
+  # TODO: remove this
   private def var_declaration : AST::VariableStmt
     name : Token = consume(TokenType::IDENTIFIER, "Expect variable name.")
     initializer : AST::Expr? = nil
