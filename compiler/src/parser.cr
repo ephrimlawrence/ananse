@@ -37,6 +37,10 @@ class Parser
   end
 
   private def statement : AST::Stmt
+    if match(TokenType::MENU)
+      return menu_statement()
+    end
+
     if match(TokenType::DISPLAY)
       return display_statement()
     end
@@ -49,11 +53,39 @@ class Parser
       return goto_statement()
     end
 
+    if match(TokenType::LEFT_BRACE)
+      return block_statements
+    end
+
     # if match(TokenType::PRINT)
     #   return print_statement()
     # end
 
-    return expression_statement()
+    error(peek, "Unexpected token")
+    # return expression_statement()
+  end
+
+  # Parse menu statement
+  private def menu_statement : AST::MenuStatement
+    menu_name : Token = consume(TokenType::IDENTIFIER, "Expected name after 'menu'")
+
+    consume(TokenType::LEFT_BRACE, "Expected '{' after menu name")
+    advance_if(TokenType::NEW_LINE) # Skip newline after '{'
+
+    return AST::MenuStatement.new(menu_name, block_statements)
+  end
+
+  # Parse block statements
+  private def block_statements : AST::BlockStatement
+    statements : Array(AST::Stmt) = [] of AST::Stmt
+
+    while !check(TokenType::RIGHT_BRACE) && !is_at_end?
+      statements << statement()
+    end
+
+    consume(TokenType::RIGHT_BRACE, "Expected '}' after menu definition")
+    advance_if(TokenType::NEW_LINE)
+    return AST::BlockStatement.new(statements)
   end
 
   # Parse display statement
@@ -284,6 +316,14 @@ class Parser
     end
 
     previous
+  end
+
+  private def advance_if(type : TokenType) : Token
+    if check(type)
+      advance
+    end
+
+    peek
   end
 
   private def is_at_end? : Bool

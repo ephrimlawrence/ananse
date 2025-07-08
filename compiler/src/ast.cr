@@ -29,6 +29,8 @@ module AST
     abstract def visit_display_stmt(stmt : DisplayStatement) forall R
     abstract def visit_input_stmt(stmt : InputStatement) forall R
     abstract def visit_goto_stmt(stmt : GotoStatement) forall R
+    abstract def visit_block_stmt(block : BlockStatement) forall R
+    abstract def visit_menu_stmt(stmt : MenuStatement) forall R
 
     # TODO: remove this
     abstract def visit_variable_stmt(stmt : VariableStmt) forall R
@@ -80,6 +82,29 @@ module AST
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_print_stmt(self)
+    end
+  end
+
+  class MenuStatement < Stmt
+    property name : Token
+    property body : BlockStatement
+
+    def initialize(@name, @body)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_menu_stmt(self)
+    end
+  end
+
+  class BlockStatement < Stmt
+    property statements : Array(Stmt)
+
+    def initialize(@statements)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_block_stmt(self)
     end
   end
 

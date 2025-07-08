@@ -92,11 +92,33 @@ class CodeGenerator < AST::Visitor(Object)
     evaluate(stmt.expression)
   end
 
+  def visit_menu_stmt(stmt : AST::MenuStatement) : String
+    @menus_environment.define(stmt.name.value, true)
+
+    code = String.build do |s|
+      s << "MenuRouter.menu('#{stmt.name.value}')"
+      s << execute(stmt.body)
+      s << ";"
+    end
+
+    return code.to_s
+  end
+
+  def visit_block_stmt(block : AST::BlockStatement) : String
+    code = String.build do |s|
+      block.statements.each do |stmt|
+        s << execute(stmt)
+      end
+    end
+
+    return code.to_s
+  end
+
   # Generates corresponding Menu.message function
   def visit_display_stmt(stmt : AST::DisplayStatement) : String
     value : ExpressionType = evaluate(stmt.expression)
     code = String.build do |s|
-      s << "message (async(req, res)  => {\n"
+      s << ".message(async(req, res)  => {\n"
       s << "return " << value << ";"
       s << "\n})"
     end
@@ -110,7 +132,7 @@ class CodeGenerator < AST::Visitor(Object)
     @environment.define(name, "true")
 
     code = String.build do |s|
-      s << "input(async (req, res) => {\n"
+      s << ".input(async (req, res) => {\n"
       s << "await req.session.set(\"#{name}\", "
       s << "req.input!" << "\");"
       s << "\n})"
@@ -123,7 +145,7 @@ class CodeGenerator < AST::Visitor(Object)
     # TODO: check if menu is already defined
     @menus_environment.define(name, false)
 
-    return "next(\"#{name}\")"
+    return ".next(\"#{name}\")"
   end
 
   # TODO: remove this
