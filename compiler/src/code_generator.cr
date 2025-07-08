@@ -78,8 +78,26 @@ class CodeGenerator < AST::Visitor(Object)
       if !expr.next_menu.nil?
         s << "next_menu: '#{expr.next_menu.as(Token).literal}',"
       end
+      if !expr.action.nil?
+        s << "next_menu: async(req, res) => {"
+        s << evaluate(expr.action.as(AST::Action))
+        s << "},"
+      end
       s << "}"
     end
+    return code.to_s
+  end
+
+  def visit_action_expr(expr : AST::Action) : String
+    code = String.build do |s|
+      s << "await " << expr.func_name.value << "({"
+      expr.params.each_key do |key|
+        s << key.value << ":"
+        s << "await req.session.get('" << expr.params[key].value << "')"
+      end
+      s << "})"
+    end
+
     return code.to_s
   end
 
@@ -148,7 +166,7 @@ class CodeGenerator < AST::Visitor(Object)
     code = String.build do |s|
       s << ".input(async (req, res) => {\n"
       s << "await req.session.set(\"#{name}\", "
-      s << "req.input!" << "\");"
+      s << "req.input!);"
       s << "\n})"
     end
     return code.to_s
@@ -169,6 +187,20 @@ class CodeGenerator < AST::Visitor(Object)
     end
 
     return code.to_s
+  end
+
+  def visit_action_stmt(stmt : AST::ActionStatement) : String
+    # TODO: save js fun to environment
+    # TODO: save action var name to environment
+
+    expr : AST::Action = stmt.expression
+
+    if !expr.name.nil?
+      # Add action variable to environment
+      @environment.define(expr.name.as(Token).value, "true")
+    end
+
+    return evaluate(expr)
   end
 
   def visit_goto_stmt(stmt : AST::GotoStatement) : String

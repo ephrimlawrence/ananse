@@ -85,6 +85,8 @@ module Scanner
         add_token(TokenType::PLUS)
       when ';'
         add_token(TokenType::SEMICOLON)
+      when ':'
+        add_token(TokenType::COLON)
       when '*'
         add_token(TokenType::STAR)
       when '!'

@@ -53,6 +53,10 @@ class Parser
       return options()
     end
 
+    if match(TokenType::ACTION)
+      return AST::ActionStatement.new(action())
+    end
+
     if match(TokenType::GOTO)
       return goto_statement()
     end
@@ -108,18 +112,47 @@ class Parser
 
     label : Token = consume(TokenType::STRING, "Expected label after option target")
     next_menu : Token? = nil
+    opt_action : AST::Action? = nil
 
     if match(TokenType::ARROW)
       # Next menu is defined, parse it
       next_menu = consume(TokenType::IDENTIFIER, "Expected next menu name after ->")
     end
 
+    if match(TokenType::ACTION)
+      opt_action = action()
+    end
+
     skip_newline
 
     # TODO: peek next, and group options
-    option = AST::Option.new(target, label, next_menu)
+    option = AST::Option.new(target, label, next_menu, opt_action)
     # p! option
     return AST::OptionStatement.new([option])
+  end
+
+  private def action() : AST::Action
+    func_name = consume(TokenType::IDENTIFIER, "Expected js function name after 'action'")
+    params : Hash(Token, Token) = {} of Token => Token
+
+    consume(TokenType::LEFT_PAREN, "Expected '(' after function name")
+    while !match(TokenType::RIGHT_PAREN) && !is_at_end?
+      param_name = consume(TokenType::IDENTIFIER, "Expected param name")
+      consume(TokenType::COLON, "Expected ':' after param name")
+      name = consume(TokenType::IDENTIFIER, "Expected name after param")
+
+      params[param_name] = name
+    end
+
+    variable_name : Token? = nil
+
+    if match(TokenType::AS)
+      variable_name = consume(TokenType::IDENTIFIER, "Expected variable name after 'as'")
+    end
+
+    skip_newline
+
+    return AST::Action.new(func_name, params, variable_name)
   end
 
   # Parse display statement

@@ -18,6 +18,7 @@ module AST
     abstract def visit_unary_expr(expr : Unary) : R
     abstract def visit_variable_expr(expr : Variable) : R
     abstract def visit_option_expr(expr : Option) : R
+    abstract def visit_action_expr(expr : Action) : R
 
     #
     # Statement visitors
@@ -33,6 +34,7 @@ module AST
     abstract def visit_block_stmt(block : BlockStatement) forall R
     abstract def visit_menu_stmt(stmt : MenuStatement) forall R
     abstract def visit_option_stmt(stmt : OptionStatement) forall R
+    abstract def visit_action_stmt(stmt : ActionStatement) forall R
 
     # TODO: remove this
     abstract def visit_variable_stmt(stmt : VariableStmt) forall R
@@ -165,6 +167,17 @@ module AST
     end
   end
 
+  class ActionStatement < Stmt
+    property expression : Action
+
+    def initialize(@expression)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_action_stmt(self)
+    end
+  end
+
   # Expression AST #
   abstract class Expr
     abstract def accept(visitor : Visitor(R)) forall R
@@ -233,14 +246,26 @@ module AST
     property target : Token
     property label : Token
     property next_menu : Token?
+    property action : Action?
 
-    # property action : Token # TODO: action tsatement
-
-    def initialize(@target, @label, @next_menu)
+    def initialize(@target, @label, @next_menu, @action)
     end
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_option_expr(self)
+    end
+  end
+
+  class Action < Expr
+    property func_name : Token
+    property params : Hash(Token, Token) = {} of Token => Token
+    property name : Token?
+
+    def initialize(@func_name, @params, @name)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_action_expr(self)
     end
   end
 end
