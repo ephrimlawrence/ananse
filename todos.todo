@@ -1,3 +1,12 @@
+Compiler:
+  ☐ statements implementation
+    ☐ display
+    ☐ option
+    ☐ input
+    ☐ menu
+    ☐ action
+    ☐ goto
+
 Pending features:
     ☐ implement on demand termination from anywhere in the code
     ☐ add 'socket' params to redis config

@@ -1,6 +1,7 @@
 enum TokenType
-  MENU
   DISPLAY
+
+  MENU
   OPTION
   INPUT
   ACTION
@@ -52,6 +53,7 @@ enum TokenType
   LESS          # <
   LESS_EQUAL    # <=
 
+  NEW_LINE # "\n"
   EOF     # End of File
   UNKNOWN # For unrecognised characters
 end

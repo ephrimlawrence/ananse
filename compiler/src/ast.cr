@@ -26,6 +26,7 @@ module AST
     # R visitClassStmt(Class stmt);
     abstract def visit_expression_stmt(stmt : ExpressionStmt) forall R
     abstract def visit_variable_stmt(stmt : VariableStmt) forall R
+    abstract def visit_display_stmt(stmt : DisplayStmt) forall R
     # R visitFunctionStmt(Function stmt);
     # R visitIfStmt(If stmt);
     # R visitPrintStmt(Print stmt);
@@ -70,6 +71,17 @@ module AST
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_print_stmt(self)
+    end
+  end
+
+  class DisplayStmt < Stmt
+    property expression : Expr
+
+    def initialize(@expression)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_display_stmt(self)
     end
   end
 

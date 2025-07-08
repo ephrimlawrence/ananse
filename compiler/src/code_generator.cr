@@ -1,6 +1,7 @@
 require "./ast.cr"
 require "./environment.cr"
 
+# todo: create a map/enum/const for ananse typescript types
 class CodeGenerator < AST::Visitor(Object)
   property environment : Environment = Environment.new
 
@@ -93,6 +94,16 @@ class CodeGenerator < AST::Visitor(Object)
   def visit_print_stmt(stmt : AST::Print) : String
     value : ExpressionType = evaluate(stmt.expression)
     return "console.log(#{value});"
+  end
+
+  def visit_display_stmt(stmt : AST::DisplayStmt) : String
+    value : ExpressionType = evaluate(stmt.expression)
+    code = String.build do |s|
+      s << "message (async(req, res)  => {\n"
+      s << "return " << value << ";"
+      s << "\n})"
+    end
+    return code.to_s
   end
 
   def visit_variable_stmt(stmt : AST::VariableStmt)

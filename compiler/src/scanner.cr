@@ -96,6 +96,7 @@ module Scanner
       when '>'
         add_token(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER)
       when '\n'
+        add_token(TokenType::NEW_LINE)
         @line += 1
         @column = 0
         # TODO: add '{{'  '}}' for string interpol?

@@ -37,11 +37,21 @@ class Parser
   end
 
   private def statement : AST::Stmt
-    if match(TokenType::PRINT)
-      return print_statement()
+    if match(TokenType::DISPLAY)
+      return display_statement
     end
 
+    # if match(TokenType::PRINT)
+    #   return print_statement()
+    # end
+
     return expression_statement()
+  end
+
+  private def display_statement : AST::DisplayStmt
+    expr : AST::Expr = expression()
+    consume(TokenType::NEW_LINE, "Expected new line after value.")
+    return AST::DisplayStmt.new(expr)
   end
 
   private def print_statement : AST::Print
