@@ -107,15 +107,17 @@ class Parser
     end
 
     label : Token = consume(TokenType::STRING, "Expected label after option target")
+    next_menu : Token? = nil
 
-    if match(TokenType::ARROW) # Action is defined parse it
-      # TODO: parse action
+    if match(TokenType::ARROW)
+      # Next menu is defined, parse it
+      next_menu = consume(TokenType::IDENTIFIER, "Expected next menu name after ->")
     end
 
     skip_newline
 
     # TODO: peek next, and group options
-    option = AST::Option.new(target, label)
+    option = AST::Option.new(target, label, next_menu)
     # p! option
     return AST::OptionStatement.new([option])
   end

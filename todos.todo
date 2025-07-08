@@ -1,21 +1,22 @@
 Compiler:
   ☐ statements implementation
-    ✔ display @done(25-07-08 08:46)
-    ☐ input
     ☐ option
-    ☐ input
-    ☐ menu
     ☐ action
-    ☐ goto
     ☐ string interpolation
+    ☐ end
 
 Pending features:
-    ☐ implement menu.input((req, res)) => NextMenu
-      ☐ needed for language 'input <variable>' syntax
-    ☐ implement on demand termination from anywhere in the code
-    ☐ add 'socket' params to redis config
+  ☐ input validation error display
+  ☐ implement menu.input((req, res)) => NextMenu
+    ☐ needed for language 'input <variable>' syntax
+  ☐ implement on demand termination from anywhere in the code
+  ☐ add 'socket' params to redis config
 
 Archive:
+  ✔ display @done(25-07-08 08:46) @project(Compiler)
+  ✔ input @done(25-07-08 21:31) @project(Compiler)
+  ✔ menu @done(25-07-08 21:31) @project(Compiler)
+  ✔ goto @done(25-07-08 21:31) @project(Compiler)
   ✔ rewrite cli simulator to support all provider modes @done(23-12-02 15:23) @project(Pending features)
   ✔ redis session management @done(23-12-02 17:44) @project(Pending features)
   ✔ add 'end' to dyanmic menu actions @done(24-03-19 07:25) @project(Pending features)

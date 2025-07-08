@@ -75,7 +75,9 @@ class CodeGenerator < AST::Visitor(Object)
       # TODO: check token type, if number/string, add to label
       s << "{" << "choice: #{expr.target.value},"
       s << "display: #{expr.label.value},"
-      s << "next_menu: [GOTO]"
+      if !expr.next_menu.nil?
+        s << "next_menu: '#{expr.next_menu.as(Token).literal}',"
+      end
       s << "}"
     end
     return code.to_s

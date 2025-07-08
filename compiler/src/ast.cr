@@ -232,10 +232,11 @@ module AST
   class Option < Expr
     property target : Token
     property label : Token
+    property next_menu : Token?
 
     # property action : Token # TODO: action tsatement
 
-    def initialize(@target, @label)
+    def initialize(@target, @label, @next_menu)
     end
 
     def accept(visitor : Visitor(R)) forall R
