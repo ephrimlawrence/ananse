@@ -4,6 +4,7 @@ require "./environment.cr"
 # todo: create a map/enum/const for ananse typescript types
 class CodeGenerator < AST::Visitor(Object)
   property environment : Environment = Environment.new
+  property menus_environment : MenuEnvironment = MenuEnvironment.new
 
   alias ExpressionType = String | Int32 | Float64 | Bool | AST::Expr | Nil
 
@@ -115,6 +116,14 @@ class CodeGenerator < AST::Visitor(Object)
       s << "\n})"
     end
     return code.to_s
+  end
+
+  def visit_goto_stmt(stmt : AST::GotoStatement) : String
+    name = stmt.menu.value
+    # TODO: check if menu is already defined
+    @menus_environment.define(name, false)
+
+    return "next(\"#{name}\")"
   end
 
   # TODO: remove this

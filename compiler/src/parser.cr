@@ -45,6 +45,10 @@ class Parser
       return input_statement()
     end
 
+    if match(TokenType::GOTO)
+      return goto_statement()
+    end
+
     # if match(TokenType::PRINT)
     #   return print_statement()
     # end
@@ -79,6 +83,19 @@ class Parser
     name : Token = consume(TokenType::IDENTIFIER, "Expect variable name.")
     consume(TokenType::NEW_LINE, "Expected new line after variable.")
     return AST::InputStatement.new(name)
+  end
+
+  # Parse goto statement
+  #   "goto" <menu_name> "\n"
+  #
+  # Example:
+  # ```
+  # goto welcome_menu
+  # ```
+  private def goto_statement : AST::GotoStatement
+    name : Token = consume(TokenType::IDENTIFIER, "Expect variable name.")
+    consume(TokenType::NEW_LINE, "Expected new line after variable.")
+    return AST::GotoStatement.new(name)
   end
 
   private def var_definition : AST::Variable

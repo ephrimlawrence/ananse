@@ -15,3 +15,19 @@ class Environment
     raise RuntimeErr.new("Undefined variable '#{name.value}'", name)
   end
 end
+
+class MenuEnvironment
+  property names : Hash(String, Bool) = {} of String => Bool
+
+  def define(name : String, value : Bool)
+    @names[name] = value
+  end
+
+  def get(name : Token) : Bool
+    if @names.has_key?(name.value)
+      return @names[name.value]
+    end
+
+    raise RuntimeErr.new("Undefined menu '#{name.value}'", name)
+  end
+end
