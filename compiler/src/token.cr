@@ -1,9 +1,10 @@
 enum TokenType
   DISPLAY
-
   MENU
-  OPTION
   INPUT
+  GOTO
+
+  OPTION
   ACTION
   WITH
   AS
@@ -12,7 +13,6 @@ enum TokenType
   FOR
   EACH
   IN
-  GOTO
   START
   END
   PRINT

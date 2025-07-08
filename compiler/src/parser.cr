@@ -49,6 +49,10 @@ class Parser
       return input_statement()
     end
 
+    if match(TokenType::OPTION)
+      return options()
+    end
+
     if match(TokenType::GOTO)
       return goto_statement()
     end
@@ -70,7 +74,7 @@ class Parser
     menu_name : Token = consume(TokenType::IDENTIFIER, "Expected name after 'menu'")
 
     consume(TokenType::LEFT_BRACE, "Expected '{' after menu name")
-    advance_if(TokenType::NEW_LINE) # Skip newline after '{'
+    skip_newline # Skip newline after '{'
 
     return AST::MenuStatement.new(menu_name, block_statements)
   end
@@ -84,8 +88,36 @@ class Parser
     end
 
     consume(TokenType::RIGHT_BRACE, "Expected '}' after menu definition")
-    advance_if(TokenType::NEW_LINE)
+    skip_newline
     return AST::BlockStatement.new(statements)
+  end
+
+  private def options : AST::OptionStatement
+    target : Token
+    if check(TokenType::NUMBER) || check(TokenType::STRING) # TODO: add regex
+      target = peek
+      advance()
+    else
+      error(peek, "Expected a number, string or regex after option")
+    end
+
+    # If target is a number, quote the value
+    if target.type == TokenType::NUMBER
+      target.value = "'#{target.value}'"
+    end
+
+    label : Token = consume(TokenType::STRING, "Expected label after option target")
+
+    if match(TokenType::ARROW) # Action is defined parse it
+      # TODO: parse action
+    end
+
+    skip_newline
+
+    # TODO: peek next, and group options
+    option = AST::Option.new(target, label)
+    # p! option
+    return AST::OptionStatement.new([option])
   end
 
   # Parse display statement
@@ -318,12 +350,10 @@ class Parser
     previous
   end
 
-  private def advance_if(type : TokenType) : Token
-    if check(type)
+  private def skip_newline
+    if check(TokenType::NEW_LINE)
       advance
     end
-
-    peek
   end
 
   private def is_at_end? : Bool

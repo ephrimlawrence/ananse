@@ -17,6 +17,7 @@ module AST
     # abstract def visit_this_expr(expr : This) : R
     abstract def visit_unary_expr(expr : Unary) : R
     abstract def visit_variable_expr(expr : Variable) : R
+    abstract def visit_option_expr(expr : Option) : R
 
     #
     # Statement visitors
@@ -31,6 +32,7 @@ module AST
     abstract def visit_goto_stmt(stmt : GotoStatement) forall R
     abstract def visit_block_stmt(block : BlockStatement) forall R
     abstract def visit_menu_stmt(stmt : MenuStatement) forall R
+    abstract def visit_option_stmt(stmt : OptionStatement) forall R
 
     # TODO: remove this
     abstract def visit_variable_stmt(stmt : VariableStmt) forall R
@@ -105,6 +107,17 @@ module AST
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_block_stmt(self)
+    end
+  end
+
+  class OptionStatement < Stmt
+    property group : Array(Option)
+
+    def initialize(@group)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_option_stmt(self)
     end
   end
 
@@ -213,6 +226,20 @@ module AST
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_variable_expr(self)
+    end
+  end
+
+  class Option < Expr
+    property target : Token
+    property label : Token
+
+    # property action : Token # TODO: action tsatement
+
+    def initialize(@target, @label)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_option_expr(self)
     end
   end
 end

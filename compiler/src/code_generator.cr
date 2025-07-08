@@ -69,6 +69,18 @@ class CodeGenerator < AST::Visitor(Object)
     return @environment.get(expr.name)
   end
 
+  def visit_option_expr(expr : AST::Option) : String
+    # TODO: generate code
+    code = String.build do |s|
+      # TODO: check token type, if number/string, add to label
+      s << "{" << "choice: #{expr.target.value},"
+      s << "display: #{expr.label.value},"
+      s << "next_menu: [GOTO]"
+      s << "}"
+    end
+    return code.to_s
+  end
+
   # private def is_truthy?(object : ExpressionType) : Bool
   #   if object == "null"
   #     return false
@@ -96,9 +108,9 @@ class CodeGenerator < AST::Visitor(Object)
     @menus_environment.define(stmt.name.value, true)
 
     code = String.build do |s|
-      s << "MenuRouter.menu('#{stmt.name.value}')"
+      s << "\n\nMenuRouter.menu('#{stmt.name.value}')"
       s << execute(stmt.body)
-      s << ";"
+      # s << ";"
     end
 
     return code.to_s
@@ -137,6 +149,23 @@ class CodeGenerator < AST::Visitor(Object)
       s << "req.input!" << "\");"
       s << "\n})"
     end
+    return code.to_s
+  end
+
+  def visit_option_stmt(stmt : AST::OptionStatement)
+    group : Array(AST::Option) = stmt.group
+
+    # name = stmt.variable.value
+    # @environment.define(name, "true")
+
+    code = String.build do |s|
+      s << ".actions(["
+      group.each do |opt|
+        s << evaluate(opt)
+      end
+      s << "])"
+    end
+
     return code.to_s
   end
 
