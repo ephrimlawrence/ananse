@@ -19,6 +19,8 @@ end
 class MenuEnvironment
   property names : Hash(String, Bool) = {} of String => Bool
 
+  # TODO: track menu calls (name, [tokens]) for verification
+
   # Adds a menu name to the env
   # Value is `True`, if the a definition exists for the menu
   def define(name : String, value : Bool)

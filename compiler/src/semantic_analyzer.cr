@@ -12,6 +12,7 @@ class SemanticAnalyzer < AST::Visitor(Nil)
     @statements.each do |stmt|
       stmt.accept(self)
     end
+
     # TODO: 1. check menu with 'false' values and return errors
     # errors.empty?
   end
