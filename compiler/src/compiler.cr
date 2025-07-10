@@ -31,9 +31,10 @@ module Compiler
 
     # puts program
     # puts AstPrinter.new.print(expression)
+    code = CodeGenerator.new.generate(program)
+
     analyzer : SemanticAnalyzer = SemanticAnalyzer.new(program)
     analyzer.analyze()
-    # code = CodeGenerator.new.generate(program)
     # puts code
     # code_gen.generate(expression.as(Expression::Expr))
 

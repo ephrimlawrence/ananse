@@ -23,6 +23,7 @@ module AST
     #
     # Statement visitors
     #
+    abstract def visit_if_stmt(stmt : IfStatement) forall R
     abstract def visit_print_stmt(stmt : Print) forall R
     #     R visitBlockStmt(Block stmt);
     # R visitClassStmt(Class stmt);
@@ -88,6 +89,20 @@ module AST
       visitor.visit_print_stmt(self)
     end
   end
+
+  class IfStatement < Stmt
+    property condition : Expr
+    property then_branch : Stmt
+    property else_branch : Stmt?
+
+    def initialize(@condition, @then_branch, @else_branch)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_if_stmt(self)
+    end
+  end
+
 
   class MenuStatement < Stmt
     property name : Token

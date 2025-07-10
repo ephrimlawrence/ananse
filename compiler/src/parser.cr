@@ -37,6 +37,10 @@ class Parser
   end
 
   private def statement : AST::Stmt
+    if match(TokenType::IF)
+      return if_statement()
+    end
+
     if match(TokenType::MENU)
       return menu_statement()
     end
@@ -73,12 +77,26 @@ class Parser
     # return expression_statement()
   end
 
+  private def if_statement : AST::IfStatement
+    consume(TokenType::LEFT_PAREN, "Expect '(' after 'if'.")
+    condition : AST::Expr = expression()
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after if condition.")
+
+    thenBranch : AST::Stmt = statement()
+    elseBranch : AST::Stmt? = nil
+
+    if match(TokenType::ELSE)
+      elseBranch = statement()
+    end
+
+    return AST::IfStatement.new(condition, thenBranch, elseBranch)
+  end
+
   # Parse menu statement
   private def menu_statement : AST::MenuStatement
     menu_name : Token = consume(TokenType::IDENTIFIER, "Expected name after 'menu'")
 
     consume(TokenType::LEFT_BRACE, "Expected '{' after menu name")
-    skip_newline # Skip newline after '{'
 
     return AST::MenuStatement.new(menu_name, block_statements)
   end
@@ -86,6 +104,7 @@ class Parser
   # Parse block statements
   private def block_statements : AST::BlockStatement
     statements : Array(AST::Stmt) = [] of AST::Stmt
+    skip_newline # Skip newline after '{'
 
     while !check(TokenType::RIGHT_BRACE) && !is_at_end?
       statements << statement()
@@ -131,7 +150,7 @@ class Parser
     return AST::OptionStatement.new([option])
   end
 
-  private def action() : AST::Action
+  private def action : AST::Action
     func_name = consume(TokenType::IDENTIFIER, "Expected js function name after 'action'")
     params : Hash(Token, Token) = {} of Token => Token
 

@@ -91,7 +91,7 @@ class CodeGenerator < AST::Visitor(Object)
 
   def visit_action_expr(expr : AST::Action) : String
     code = String.build do |s|
-      var_name = Util.generate_variable_name()
+      var_name = Util.generate_variable_name
 
       s << "const #{var_name} = "
       s << "await " << expr.func_name.value << "({"
@@ -128,6 +128,18 @@ class CodeGenerator < AST::Visitor(Object)
   # class StatementGenerator < AST::Visitor(Nil)
   def visit_expression_stmt(stmt : AST::ExpressionStmt) : String
     evaluate(stmt.expression)
+  end
+
+  def visit_if_stmt(stmt : AST::IfStatement) : String
+    code = String.build do |s|
+      s << "if (" << evaluate(stmt.condition) << "){"
+      s << execute(stmt.then_branch) << "}"
+      if !stmt.else_branch.nil?
+        s << "else {" << execute(stmt.else_branch.as(AST::Stmt)) << "}"
+      end
+    end
+
+    return code.to_s
   end
 
   def visit_menu_stmt(stmt : AST::MenuStatement) : String

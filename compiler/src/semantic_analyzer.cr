@@ -36,6 +36,9 @@ class SemanticAnalyzer < AST::Visitor(Nil)
     stmt.body.accept(self)
   end
 
+  def visit_if_stmt(stmt : AST::IfStatement)
+  end
+
   def visit_block_stmt(block : AST::BlockStatement)
     block.statements.each { |stmt| stmt.accept(self) }
   end
