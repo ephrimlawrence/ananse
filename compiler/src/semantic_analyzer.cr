@@ -26,9 +26,7 @@ class SemanticAnalyzer < AST::Visitor(Nil)
     menu_env.define(stmt.name.value, true)
 
     statements = stmt.body.statements
-    p! is_options_menu?(statements)
-    p! is_input_menu?(statements)
-    if !(is_options_menu?(statements) || is_input_menu?(statements))
+    if !is_menu_structure_valid?(statements)
       msg : String = "Menu '#{stmt.name.value}' has invalid structure. A menu can have a group of {display, options} or {display, input, goto, actions, end}"
 
       raise RuntimeErr.new(msg, stmt.name)
@@ -99,21 +97,25 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   def visit_action_expr(expr : AST::Action) : Nil
   end
 
-  # A menu can contain
-  private def is_options_menu?(stmts : Array(AST::Stmt)) : Bool
-    # Keep statement which is not 'display' | 'action'
-    # TODO: add if, foreach statement
-    stmts.reject! { |s| s.is_a?(AST::DisplayStatement) || s.is_a?(AST::OptionStatement) }
-    # Check for [display, input, goto, action, end] pattern
-    p! stmts
-    stmts.size == 0
-  end
+  private def is_menu_structure_valid?(stmts : Array(AST::Stmt)) : Bool
+    valid : Bool = false
+    has_option_stmt : Bool = !stmts.find { |s| s.is_a?(AST::OptionStatement) }.nil?
+    has_input_stmt : Bool = !has_option_stmt
 
-  # A menu can contain
-  private def is_input_menu?(stmts : Array(AST::Stmt)) : Bool
-    # TODO: add if, foreach, end statement
-    stmts.reject! { |s| s.is_a?(AST::DisplayStatement) || s.is_a?(AST::InputStatement) || s.is_a?(AST::GotoStatement) || s.is_a?(AST::ActionStatement) }
+    stmts.each do |s|
+      if has_option_stmt
+        if s.is_a?(AST::InputStatement) || s.is_a?(AST::GotoStatement) || s.is_a?(AST::ActionStatement)
+          return false
+        end
+      end
 
-    stmts.size == 0
+      if has_input_stmt
+        if s.is_a?(AST::OptionStatement)
+          return false
+        end
+      end
+    end
+
+    return true
   end
 end

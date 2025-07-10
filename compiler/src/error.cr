@@ -26,7 +26,8 @@ class RuntimeErr < Exception
   property token : Token
 
   def initialize(message : String, @token : Token)
-    super("Error at #{@token.location.line}:#{@token.location.column}: #{message}")
+    puts "Error at #{@token.location.line}:#{@token.location.column}: #{message}"
+    exit 1
   end
 
   def to_s(io : IO)
