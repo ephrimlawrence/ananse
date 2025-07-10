@@ -99,7 +99,7 @@ module Scanner
         add_token(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER)
       when '\n'
         add_token(TokenType::NEW_LINE)
-        while match('\n') # Only 1 is needed, skip subsequent newlines
+        while match('\n') && !is_at_end? # Only 1 is needed, skip subsequent newlines
           @line += 1
           @column = 0
           advance()

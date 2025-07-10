@@ -19,6 +19,8 @@ end
 class MenuEnvironment
   property names : Hash(String, Bool) = {} of String => Bool
 
+  # Adds a menu name to the env
+  # Value is `True`, if the a definition exists for the menu
   def define(name : String, value : Bool)
     @names[name] = value
   end

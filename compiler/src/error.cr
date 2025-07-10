@@ -26,10 +26,10 @@ class RuntimeErr < Exception
   property token : Token
 
   def initialize(message : String, @token : Token)
-    super(message)
+    super("Error at #{@token.location.line}:#{@token.location.column}: #{message}")
   end
 
   def to_s(io : IO)
-    io << "Parse Error at #{@token.location.line}:#{@token.location.column}: #{message}"
+    io << "Error at #{@token.location.line}:#{@token.location.column}: #{message}"
   end
 end
