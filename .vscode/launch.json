@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "crystal: debug current file",
+      "preLaunchTask": "crystal: build current file (debug)",
+      "program": "${workspaceFolder}/compiler/${fileBasenameNoExtension}",
+      "args": [],
+      "cwd": "${workspaceFolder}/compiler",
+      "initCommands": [
+        "command script import compiler/crystal_formatters.py"
+      ]
+    }
+  ]
+}
