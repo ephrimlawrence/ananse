@@ -12,6 +12,18 @@
       "initCommands": [
         "command script import compiler/crystal_formatters.py"
       ]
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "crystal: debug compiler",
+      "preLaunchTask": "crystal: build compiler (debug)",
+      "program": "${workspaceFolder}/compiler/compiler",
+      "args": [],
+      "cwd": "${workspaceFolder}/compiler",
+      "initCommands": [
+        "command script import compiler/crystal_formatters.py"
+      ]
     }
   ]
 }

@@ -5,6 +5,11 @@
       "label": "crystal: build current file (debug)",
       "type": "shell",
       "command": "crystal build --debug ${relativeFile} -o compiler/${fileBasenameNoExtension}"
+    },
+    {
+      "label": "crystal: build compiler (debug)",
+      "type": "shell",
+      "command": "crystal build --debug compiler/src/compiler.cr -o compiler/compiler"
     }
   ]
 }
