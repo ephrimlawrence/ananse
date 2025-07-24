@@ -19,8 +19,9 @@ class CodeGenerator < AST::Visitor(Object)
           s << execute(menu)
           s << generate_input_function(menu.name.value, definition["input"])
           s << generate_display_function(menu.name.value, definition["display"])
-          s << generate_options_code(menu.name.value, definition["option"])
-          s << generate_action_function(menu.name.value, definition["action"])
+          s << generate_options_code(definition["option"])
+          s << generate_action_function(definition["action"])
+          s << generate_goto_function(menu.name.value, definition["goto"])
           # message() code generation
           s << "}\n"
         end
@@ -175,7 +176,7 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   # Generates corresponding `action` function
-  def generate_action_function(menu : String, stmts : Array(AST::Stmt))
+  def generate_action_function(stmts : Array(AST::Stmt))
     code = String.build do |s|
       s << "async action() #{opening_brace}"
 
@@ -197,7 +198,7 @@ class CodeGenerator < AST::Visitor(Object)
     return code.to_s
   end
 
-  def generate_options_code(menu : String, stmts : Array(AST::Stmt))
+  def generate_options_code(stmts : Array(AST::Stmt))
     code = String.build do |s|
       s << "async actions() #{opening_brace}"
 
@@ -210,6 +211,40 @@ class CodeGenerator < AST::Visitor(Object)
       s << "const #{variable_name}: MenuAction[] = [];\n"
       stmts.each do |stmt|
         s << execute(stmt)
+      end
+
+      s << "return " << variable_name << ";"
+      s << closing_brace
+    end
+
+    return code.to_s
+  end
+
+  # Generates corresponding `nextMenu` function
+  def generate_goto_function(menu : String, stmts : Array(AST::Stmt))
+    code = String.build do |s|
+      # TODO: implement 'input()' api for BaseMenu in the runtime
+      s << "async nextMenu() #{opening_brace}"
+
+      if stmts.empty?
+        s << "return undefined; #{closing_brace}"
+        return s.to_s
+      end
+
+      item = stmts.find { |s| s.is_a?(AST::GotoStatement) }
+      if item.nil?
+        raise Exception.new("No goto statement found in '#{menu}' menu")
+      end
+      item = item.as(AST::GotoStatement)
+
+      variable_name = Util.generate_identifier_name
+      s << "let #{variable_name} = #{execute(item)};\n"
+      stmts.each do |stmt|
+        if stmt.is_a?(AST::GotoStatement)
+          s << "#{variable_name} = #{execute(item)};\n"
+        else
+          s << execute(stmt)
+        end
       end
 
       s << "return " << variable_name << ";"
@@ -311,11 +346,7 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_goto_stmt(stmt : AST::GotoStatement) : String
-    name = stmt.menu.value
-    # TODO: check if menu is already defined
-    # @menus_environment.define(name, false)
-
-    return ".next(\"#{name}\")"
+    return "\"#{stmt.menu.value}\""
   end
 
   # TODO: remove this
