@@ -5,6 +5,7 @@ require "./parser.cr"
 require "./code_generator.cr"
 require "./ast.cr"
 require "./semantic_analyzer"
+require "./ast_transformer.cr"
 
 # require "./lexer.cr"
 
@@ -31,10 +32,12 @@ module Compiler
 
     # puts program
     # puts AstPrinter.new.print(expression)
-    code = CodeGenerator.new.generate(program)
 
     analyzer : SemanticAnalyzer = SemanticAnalyzer.new(program)
     analyzer.analyze()
+
+    statements = AstTransformer.new(program).transform
+    code = CodeGenerator.new.generate(statements)
     # puts code
     # code_gen.generate(expression.as(Expression::Expr))
 

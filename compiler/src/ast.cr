@@ -103,8 +103,8 @@ module AST
     end
   end
 
-
   class MenuStatement < Stmt
+    # TODO: track if it a start menu
     property name : Token
     property body : BlockStatement
 
@@ -283,4 +283,19 @@ module AST
       visitor.visit_action_expr(self)
     end
   end
+end
+
+class TransformedAST
+  property menu_definitions : Array(Hash(String, Array(AST::Stmt))) = [] of Hash(String, Array(AST::Stmt)) # [{display => stmts.., input => stmts...}]
+
+  # List of action names
+  property actions : Array(String) = [] of String
+
+  def initialize
+  end
+
+  # def add_menu(name : String)
+  #   ["display", "option", "input", "goto", "action", "end"].each do |type|
+  #   end
+  # end
 end
