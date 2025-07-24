@@ -36,8 +36,8 @@ module Compiler
     analyzer : SemanticAnalyzer = SemanticAnalyzer.new(program)
     analyzer.analyze()
 
-    statements = AstTransformer.new(program).transform
-    code = CodeGenerator.new.generate(statements)
+    transformed_ast = AstTransformer.new(program).transform
+    code = CodeGenerator.new.generate(transformed_ast)
     # puts code
     # code_gen.generate(expression.as(Expression::Expr))
 

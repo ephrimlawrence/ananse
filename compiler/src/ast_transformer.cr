@@ -20,7 +20,7 @@ class AstTransformer < AST::Visitor(Nil)
     # errors.empty?
     puts @if_stmts.size
 
-    @statements
+    @transformed_ast
   end
 
   def visit_menu_stmt(stmt : AST::MenuStatement)

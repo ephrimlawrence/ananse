@@ -5,16 +5,18 @@ require "./utils.cr"
 # todo: create a map/enum/const for ananse typescript types
 class CodeGenerator < AST::Visitor(Object)
   property environment : Environment = Environment.new
-  property menus_environment : MenuEnvironment = MenuEnvironment.new
+  # property menus_environment : MenuEnvironment = MenuEnvironment.new
 
   alias ExpressionType = String | Int32 | Float64 | Bool | AST::Expr | Nil
 
-  def generate(statements : Array(AST::Stmt)) : String?
+  def generate(ast : TransformedAST) : String?
     begin
       # stmt_instance = StatementGenerator.new
       typescript = String.build do |s|
-        statements.each do |statement|
-          s << execute(statement) << "\n"
+        ast.menu_definitions.each do |definition|
+          stmts : Hash(String, Array(AST::Stmt)) = definition
+          s << execute(definition["menu"].first)
+          s << "}\n"
         end
       end
 
@@ -91,7 +93,7 @@ class CodeGenerator < AST::Visitor(Object)
 
   def visit_action_expr(expr : AST::Action) : String
     code = String.build do |s|
-      var_name = Util.generate_variable_name
+      var_name = Util.generate_identifier_name
 
       s << "const #{var_name} = "
       s << "await " << expr.func_name.value << "({"
@@ -142,16 +144,19 @@ class CodeGenerator < AST::Visitor(Object)
     return code.to_s
   end
 
+  # Generates menu class definition code stub
   def visit_menu_stmt(stmt : AST::MenuStatement) : String
-    @menus_environment.define(stmt.name.value, true)
+    # @menus_environment.define(stmt.name.value, true)
 
-    code = String.build do |s|
-      s << "\n\nMenuRouter.menu('#{stmt.name.value}')"
-      s << execute(stmt.body)
-      # s << ";"
-    end
+    class_name = "Menu_#{Util.generate_identifier_name(stmt.name.value)}".camelcase
+    # code = String.build do |s|
+    return "export class #{class_name} extends BaseMenu {"
+    # s << "\n\nMenuRouter.menu('#{stmt.name.value}')"
+    # s << execute(stmt.body)
+    #   s << "}"
+    # end
 
-    return code.to_s
+    # return code.to_s
   end
 
   def visit_block_stmt(block : AST::BlockStatement) : String
@@ -224,7 +229,7 @@ class CodeGenerator < AST::Visitor(Object)
   def visit_goto_stmt(stmt : AST::GotoStatement) : String
     name = stmt.menu.value
     # TODO: check if menu is already defined
-    @menus_environment.define(name, false)
+    # @menus_environment.define(name, false)
 
     return ".next(\"#{name}\")"
   end
