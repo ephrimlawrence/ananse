@@ -20,6 +20,7 @@ class CodeGenerator < AST::Visitor(Object)
           s << generate_input_function(menu.name.value, definition["input"])
           s << generate_display_function(menu.name.value, definition["display"])
           s << generate_options_code(menu.name.value, definition["option"])
+          s << generate_action_function(menu.name.value, definition["action"])
           # message() code generation
           s << "}\n"
         end
@@ -100,8 +101,7 @@ class CodeGenerator < AST::Visitor(Object)
     code = String.build do |s|
       var_name = Util.generate_identifier_name
 
-      s << "const #{var_name} = "
-      s << "await " << expr.func_name.value << "({"
+      s << "const #{var_name} = " << "await " << expr.func_name.value << "({"
       expr.params.each_key do |key|
         s << key.value << ":"
         s << "await req.session.get('" << expr.params[key].value << "')"
@@ -174,7 +174,29 @@ class CodeGenerator < AST::Visitor(Object)
     return code.to_s
   end
 
-  # Generates corresponding `message` function
+  # Generates corresponding `action` function
+  def generate_action_function(menu : String, stmts : Array(AST::Stmt))
+    code = String.build do |s|
+      s << "async action() #{opening_brace}"
+
+      if stmts.empty?
+        s << "return undefined; #{closing_brace}"
+        return s.to_s
+      end
+
+      variable_name = "actions_list" # variable name for options
+      s << "const #{variable_name}: MenuAction[] = [];\n"
+      stmts.each do |stmt|
+        value = execute(stmt)
+        s << value.gsub(/\sreq\./, " this.request") # replace "req" which is for option closure with "this.request", class variable
+      end
+
+      s << closing_brace
+    end
+
+    return code.to_s
+  end
+
   def generate_options_code(menu : String, stmts : Array(AST::Stmt))
     code = String.build do |s|
       s << "async actions() #{opening_brace}"
