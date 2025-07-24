@@ -19,6 +19,7 @@ class CodeGenerator < AST::Visitor(Object)
           s << execute(menu)
           s << generate_input_function(menu.name.value, definition["input"])
           s << generate_display_function(menu.name.value, definition["display"])
+          s << generate_options_code(menu.name.value, definition["option"])
           # message() code generation
           s << "}\n"
         end
@@ -174,6 +175,29 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   # Generates corresponding `message` function
+  def generate_options_code(menu : String, stmts : Array(AST::Stmt))
+    code = String.build do |s|
+      s << "async actions() #{opening_brace}"
+
+      if stmts.empty?
+        s << "return []; #{closing_brace}"
+        return s.to_s
+      end
+
+      variable_name = "actions_list" # variable name for options
+      s << "const #{variable_name}: MenuAction[] = [];\n"
+      stmts.each do |stmt|
+        s << execute(stmt)
+      end
+
+      s << "return " << variable_name << ";"
+      s << closing_brace
+    end
+
+    return code.to_s
+  end
+
+  # Generates corresponding `message` function
   def generate_display_function(menu : String, stmts : Array(AST::Stmt))
     code = String.build do |s|
       # TODO: implement 'input()' api for BaseMenu in the runtime
@@ -239,16 +263,12 @@ class CodeGenerator < AST::Visitor(Object)
 
   def visit_option_stmt(stmt : AST::OptionStatement)
     group : Array(AST::Option) = stmt.group
-
-    # name = stmt.variable.value
-    # @environment.define(name, "true")
-
     code = String.build do |s|
-      s << ".actions(["
+      s << "actions_list.push("
       group.each do |opt|
         s << evaluate(opt)
       end
-      s << "])"
+      s << ");\n"
     end
 
     return code.to_s
