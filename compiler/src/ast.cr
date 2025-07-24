@@ -299,3 +299,19 @@ class TransformedAST
   #   end
   # end
 end
+
+# TODO: update ast transfomer to use this
+# class TransformedMenuStatement
+#   property display_statements : Array(AST::Stmt) # [{display => stmts.., input => stmts...}]
+
+#   # List of action names
+#   property actions : Array(String) = [] of String
+
+#   def initialize
+#   end
+
+#   # def add_menu(name : String)
+#   #   ["display", "option", "input", "goto", "action", "end"].each do |type|
+#   #   end
+#   # end
+# end

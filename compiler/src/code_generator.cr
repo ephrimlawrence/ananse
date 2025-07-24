@@ -14,8 +14,11 @@ class CodeGenerator < AST::Visitor(Object)
       # stmt_instance = StatementGenerator.new
       typescript = String.build do |s|
         ast.menu_definitions.each do |definition|
+          menu : AST::MenuStatement = definition["menu"].first.as(AST::MenuStatement)
           stmts : Hash(String, Array(AST::Stmt)) = definition
-          s << execute(definition["menu"].first)
+          s << execute(menu)
+          s << generate_input_function(menu.name.value, definition["input"])
+          # message() code generation
           s << "}\n"
         end
       end
@@ -150,7 +153,7 @@ class CodeGenerator < AST::Visitor(Object)
 
     class_name = "Menu_#{Util.generate_identifier_name(stmt.name.value)}".camelcase
     # code = String.build do |s|
-    return "export class #{class_name} extends BaseMenu {"
+    return "export class #{class_name} extends BaseMenu #{opening_brace}"
     # s << "\n\nMenuRouter.menu('#{stmt.name.value}')"
     # s << execute(stmt.body)
     #   s << "}"
@@ -173,26 +176,44 @@ class CodeGenerator < AST::Visitor(Object)
   def visit_display_stmt(stmt : AST::DisplayStatement) : String
     value : ExpressionType = evaluate(stmt.expression)
     code = String.build do |s|
-      s << ".message(async(req, res)  => {\n"
+      s << ".message(async(req, res)  => #{opening_brace}"
       s << "return " << value << ";"
       s << "\n})"
     end
     return code.to_s
   end
 
-  # Generates corresponding Menu.input function
+  # Generates corresponding input function
+  def generate_input_function(menu : String, stmts : Array(AST::Stmt))
+    code = String.build do |s|
+      # TODO: implement 'input()' api for BaseMenu in the runtime
+      s << "async input() #{opening_brace}"
+
+      if stmts.empty?
+        s << "return undefined; #{closing_brace}"
+        return s.to_s
+      end
+
+      first_input = stmts.find { |s| s.is_a?(AST::InputStatement) }
+      if first_input.nil?
+        raise Exception.new("No input statement found in '#{menu}' menu")
+      end
+
+      stmts.each do |stmt|
+        s << execute(stmt)
+      end
+
+      s << closing_brace
+    end
+
+    return code.to_s
+  end
+
   def visit_input_stmt(stmt : AST::InputStatement) : String
     # TODO: store the variable definitions, along with their types somewhere to type generation
-    name = stmt.variable.value
-    @environment.define(name, "true")
-
-    code = String.build do |s|
-      s << ".input(async (req, res) => {\n"
-      s << "await req.session.set(\"#{name}\", "
-      s << "req.input!);"
-      s << "\n})"
-    end
-    return code.to_s
+    # name =
+    # @environment.define(name, "true")
+    return "await request.session.set(\"#{stmt.variable.value}\", request.input!);"
   end
 
   def visit_option_stmt(stmt : AST::OptionStatement)
@@ -257,6 +278,15 @@ class CodeGenerator < AST::Visitor(Object)
     # @environment.define(stmt.name, false)
     # TODO: relook at this
     return "#TODO: to be implemented"
+  end
+
+  # Returns a closing brace with a newline
+  private def closing_brace : String
+    "}\n"
+  end
+
+  private def opening_brace : String
+    "{\n"
   end
 
   def execute(stmt : AST::Stmt) : String
