@@ -18,6 +18,7 @@ class CodeGenerator < AST::Visitor(Object)
           stmts : Hash(String, Array(AST::Stmt)) = definition
           s << execute(menu)
           s << generate_input_function(menu.name.value, definition["input"])
+          s << generate_display_function(menu.name.value, definition["display"])
           # message() code generation
           s << "}\n"
         end
@@ -172,14 +173,37 @@ class CodeGenerator < AST::Visitor(Object)
     return code.to_s
   end
 
-  # Generates corresponding Menu.message function
-  def visit_display_stmt(stmt : AST::DisplayStatement) : String
-    value : ExpressionType = evaluate(stmt.expression)
+  # Generates corresponding `message` function
+  def generate_display_function(menu : String, stmts : Array(AST::Stmt))
     code = String.build do |s|
-      s << ".message(async(req, res)  => #{opening_brace}"
-      s << "return " << value << ";"
-      s << "\n})"
+      # TODO: implement 'input()' api for BaseMenu in the runtime
+      s << "async message() #{opening_brace}"
+
+      if stmts.empty?
+        s << "return undefined; #{closing_brace}"
+        return s.to_s
+      end
+
+      first_input = stmts.find { |s| s.is_a?(AST::DisplayStatement) }
+      if first_input.nil?
+        raise Exception.new("No display statement found in '#{menu}' menu")
+      end
+      first_input = first_input.as(AST::DisplayStatement)
+
+      variable_name = Util.generate_identifier_name
+      s << "let #{variable_name} = #{evaluate(first_input.expression)};\n"
+      stmts.each do |stmt|
+        if stmt.is_a?(AST::DisplayStatement)
+          s << "#{variable_name} = #{evaluate(first_input.expression)};\n"
+        else
+          s << execute(stmt)
+        end
+      end
+
+      s << "return " << variable_name << ";"
+      s << closing_brace
     end
+
     return code.to_s
   end
 
@@ -210,10 +234,7 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_input_stmt(stmt : AST::InputStatement) : String
-    # TODO: store the variable definitions, along with their types somewhere to type generation
-    # name =
-    # @environment.define(name, "true")
-    return "await request.session.set(\"#{stmt.variable.value}\", request.input!);"
+    return "await this.request.session.set(\"#{stmt.variable.value}\", this.request.input!);"
   end
 
   def visit_option_stmt(stmt : AST::OptionStatement)
@@ -278,6 +299,10 @@ class CodeGenerator < AST::Visitor(Object)
     # @environment.define(stmt.name, false)
     # TODO: relook at this
     return "#TODO: to be implemented"
+  end
+
+  def visit_display_stmt(stmt : AST::DisplayStatement) : String
+    evaluate(stmt.expression)
   end
 
   # Returns a closing brace with a newline
