@@ -14,20 +14,21 @@
 
 <end_brace>			::= "}"
 
-<menu_body> 		::= (<statement_list> "\n")+ ("end" ";")?
+<menu_body> 		::= (<statement_list> "\n")+ ("end" <end_statment>)?
 
 <statement_list> 		::= <display_statment> | <option_statement> | <action_statement> | <if_statement> | <input_statement>
 
-<display_statment> 	::= "display" <space> <string_literal> ";"
+/* TODO: update to "display" <space> <expression> <end_stmt>*/
+<display_statment> 	::= "display" <space> <string_literal> <end_statment>
 
-<option_statement> 	::= "option" <space> <option_target> <space> <string_literal> (<goto_symbol_stmt> | <goto_stmt> | <action_statement>)? ";"
+<option_statement> 	::= "option" <space> <option_target> <space> <string_literal> (<goto_symbol_stmt> | <goto_stmt> | <action_statement>)? <end_statment>
 
 <option_target> 	::= <digit> | <regex_literal> | <string_literal>
 
 /* string_literal is a call to js function */
-<action_statement>		::= <space>? "action" <space> <quoted_identifier> (<space> "with" <space> "{" (<identifier> ":" <identifier> ",")* "}" )? (<space> "as" <space> <identifier>)?
+<action_statement>		::= <space>? "@" <identifier> "(" (<identifier> ":" <identifier> ",")* ")" ( "as" <space> <identifier>)?
 
-<input_statement> 	::= "input" <space> <identifier> ";"
+<input_statement> 	::= "input" <space> <identifier> <end_statment>
 
 <goto_symbol_stmt>	::= "->" <space> (<identifier> | <navigate_stmt>)
 
@@ -43,25 +44,15 @@
 <condition>    ::= <expression>
 
 /* Re-use existing rules for: */
-/* <expression>          ::= <identifier> <comparison_operator> <literal> | <identifier> <comparison_operator> <identifier>*/
+<expression>          ::= <identifier> <comparison_operator> <literal> | <identifier> <comparison_operator> <identifier>
 
-<expression>    ::= <literal> | <unary> | <binary>  | <grouping>
+<comparison_operator> ::= "==" | "!=" | "<" | ">" | "<=" | ">=" | "||"
 
-<literal>       ::= <digit> | <string_literal> | "true" | "false" | "nil"
-
-<grouping>      ::= "(" <expression> ")"
-
-<unary>         ::= ( "-" | "!" ) <expression>
-
-<binary>		::= <expression> <operator> <expression>
-
-<operator>      ::= "==" | "!=" | "<" | "<=" | ">" | ">=" | "+"  | "-"  | "*" | "/"
-
-/* <comparison_operator> ::= "==" | "!=" | "<" | ">" | "<=" | ">=" | "||" | "!" */
-/* <literal>             ::= <string_literal> | <number_literal> | "true" | "false" */
-
+<literal>             ::= <string_literal> | <number_literal> | "true" | "false"
 
 <number_literal>      ::= "-"? (<digit>)+  ( "." <digit> )?
+
+<end_statment> 		::= "\n"
 
 <quoted_identifier> 	::= "\"" <identifier> "\"" | "'" <identifier> "'"
 
