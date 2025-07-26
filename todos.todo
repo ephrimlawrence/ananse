@@ -4,7 +4,7 @@ Compiler:
     ✔ action @done(25-07-08 23:06)
     ☐ string interpolation
     ☐ end
-    ☐ replace action keyword with @funcName(''')
+    ✔ replace action keyword with @funcName(''') @done(25-07-26 16:58)
     ✔ group menu options as one list @done(25-07-26 14:22)
 
   ☐ semantic analysis

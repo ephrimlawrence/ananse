@@ -173,8 +173,12 @@ class Parser
       while !check(TokenType::RIGHT_PAREN) && !is_at_end?
         param_name = consume(TokenType::IDENTIFIER, "Expected parameter name")
         consume(TokenType::COLON, "Expected ':' after parameter name")
-        value = consume(TokenType::IDENTIFIER, "Expected name after parameter")
-        params[param_name] = value
+
+        if match(TokenType::STRING, TokenType::NUMBER, TokenType::TRUE, TokenType::FALSE, TokenType::IDENTIFIER)
+          params[param_name] = previous
+        else
+          raise CompilerError.new("Expected a value after parameter", peek)
+        end
 
         # ',' is required after value but optional right before ')' eg. ',)'
         if check(TokenType::EOF) || check(TokenType::RIGHT_PAREN)

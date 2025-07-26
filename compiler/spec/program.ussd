@@ -1,7 +1,7 @@
 start menu welcome {
     display "Welcome to Ananse USSD"
     input products
-    @jsFunctionName(param1: value1, param2: value3, param4: value5,)
+    @jsFunctionName(param1: 2, param2: value3, param4: "string",)
 
     start menu welcome3 {
         option 1 "sfsdf"
