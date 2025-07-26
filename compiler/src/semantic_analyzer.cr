@@ -32,10 +32,34 @@ class SemanticAnalyzer < AST::Visitor(Nil)
     @menu_env.add(stmt.name)
 
     statements = stmt.body.statements
-    if !is_menu_structure_valid?(statements)
-      msg : String = "Menu '#{stmt.name.value}' has invalid structure. A menu can have a group of {display, options} or {display, input, goto, actions, end}"
 
-      raise RuntimeErr.new(msg, stmt.name)
+    # Check if the menu has a valid structure
+    # A menu can either have a group of {display, options} or {display, input, goto, actions, end}
+    msg : String = "Menu '#{stmt.name.value}' has invalid structure. A menu can have a group of {display, options} or {display, input, goto, actions, end}"
+
+    has_option_stmt : Bool = false
+    has_input_stmt : Bool = false
+
+    stmt.body.statements.each do |s|
+      if s.is_a?(AST::OptionStatement)
+        has_option_stmt = true
+      end
+
+      if s.is_a?(AST::InputStatement)
+        has_input_stmt = true
+      end
+
+      if has_option_stmt
+        if s.is_a?(AST::InputStatement) || s.is_a?(AST::GotoStatement) || s.is_a?(AST::ActionStatement)
+          raise RuntimeErr.new(msg, stmt.name)
+        end
+      end
+
+      if has_input_stmt
+        if s.is_a?(AST::OptionStatement)
+          raise RuntimeErr.new(msg, stmt.name)
+        end
+      end
     end
 
     stmt.body.accept(self)
@@ -107,27 +131,5 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   end
 
   def visit_action_expr(expr : AST::Action) : Nil
-  end
-
-  private def is_menu_structure_valid?(stmts : Array(AST::Stmt)) : Bool
-    valid : Bool = false
-    has_option_stmt : Bool = !stmts.find { |s| s.is_a?(AST::OptionStatement) }.nil?
-    has_input_stmt : Bool = !has_option_stmt
-
-    stmts.each do |s|
-      if has_option_stmt
-        if s.is_a?(AST::InputStatement) || s.is_a?(AST::GotoStatement) || s.is_a?(AST::ActionStatement)
-          return false
-        end
-      end
-
-      if has_input_stmt
-        if s.is_a?(AST::OptionStatement)
-          return false
-        end
-      end
-    end
-
-    return true
   end
 end
