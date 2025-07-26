@@ -166,24 +166,29 @@ class Parser
     consume(TokenType::LEFT_PAREN, "Expected '(' after function name")
 
     params : Hash(Token, Token) = {} of Token => Token
-    while !check(TokenType::RIGHT_PAREN) && !is_at_end?
-      param_name = consume(TokenType::IDENTIFIER, "Expected parameter name")
-      consume(TokenType::COLON, "Expected ':' after parameter name")
-      value = consume(TokenType::IDENTIFIER, "Expected name after parameter")
-      params[param_name] = value
 
-      # ',' is required after value but optional right before ')' eg. ',)'
-      if peek.type == TokenType::RIGHT_PAREN
-        consume(TokenType::RIGHT_PAREN, "Expected ')' after the last value")
-        break
-      end
+    if check(TokenType::RIGHT_PAREN) # Empty params
+      advance()
+    else
+      while !check(TokenType::RIGHT_PAREN) && !is_at_end?
+        param_name = consume(TokenType::IDENTIFIER, "Expected parameter name")
+        consume(TokenType::COLON, "Expected ':' after parameter name")
+        value = consume(TokenType::IDENTIFIER, "Expected name after parameter")
+        params[param_name] = value
 
-      if peek.type == TokenType::COMMA && peek_next.type == TokenType::RIGHT_PAREN
-        advance()
-        consume(TokenType::RIGHT_PAREN, "Expected closing ')'")
-        break
-      else
-        consume(TokenType::COMMA, "Expected ',' after value")
+        # ',' is required after value but optional right before ')' eg. ',)'
+        if check(TokenType::RIGHT_PAREN)
+          consume(TokenType::RIGHT_PAREN, "Expected ')' after the last value")
+          break
+        end
+
+        if check(TokenType::COMMA) && peek_next.type == TokenType::RIGHT_PAREN
+          advance()
+          consume(TokenType::RIGHT_PAREN, "Expected closing ')'")
+          break
+        else
+          consume(TokenType::COMMA, "Expected ',' after value")
+        end
       end
     end
 

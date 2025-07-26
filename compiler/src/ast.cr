@@ -278,7 +278,7 @@ module AST
 
   class Action < Expr
     property func_name : Token
-    property params : Hash(Token, Token) = {} of Token => Token
+    property params : Hash(Token, Token) = {} of Token => Token # Name: Value
     property name : Token?
 
     def initialize(@func_name, @params, @name)
