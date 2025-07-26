@@ -28,12 +28,6 @@ class SemanticAnalyzer < AST::Visitor(Nil)
     end
   end
 
-  # def visit_menu_stmt(stmt : AST::MenuStatement)
-  #   # Check menu name uniqueness, etc.
-  #   # Check menu body for valid structure
-  #   stmt.body.accept(self)
-  # end
-
   def visit_menu_stmt(stmt : AST::MenuStatement)
     @menu_env.add(stmt.name)
 
@@ -107,6 +101,9 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   end
 
   def visit_option_expr(expr : AST::Option) : Nil
+    if !expr.next_menu.nil?
+      @menu_env.referenced(expr.next_menu.as(Token))
+    end
   end
 
   def visit_action_expr(expr : AST::Action) : Nil
