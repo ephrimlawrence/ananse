@@ -1,4 +1,5 @@
 require "spec"
+require "./grammar.cr"
 require "../src/compiler"
 
 def scan(source : String)
@@ -8,6 +9,11 @@ end
 
 def parse(tokens : Array(Token))
   parser = Parser.new(tokens)
+  parser.parse
+end
+
+def parse(source : String)
+  parser = Parser.new(scan(source))
   parser.parse
 end
 

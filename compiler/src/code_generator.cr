@@ -99,7 +99,7 @@ class CodeGenerator < AST::Visitor(Object)
       s << "const #{var_name} = " << "await " << expr.func_name.value << "({"
       expr.params.each_key do |key|
         s << key.value << ":"
-        s << "await req.session.get('" << expr.params[key].value << "')"
+        s << "await req.session.get('" << expr.params[key].value << "'),"
       end
       s << "});"
 
@@ -183,7 +183,7 @@ class CodeGenerator < AST::Visitor(Object)
       s << "const #{variable_name}: MenuAction[] = [];\n"
       stmts.each do |stmt|
         value = execute(stmt)
-        s << value.gsub(/\sreq\./, " this.request") # replace "req" which is for option closure with "this.request", class variable
+        s << value.gsub(/\sreq\./, " this.request.") # replace "req" which is for option closure with "this.request", class variable
       end
 
       s << closing_brace

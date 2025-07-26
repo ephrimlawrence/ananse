@@ -4,10 +4,14 @@ Compiler:
     ✔ action @done(25-07-08 23:06)
     ☐ string interpolation
     ☐ end
-    ☐ group menu options as one list
+    ☐ replace action keyword with @funcName(''')
+    ✔ group menu options as one list @done(25-07-26 14:22)
 
   ☐ semantic analysis
-    ☐ 'action' with input & display; without any option
+    ✔ 'action' with input & display; without any option @done(25-07-26 14:22)
+    ☐ call to nested menus
+    ☐ action variable resolution
+    ☐ input variable resolution
 
 Pending features:
   ☐ input validation error display

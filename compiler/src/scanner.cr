@@ -22,7 +22,7 @@ module Scanner
       "display" => TokenType::DISPLAY,
       "option"  => TokenType::OPTION,
       "input"   => TokenType::INPUT,
-      "action"  => TokenType::ACTION,
+      "@"       => TokenType::ACTION,
       "with"    => TokenType::WITH,
       "as"      => TokenType::AS,
       "if"      => TokenType::IF,
@@ -120,6 +120,13 @@ module Scanner
         end
       when '"'
         read_string()
+      when '@'
+        if !peek.ascii_alphanumeric?
+          raise CompilerError.new(get_location, "Expected an Typescript function name after '@'")
+        end
+
+        @start += 1 # skip including '@' in token value
+        read_identifier(TokenType::ACTION)
       when .ascii_number?
         read_number
       when .ascii_letter?
@@ -129,13 +136,17 @@ module Scanner
       end
     end
 
-    private def read_identifier
+    private def read_identifier(token_type : TokenType? = nil)
       while peek.ascii_alphanumeric? || peek == '_'
         advance()
       end
 
       text : String = @source[@start...@current]
-      add_token(KEYWORDS.fetch(text, TokenType::IDENTIFIER), text)
+      if token_type.nil?
+        add_token(KEYWORDS.fetch(text, TokenType::IDENTIFIER), text)
+      else
+        add_token(token_type, text)
+      end
     end
 
     private def read_number

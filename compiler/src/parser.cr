@@ -161,18 +161,33 @@ class Parser
   end
 
   private def action : AST::Action
-    func_name = consume(TokenType::IDENTIFIER, "Expected js function name after 'action'")
-    params : Hash(Token, Token) = {} of Token => Token
+    func_name = previous
 
     consume(TokenType::LEFT_PAREN, "Expected '(' after function name")
-    while !match(TokenType::RIGHT_PAREN) && !is_at_end?
-      param_name = consume(TokenType::IDENTIFIER, "Expected param name")
-      consume(TokenType::COLON, "Expected ':' after param name")
-      name = consume(TokenType::IDENTIFIER, "Expected name after param")
 
-      params[param_name] = name
+    params : Hash(Token, Token) = {} of Token => Token
+    while !check(TokenType::RIGHT_PAREN) && !is_at_end?
+      param_name = consume(TokenType::IDENTIFIER, "Expected parameter name")
+      consume(TokenType::COLON, "Expected ':' after parameter name")
+      value = consume(TokenType::IDENTIFIER, "Expected name after parameter")
+      params[param_name] = value
+
+      # ',' is required after value but optional right before ')' eg. ',)'
+      if peek.type == TokenType::RIGHT_PAREN
+        consume(TokenType::RIGHT_PAREN, "Expected ')' after the last value")
+        break
+      end
+
+      if peek.type == TokenType::COMMA && peek_next.type == TokenType::RIGHT_PAREN
+        advance()
+        consume(TokenType::RIGHT_PAREN, "Expected closing ')'")
+        break
+      else
+        consume(TokenType::COMMA, "Expected ',' after value")
+      end
     end
 
+    # puts peek
     variable_name : Token? = nil
 
     if match(TokenType::AS)
@@ -425,6 +440,13 @@ class Parser
 
   private def peek : Token
     tokens[@current]
+  end
+
+  private def peek_next : Token
+    if !is_at_end?
+      return @tokens[@current + 1]
+    end
+    return peek
   end
 
   private def previous : Token
