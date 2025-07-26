@@ -42,7 +42,7 @@ describe SemanticAnalyzer do
     analyze(source).should eq(true)
   end
 
-    it "rejects invalid menu definition" do
+  it "rejects a menu with both option and input" do
     source = <<-USSD
       start menu welcome {
         display "Hello World"
@@ -56,6 +56,9 @@ describe SemanticAnalyzer do
       analyze(source)
     end
   end
+
+  # TODO: unused menu test
+  # TODO: unreferenced menu test
 
   # it "rejects a menu with both option and input" do
   #   source = <<-USSD
