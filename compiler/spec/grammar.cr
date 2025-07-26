@@ -1,15 +1,15 @@
 struct Grammar
   # <action_stmt>	::= "@" <identifier> "(" (<identifier> ":" <identifier> ",")* ")" ( "as" <identifier>)?
-  def self.action(with_params : Bool = true) : String
-    if with_params
-      return "@jsFunctionName(param1: 2, param2: value2, param3: \"string\")"
+  def self.action(with_params : Bool = true, with_name : Bool = true) : String
+    str : String = "@jsFunctionName(param1: 2, param2: value2, param3: \"string\")"
+    if !with_params
+      str = "@jsFunctionName()"
     end
 
-    return "@jsFunctionName()"
-    # if with_params
-    #   return "@jsFunctionName(param1: value1, param2: value3, param4: value5)"
-    # end
+    if with_name
+      return "#{str} as variableName"
+    end
 
-    # return "@jsFunctionName()"
+    return str
   end
 end
