@@ -153,7 +153,16 @@ class CodeGenerator < AST::Visitor(Object)
   # Generates menu class definition code stub
   def visit_menu_stmt(stmt : AST::MenuStatement) : String
     class_name = "Menu_#{Util.generate_identifier_name(stmt.name.value)}".camelcase
-    return "export class #{class_name} extends BaseMenu #{opening_brace}"
+    code = "export class #{class_name} extends BaseMenu #{opening_brace}"
+    if !stmt.start.nil?
+      code = <<-JS
+        #{code}
+        isStart(): Promise<boolean> | boolean {
+          return true;
+        }
+      JS
+    end
+    return code
   end
 
   def visit_block_stmt(block : AST::BlockStatement) : String

@@ -62,22 +62,22 @@ class RuntimeErr < Exception
   end
 end
 
-class ParseError < Exception
-  property token : Token
+# class ParseError < Exception
+#   property token : Token
 
-  def backtrace?
-    false
-  end
+#   def backtrace?
+#     false
+#   end
 
-  def backtrace?
-    [] of String
-  end
+#   def backtrace?
+#     [] of String
+#   end
 
-  def initialize(message : String, @token : Token)
-    super(message)
-  end
+#   def initialize(message : String, @token : Token)
+#     super(message)
+#   end
 
-  def to_s(io : IO)
-    io << "Parse Error at #{@token.location.line}:#{@token.location.column}: #{message}"
-  end
-end
+#   def to_s(io : IO)
+#     io << "Parse Error at #{@token.location.line}:#{@token.location.column}: #{message}"
+#   end
+# end

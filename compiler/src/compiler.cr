@@ -45,7 +45,6 @@ module Compiler
       transformed_ast = AstTransformer.new(program).transform
       code = CodeGenerator.new.generate(transformed_ast)
       STDOUT.puts code
-      # raise CompilerError.new("message")
     rescue err
       STDERR.puts err.message
     end

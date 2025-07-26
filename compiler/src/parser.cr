@@ -374,7 +374,7 @@ class Parser
   #   end
   # end
 
-  private def consume(type : TokenType, message : String) : Token | ParseError
+  private def consume(type : TokenType, message : String) : Token
     if check(type)
       return advance
     end
@@ -383,7 +383,6 @@ class Parser
   end
 
   private def error(token : Token, message : String) : Token
-    puts message
     raise CompilerError.new(message, token)
   end
 
