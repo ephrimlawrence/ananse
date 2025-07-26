@@ -18,7 +18,7 @@ class Environment
 end
 
 class MenuEnvironment
-  property names : Hash(String, Bool) = {} of String => Bool
+  property names : Hash(String, Token) = {} of String => Token
 
   # Tracks calls to menu definitions
   # {menu_name: (number_of_calls, token)}
@@ -32,10 +32,10 @@ class MenuEnvironment
     name : String = menu.value
 
     if @names.has_key?(name)
-      raise RuntimeErr.new("Duplicate menu definitions! Menu '#{name}' is already defined", menu)
+      raise RuntimeErr.new("Duplicate menu definitions! Menu '#{name}' is already defined on #{@names[name].location.to_s}", menu)
     end
 
-    @names[name] = true
+    @names[name] = menu
     @references[name] = {0, menu}
   end
 
@@ -50,10 +50,6 @@ class MenuEnvironment
   end
 
   def get(name : Token) : Bool
-    if @names.has_key?(name.value)
-      return @names[name.value]
-    end
-
-    return false
+    return @names.has_key?(name.value)
   end
 end
