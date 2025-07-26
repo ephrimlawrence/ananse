@@ -49,18 +49,18 @@ class CompilerError < Exception
   end
 end
 
-class RuntimeErr < Exception
-  property token : Token
+# class RuntimeErr < Exception
+#   property token : Token
 
-  def initialize(message : String, @token : Token)
-    puts "Error at #{@token.location.line}:#{@token.location.column}: #{message}"
-    exit 1
-  end
+#   def initialize(message : String, @token : Token)
+#     puts "Error at #{@token.location.line}:#{@token.location.column}: #{message}"
+#     exit 1
+#   end
 
-  def to_s(io : IO)
-    io << "Error at #{@token.location.line}:#{@token.location.column}: #{message}"
-  end
-end
+#   def to_s(io : IO)
+#     io << "Error at #{@token.location.line}:#{@token.location.column}: #{message}"
+#   end
+# end
 
 # class ParseError < Exception
 #   property token : Token

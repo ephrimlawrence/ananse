@@ -13,7 +13,7 @@ class Environment
       return @values[name.value]
     end
 
-    raise RuntimeErr.new("Undefined variable '#{name.value}'", name)
+    raise CompilerError.new("Undefined variable '#{name.value}'", name)
   end
 end
 
@@ -24,15 +24,13 @@ class MenuEnvironment
   # {menu_name: (number_of_calls, token)}
   property references : Hash(String, Tuple(Int32, Token)) = {} of String => Tuple(Int32, Token)
 
-  # TODO: track menu calls (name, [tokens]) for verification
-
   # Adds a menu name to the env
   # Value is `True`, if the a definition exists for the menu
   def add(menu : Token)
     name : String = menu.value
 
     if @names.has_key?(name)
-      raise RuntimeErr.new("Duplicate menu definitions! Menu '#{name}' is already defined on #{@names[name].location.to_s}", menu)
+      raise CompilerError.new("Duplicate menu definitions! Menu '#{name}' is already defined on #{@names[name].location.to_s}", menu)
     end
 
     @names[name] = menu

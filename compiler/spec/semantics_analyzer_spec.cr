@@ -1,9 +1,21 @@
 require "./spec_helper"
 
 describe SemanticAnalyzer do
-  it "accepts a valid menu" do
+  it "rejects program without a start menu" do
     source = <<-USSD
       menu welcome {
+        display "Hello World"
+      }
+    USSD
+
+    expect_raises(CompilerError, "No start menu defined") do
+      analyze(source)
+    end
+  end
+
+  it "accepts a program with a start menu" do
+    source = <<-USSD
+      start menu welcome {
         display "Hello World"
       }
     USSD

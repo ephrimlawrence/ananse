@@ -14,17 +14,21 @@ class SemanticAnalyzer < AST::Visitor(Nil)
       stmt.accept(self)
     end
 
+    if !@is_start_menu_defined
+      raise CompilerError.new("No start menu defined")
+    end
+
     # Report unused menu definitions
     @menu_env.references.each do |name, (count, token)|
       if count == 0
-        raise RuntimeErr.new("Menu '#{name}' is defined but never used", token)
+        raise CompilerError.new("Menu '#{name}' is defined but never used", token)
       end
     end
 
     # Report referenced but undefined menus
     @menu_env.references.each do |name, (count, token)|
       if count > 0 && !@menu_env.get(token)
-        raise RuntimeErr.new("Menu '#{name}' is referenced but not defined", token)
+        raise CompilerError.new("Menu '#{name}' is referenced but not defined", token)
       end
     end
 
@@ -65,13 +69,13 @@ class SemanticAnalyzer < AST::Visitor(Nil)
 
       if has_option_stmt
         if s.is_a?(AST::InputStatement) || s.is_a?(AST::GotoStatement) || s.is_a?(AST::ActionStatement)
-          raise RuntimeErr.new(msg, stmt.name)
+          raise CompilerError.new(msg, stmt.name)
         end
       end
 
       if has_input_stmt
         if s.is_a?(AST::OptionStatement)
-          raise RuntimeErr.new(msg, stmt.name)
+          raise CompilerError.new(msg, stmt.name)
         end
       end
     end

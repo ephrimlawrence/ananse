@@ -11,7 +11,7 @@ def parse(tokens : Array(Token))
   parser.parse
 end
 
-def analyze(ast : Array(AST::Stmt))
+def analyze(ast : Array(AST::Stmt)) : Bool
   analyzer = SemanticAnalyzer.new(ast)
   analyzer.analyze
 end
