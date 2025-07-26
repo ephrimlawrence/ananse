@@ -22,6 +22,41 @@ describe SemanticAnalyzer do
     analyze(source).should eq(true)
   end
 
+  it "accepts a valid menu definition (input)" do
+    source = <<-USSD
+      start menu user_age {
+        display "Enter age"
+        input age
+      }
+    USSD
+    analyze(source).should eq(true)
+  end
+  it "accepts a valid menu definition (option)" do
+    source = <<-USSD
+      start menu user_age {
+        display "Enter age"
+        option 1 "Option 1"
+        option 1 "Option 2"
+      }
+    USSD
+    analyze(source).should eq(true)
+  end
+
+    it "rejects invalid menu definition" do
+    source = <<-USSD
+      start menu welcome {
+        display "Hello World"
+        option 1 "Option 1"
+        option 1 "Option 2"
+        input age
+      }
+    USSD
+
+    expect_raises(CompilerError, /invalid structure/) do
+      analyze(source)
+    end
+  end
+
   # it "rejects a menu with both option and input" do
   #   source = <<-USSD
   #     menu bad {
