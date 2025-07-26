@@ -94,16 +94,24 @@ class CodeGenerator < AST::Visitor(Object)
 
   def visit_action_expr(expr : AST::Action) : String
     code = String.build do |s|
-      var_name = Util.generate_identifier_name
-
-      s << "const #{var_name} = " << "await " << expr.func_name.value << "({"
+      s << "await " << expr.func_name.value << "({"
       expr.params.each_key do |key|
         s << key.value << ":"
-        s << "await req.session.get('" << expr.params[key].value << "'),"
+
+        param : Token = expr.params[key]
+        if param.type == TokenType::IDENTIFIER
+          s << "await req.session.get('" << param.value << "'),"
+        else
+          s << param.value << ","
+        end
       end
       s << "});"
 
-      s << "await req.session.set('#{var_name}', #{var_name});"
+      if expr.name != nil
+        var_name = Util.generate_identifier_name
+        s << "const #{var_name} = " << s
+        s << "await req.session.set('#{var_name}', #{var_name});"
+      end
     end
 
     return code.to_s
