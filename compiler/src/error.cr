@@ -1,37 +1,35 @@
 class CompilerError < Exception
-  property token : Token? = nil
-
   def initialize(message : String)
     super(message)
   end
 
   def initialize(message : String, token : Token)
-    super("Error at #{token.location.line}:#{token.location.column}: #{message}")
+    puts "here", message
+    if (token.type == TokenType::EOF)
+      super report(token.location, " at end", message)
+    else
+      super report(token.location, " at '" + token.value + "'", message)
+    end
   end
 
   def initialize(location : Location, message : String)
     super("Error at #{location.line}:#{location.column}: #{message}")
   end
 
-  def self.error(location : Location, message : String)
-    report(location, "", message)
+  def initialize(location : Location, message : String)
+    super report(location, "", message)
   end
 
-  def self.error(token : Token, message : String)
-    if (token.type == TokenType::EOF)
-      report(token.location, " at end", message)
-    else
-      report(token.location, " at '" + token.value + "'", message)
-    end
-  end
+  # def self.error(token : Token, message : String)
+  # end
 
-  def self.error(message : String)
-    if (token.type == TokenType::EOF)
-      report(token.location, " at end", message)
-    else
-      report(token.location, " at '" + token.value + "'", message)
-    end
-  end
+  # def self.error(message : String)
+  #   if (token.type == TokenType::EOF)
+  #     report(token.location, " at end", message)
+  #   else
+  #     report(token.location, " at '" + token.value + "'", message)
+  #   end
+  # end
 
   # runtimeError(RuntimeError error) {
   #   System.err.println(error.getMessage() +
@@ -39,8 +37,8 @@ class CompilerError < Exception
   #   hadRuntimeError = true;
   # }
 
-  def self.report(location : Location, where : String, message : String)
-    puts "[line #{location.line}:#{location.column}] Error #{where} : #{message}"
+  private def report(location : Location, where : String, message : String)
+    return "[line #{location.line}:#{location.column}] Error #{where} : #{message}"
   end
 
   def backtrace?
@@ -49,10 +47,6 @@ class CompilerError < Exception
 
   def backtrace?
     [] of String
-  end
-
-  def to_s(io : IO)
-    io << "Parse Error at "
   end
 end
 
