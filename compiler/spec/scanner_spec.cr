@@ -9,17 +9,35 @@ describe Scanner do
     it "action with params" do
       tokens = scan(Grammar.action)
       tokens.is_a?(Array(Token)).should eq(true)
-      tokens.size.should eq(15)
+      tokens.size.should eq(17)
     end
 
     it "action with params and a trailing comma before closing bracket" do
       tokens = scan(Grammar.action.gsub(")", ",)"))
       tokens.is_a?(Array(Token)).should eq(true)
-      tokens.size.should eq(16)
+      tokens.size.should eq(18)
     end
 
     it "action without params" do
       tokens = scan(Grammar.action(false))
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(6)
+    end
+
+    it "action with params and without variable name" do
+      tokens = scan(Grammar.action(with_name: false))
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(15)
+    end
+
+    it "action with params and a trailing comma before closing bracket,  and without variable name" do
+      tokens = scan(Grammar.action(with_name: false).gsub(")", ",)"))
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(16)
+    end
+
+    it "action without params,  and without variable name" do
+      tokens = scan(Grammar.action(with_params: false, with_name: false))
       tokens.is_a?(Array(Token)).should eq(true)
       tokens.size.should eq(4)
     end
