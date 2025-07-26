@@ -125,7 +125,7 @@ module Scanner
       when .ascii_letter?
         read_identifier
       else
-        CompilerError.new.error(get_location, "Unexpected character.")
+        raise CompilerError.new(get_location, "Unexpected character.")
       end
     end
 
@@ -163,8 +163,7 @@ module Scanner
       end
 
       if is_at_end?
-        CompilerError.new.error(get_location, "Unterminated string.")
-        return
+        raise CompilerError.new(get_location, "Unterminated string.")
       end
 
       # The closing ".

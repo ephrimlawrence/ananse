@@ -1,6 +1,7 @@
 # TODO: Write documentation for `Compiler`
 require "./scanner.cr"
 require "./parser.cr"
+require "./error.cr"
 # require "./ast_printer.cr"
 require "./code_generator.cr"
 require "./ast.cr"
@@ -33,12 +34,17 @@ module Compiler
     # puts program
     # puts AstPrinter.new.print(expression)
 
-    analyzer : SemanticAnalyzer = SemanticAnalyzer.new(program)
-    analyzer.analyze()
+    begin
+      analyzer : SemanticAnalyzer = SemanticAnalyzer.new(program)
+      analyzer.analyze
 
-    transformed_ast = AstTransformer.new(program).transform
-    code = CodeGenerator.new.generate(transformed_ast)
-    # puts code
+      transformed_ast = AstTransformer.new(program).transform
+      code = CodeGenerator.new.generate(transformed_ast)
+      puts code
+      raise CompilerError.new("message")
+    rescue err
+      puts err.message
+    end
     # code_gen.generate(expression.as(Expression::Expr))
 
     # puts scanner.scan_tokens

@@ -373,8 +373,8 @@ class Parser
   end
 
   private def error(token : Token, message : String) : Token
-    CompilerError.new.error(token, message)
-    raise ParseError.new(message, token)
+    raise CompilerError.new(message, token)
+    # raise ParseError.new(message, token)
   end
 
   private def match(*types : TokenType) : Bool
@@ -420,17 +420,5 @@ class Parser
 
   private def previous : Token
     tokens[@current - 1]
-  end
-end
-
-class ParseError < Exception
-  property token : Token
-
-  def initialize(message : String, @token : Token)
-    super(message)
-  end
-
-  def to_s(io : IO)
-    io << "Parse Error at #{@token.location.line}:#{@token.location.column}: #{message}"
   end
 end
