@@ -57,7 +57,7 @@ describe Parser do
     end
 
     it "reject action without an closing ')'" do
-      expect_raises(CompilerError, /Expected '\(' after/) do
+      expect_raises(CompilerError, /Expected closing '\)'/) do
         stmts = parse("@someFunctionName(")
         puts stmts
       end

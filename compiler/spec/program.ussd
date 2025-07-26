@@ -1,25 +1,9 @@
-menu welcome {
-    display "Enter first name"
-    input first_name
-    goto products
-        if(action_variable == 3){
-    action wemove(para: SFSDF) as action_variable
-        } else {
-    action different(para: SFSDF) as action_variable
+start menu welcome {
+    display "Welcome to Ananse USSD"
+    input products
+    @jsFunctionName(param1: value1, param2: value3, param4: value5,)
 
-        }
-
-    menu submenu {
-        if(action_variable == 3){
-            display "Enter first name"
-        option 2 "second choice" action wemove(para: SFSDF) as action_variable
-        } else {
-            display "dsfsf"
-        option 1 "First choice" -> next_menu
-        end
-        }
-
-        input first_name
-        goto products
+    start menu welcome3 {
+        option 1 "sfsdf"
     }
 }

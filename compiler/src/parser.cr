@@ -177,19 +177,17 @@ class Parser
         params[param_name] = value
 
         # ',' is required after value but optional right before ')' eg. ',)'
-        if check(TokenType::RIGHT_PAREN)
-          consume(TokenType::RIGHT_PAREN, "Expected ')' after the last value")
+        if check(TokenType::EOF) || check(TokenType::RIGHT_PAREN)
           break
         end
 
         if check(TokenType::COMMA) && peek_next.type == TokenType::RIGHT_PAREN
           advance()
-          consume(TokenType::RIGHT_PAREN, "Expected closing ')'")
-          break
         else
           consume(TokenType::COMMA, "Expected ',' after value")
         end
       end
+      consume(TokenType::RIGHT_PAREN, "Expected closing ')'")
     end
 
     # puts peek
