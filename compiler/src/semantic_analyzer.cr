@@ -8,7 +8,7 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   def initialize(@statements)
   end
 
-  def analyze
+  def analyze : Bool
     @statements.each do |stmt|
       stmt.accept(self)
     end
@@ -26,6 +26,8 @@ class SemanticAnalyzer < AST::Visitor(Nil)
         raise RuntimeErr.new("Menu '#{name}' is referenced but not defined", token)
       end
     end
+
+    true
   end
 
   def visit_menu_stmt(stmt : AST::MenuStatement)
