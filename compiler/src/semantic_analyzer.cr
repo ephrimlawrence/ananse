@@ -13,8 +13,19 @@ class SemanticAnalyzer < AST::Visitor(Nil)
       stmt.accept(self)
     end
 
-    # TODO: 1. check menu with 'false' values and return errors
-    # errors.empty?
+    # Report unused menu definitions
+    @menu_env.references.each do |name, (count, token)|
+      if count == 0
+        raise RuntimeErr.new("Menu '#{name}' is defined but never used", token)
+      end
+    end
+
+    # Report referenced but undefined menus
+    @menu_env.references.each do |name, (count, token)|
+      if count > 0 && !@menu_env.get(token)
+        raise RuntimeErr.new("Menu '#{name}' is referenced but not defined", token)
+      end
+    end
   end
 
   # def visit_menu_stmt(stmt : AST::MenuStatement)
@@ -24,7 +35,7 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   # end
 
   def visit_menu_stmt(stmt : AST::MenuStatement)
-    menu_env.define(stmt.name.value, true)
+    @menu_env.add(stmt.name)
 
     statements = stmt.body.statements
     if !is_menu_structure_valid?(statements)
@@ -56,7 +67,7 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   end
 
   def visit_goto_stmt(stmt : AST::GotoStatement)
-    # Check input variable validity
+    @menu_env.referenced(stmt.menu)
   end
 
   def visit_action_stmt(stmt : AST::ActionStatement)

@@ -152,17 +152,8 @@ class CodeGenerator < AST::Visitor(Object)
 
   # Generates menu class definition code stub
   def visit_menu_stmt(stmt : AST::MenuStatement) : String
-    # @menus_environment.define(stmt.name.value, true)
-
     class_name = "Menu_#{Util.generate_identifier_name(stmt.name.value)}".camelcase
-    # code = String.build do |s|
     return "export class #{class_name} extends BaseMenu #{opening_brace}"
-    # s << "\n\nMenuRouter.menu('#{stmt.name.value}')"
-    # s << execute(stmt.body)
-    #   s << "}"
-    # end
-
-    # return code.to_s
   end
 
   def visit_block_stmt(block : AST::BlockStatement) : String
