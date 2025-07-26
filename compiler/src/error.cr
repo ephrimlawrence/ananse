@@ -4,7 +4,6 @@ class CompilerError < Exception
   end
 
   def initialize(message : String, token : Token)
-    puts "here", message
     if (token.type == TokenType::EOF)
       super report(token.location, " at end", message)
     else

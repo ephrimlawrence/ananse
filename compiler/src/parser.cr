@@ -25,20 +25,24 @@ class Parser
   end
 
   private def declaration : AST::Stmt?
-    begin
-      if match(TokenType::VAR)
-        return var_declaration()
-      end
-      return statement()
-    rescue exception
-      synchronize()
-      return nil
+    # begin
+    if match(TokenType::VAR)
+      return var_declaration()
     end
+    return statement()
+    # rescue exception
+    #   synchronize()
+    #   return nil
+    # end
   end
 
   private def statement : AST::Stmt
     if match(TokenType::IF)
       return if_statement()
+    end
+
+    if match(TokenType::START)
+      return menu_statement(true)
     end
 
     if match(TokenType::MENU)
@@ -93,12 +97,18 @@ class Parser
   end
 
   # Parse menu statement
-  private def menu_statement : AST::MenuStatement
+  private def menu_statement(is_start_menu : Bool = false) : AST::MenuStatement
+    start : Token? = nil
+    if is_start_menu
+      start = previous
+      consume(TokenType::MENU, "Expected 'menu' after 'start'")
+    end
+
     menu_name : Token = consume(TokenType::IDENTIFIER, "Expected name after 'menu'")
 
     consume(TokenType::LEFT_BRACE, "Expected '{' after menu name")
 
-    return AST::MenuStatement.new(menu_name, block_statements)
+    return AST::MenuStatement.new(menu_name, block_statements, start)
   end
 
   # Parse block statements
@@ -333,36 +343,36 @@ class Parser
     raise error(peek, "Expect expression.")
   end
 
-  private def synchronize
-    advance
+  # private def synchronize
+  #   advance
 
-    while !is_at_end?
-      if previous.type == TokenType::SEMICOLON
-        return
-      end
+  #   while !is_at_end?
+  #     if previous.type == TokenType::SEMICOLON
+  #       return
+  #     end
 
-      case peek.type
-      when TokenType::MENU
-      when TokenType::DISPLAY
-      when TokenType::OPTION
-      when TokenType::INPUT
-      when TokenType::ACTION
-      when TokenType::WITH
-      when TokenType::AS
-        # TODO: add other keywords
-        # when FUN:
-        # when VAR:
-        # when FOR:
-        # when IF:
-        # when WHILE:
-        # when PRINT:
-        # when RETURN:
-        #     return;
-      end
+  #     case peek.type
+  #     when TokenType::MENU
+  #     when TokenType::DISPLAY
+  #     when TokenType::OPTION
+  #     when TokenType::INPUT
+  #     when TokenType::ACTION
+  #     when TokenType::WITH
+  #     when TokenType::AS
+  #       # TODO: add other keywords
+  #       # when FUN:
+  #       # when VAR:
+  #       # when FOR:
+  #       # when IF:
+  #       # when WHILE:
+  #       # when PRINT:
+  #       # when RETURN:
+  #       #     return;
+  #     end
 
-      advance
-    end
-  end
+  #     advance
+  #   end
+  # end
 
   private def consume(type : TokenType, message : String) : Token | ParseError
     if check(type)
@@ -373,8 +383,8 @@ class Parser
   end
 
   private def error(token : Token, message : String) : Token
+    puts message
     raise CompilerError.new(message, token)
-    # raise ParseError.new(message, token)
   end
 
   private def match(*types : TokenType) : Bool

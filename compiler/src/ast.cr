@@ -105,14 +105,19 @@ module AST
 
   class MenuStatement < Stmt
     # TODO: track if it a start menu
+    property start : Token?
     property name : Token
     property body : BlockStatement
 
-    def initialize(@name, @body)
+    def initialize(@name, @body, @start)
     end
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_menu_stmt(self)
+    end
+
+    def start?
+      !@start.nil?
     end
   end
 

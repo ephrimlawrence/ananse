@@ -39,7 +39,6 @@ module Compiler
       parser : Parser = Parser.new(scanner.scan_tokens)
       program : Array(AST::Stmt) = parser.parse
 
-      p! program
       analyzer : SemanticAnalyzer = SemanticAnalyzer.new(program)
       analyzer.analyze
 

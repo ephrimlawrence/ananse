@@ -4,6 +4,7 @@ require "./environment.cr"
 class SemanticAnalyzer < AST::Visitor(Nil)
   property statements : Array(AST::Stmt) = [] of AST::Stmt
   property menu_env : MenuEnvironment = MenuEnvironment.new
+  property is_start_menu_defined : Bool = false
 
   def initialize(@statements)
   end
@@ -32,6 +33,17 @@ class SemanticAnalyzer < AST::Visitor(Nil)
 
   def visit_menu_stmt(stmt : AST::MenuStatement)
     @menu_env.add(stmt.name)
+
+    if @is_start_menu_defined && stmt.start?
+      raise CompilerError.new("Start menu is already defined", stmt.name)
+    end
+
+    if stmt.start?
+      # The start menu is marked as referenced
+      # since it is the first menu called in the runtime by default
+      @menu_env.referenced(stmt.name)
+      @is_start_menu_defined = true
+    end
 
     statements = stmt.body.statements
 
