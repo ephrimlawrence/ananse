@@ -92,8 +92,8 @@ module AST
 
   class IfStatement < Stmt
     property condition : Expr
-    property then_branch : Stmt
-    property else_branch : Stmt?
+    property then_branch : BlockStatement
+    property else_branch : BlockStatement?
 
     def initialize(@condition, @then_branch, @else_branch)
     end

@@ -86,11 +86,11 @@ class Parser
     condition : AST::Expr = expression()
     consume(TokenType::RIGHT_PAREN, "Expect ')' after if condition.")
 
-    thenBranch : AST::Stmt = statement()
-    elseBranch : AST::Stmt? = nil
+    thenBranch : AST::BlockStatement = statement().as(AST::BlockStatement)
+    elseBranch : AST::BlockStatement? = nil
 
     if match(TokenType::ELSE)
-      elseBranch = statement()
+      elseBranch = statement().as(AST::BlockStatement)
     end
 
     return AST::IfStatement.new(condition, thenBranch, elseBranch)

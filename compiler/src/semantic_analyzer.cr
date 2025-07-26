@@ -5,6 +5,7 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   property statements : Array(AST::Stmt) = [] of AST::Stmt
   property menu_env : MenuEnvironment = MenuEnvironment.new
   property is_start_menu_defined : Bool = false
+  property is_evaluating_if_stmt : Bool = false
 
   def initialize(@statements)
   end
@@ -78,16 +79,29 @@ class SemanticAnalyzer < AST::Visitor(Nil)
           raise CompilerError.new(msg, stmt.name)
         end
       end
-    end
 
-    stmt.body.accept(self)
+      if s.is_a?(AST::IfStatement)
+        @is_evaluating_if_stmt = true
+        execute(s)
+        @is_evaluating_if_stmt = false
+      end
+    end
   end
 
   def visit_if_stmt(stmt : AST::IfStatement)
+    execute(stmt.then_branch)
+
+    if !stmt.else_branch.nil?
+      execute(stmt.else_branch.as(AST::BlockStatement))
+    end
   end
 
   def visit_block_stmt(block : AST::BlockStatement)
-    block.statements.each { |stmt| stmt.accept(self) }
+    block.statements.each do |stmt|
+      if stmt.is_a?(AST::IfStatement) && @is_evaluating_if_stmt
+        raise CompilerError.new("Nested if statement is not allowed")
+      end
+    end
   end
 
   def visit_display_stmt(stmt : AST::DisplayStatement)
@@ -149,5 +163,9 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   end
 
   def visit_action_expr(expr : AST::Action) : Nil
+  end
+
+  private def execute(stmt : AST::Stmt)
+    stmt.accept(self)
   end
 end
