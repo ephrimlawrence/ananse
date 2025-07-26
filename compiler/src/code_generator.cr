@@ -10,28 +10,22 @@ class CodeGenerator < AST::Visitor(Object)
   alias ExpressionType = String | Int32 | Float64 | Bool | AST::Expr | Nil
 
   def generate(ast : TransformedAST) : String?
-    begin
-      # stmt_instance = StatementGenerator.new
-      typescript = String.build do |s|
-        ast.menu_definitions.each do |definition|
-          menu : AST::MenuStatement = definition["menu"].first.as(AST::MenuStatement)
-          stmts : Hash(String, Array(AST::Stmt)) = definition
-          s << execute(menu)
-          s << generate_input_function(menu.name.value, definition["input"])
-          s << generate_display_function(menu.name.value, definition["display"])
-          s << generate_options_code(definition["option"])
-          s << generate_action_function(definition["action"])
-          s << generate_goto_function(menu.name.value, definition["goto"])
-          # message() code generation
-          s << "}\n"
-        end
+    typescript = String.build do |s|
+      ast.menu_definitions.each do |definition|
+        menu : AST::MenuStatement = definition["menu"].first.as(AST::MenuStatement)
+        stmts : Hash(String, Array(AST::Stmt)) = definition
+        s << execute(menu)
+        s << generate_input_function(menu.name.value, definition["input"])
+        s << generate_display_function(menu.name.value, definition["display"])
+        s << generate_options_code(definition["option"])
+        s << generate_action_function(definition["action"])
+        s << generate_goto_function(menu.name.value, definition["goto"])
+        # message() code generation
+        s << "}\n"
       end
-
-      puts typescript
-      return typescript.to_s
-    rescue error
-      puts error
     end
+
+    return typescript.to_s
   end
 
   def visit_literal_expr(expr : AST::Literal) : String

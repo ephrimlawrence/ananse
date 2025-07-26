@@ -31,6 +31,7 @@ describe SemanticAnalyzer do
     USSD
     analyze(source).should eq(true)
   end
+
   it "accepts a valid menu definition (option)" do
     source = <<-USSD
       start menu user_age {
@@ -95,6 +96,23 @@ describe SemanticAnalyzer do
     expect_raises(CompilerError, /Nested if statement is not allowed/) do
       analyze(source)
     end
+  end
+
+  it "accepts if statement with no nested ifs" do
+    source = <<-USSD
+      start menu welcome {
+        display "Hello World"
+        option 1 "Option 1"
+
+        if (age == 1){
+          option 2 "Option 2"
+        } else {
+          option 3 "Option 3"
+        }
+      }
+    USSD
+
+    analyze(source).should eq(true)
   end
 
   # TODO: unused menu test

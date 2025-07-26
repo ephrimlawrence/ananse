@@ -37,6 +37,7 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   end
 
   def visit_menu_stmt(stmt : AST::MenuStatement)
+    # TODO: implement reference to nested menus
     @menu_env.add(stmt.name)
 
     if @is_start_menu_defined && stmt.start?

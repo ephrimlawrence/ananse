@@ -18,7 +18,7 @@ class AstTransformer < AST::Visitor(Nil)
 
     # TODO: 1. check menu with 'false' values and return errors
     # errors.empty?
-    puts @if_stmts.size
+    # puts @if_stmts.size
 
     @transformed_ast
   end
@@ -75,9 +75,11 @@ class AstTransformer < AST::Visitor(Nil)
         #   grouped_stmt["for_each"] << stmt
         # when EndStatement
         #   grouped_stmt["end"] << stmt
+      when AST::MenuStatement
+        visit_menu_stmt(stmt)
       else
         puts "Other Statements #{stmt}"
-        p! stmt
+        # p! stmt
         # grouped_stmt["other"] << stmt
       end
       # end
