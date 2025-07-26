@@ -3,14 +3,20 @@
 ```plaintext
 [start] menu welcome {
   display "Welcome to our service!";
-  option "1. Check Balance" -> check_balance;
-  option "2. Transfer Funds" -> transfer_funds;
+  get date_of_birth
+
+  option 1 "Check Balance" -> sub_2;
+  option 2 "Transfer Funds" -> transfer_funds.stage2;
+
+  option /\d{1,3}/ "sdfsdf" -> testMe()
+  option /\d{1,3}/ "sdfsdf" action testMe()
+
   option "0. Exit" -> exit;
 
-  option "1. Confirm" action "transferLogic.js:initiateTransfer" with {
-    param1 = x, param2 = y
-  };
+  menu sub_2 {
 
+    option "1. {{ welcome.input }}" action initiateTransfer(param1: x, param2: y)
+  }
 }
 
 menu check_balance {
@@ -64,7 +70,11 @@ Yes, absolutely! Allowing users to write action logic in JavaScript within your 
 
 ```plaintext
 menu transfer_funds {
+  if(var == 3){
   display "Enter recipient's account number:";
+  } else {
+    display "sdfsdf"
+  }
   input recipient_account;
   display "Enter amount to transfer:";
   input amount;
@@ -248,15 +258,19 @@ menu "Welcome" {
   // -> as shorthand for goto in options
   option "1. Check Balance" -> check_balance;
   option "2. Transfer Funds" -> transfer_funds;
+  option "2. Transfer Funds" action transfer_funds;
   option "0. Exit" -> exit; // Using 'exit' as a special screen/state
+
+  menu check_balance {
+    action sdfsd(sd:23) ass result
+
+    display "Enter your account number:";
+    input account_number;
+    // goto as explicit statement after input
+    goto process_balance_request; // Go to a processing screen/state
+  }
 }
 
-menu check_balance {
-  display "Enter your account number:";
-  input account_number;
-  // goto as explicit statement after input
-  goto process_balance_request; // Go to a processing screen/state
-}
 
 menu process_balance_request {
   // This screen is primarily for processing before displaying result
@@ -277,13 +291,14 @@ menu process_balance_request {
 ```text
 menu "Welcome" {
   display "Welcome to our service!";
-  option "1. Check Balance" -> check_balance;
-  option "0. End Session" -> goodbye_screen; // Navigates to a screen that terminates
+  option /9988/, "1. Check Balance" -> check_balance;
+  option 0 "End Session" -> goodbye_screen; // Navigates to a screen that terminates
 }
 
 menu goodbye_screen {
   display "Thank you for using our service!";
-  end; // This menu automatically terminates the session after display
+  end ; // This menu automatically terminates the session after display
+  end "message"; // end with a message
   // No options are needed or reachable after 'end;'
 }
 
