@@ -3,7 +3,10 @@ start menu welcome {
     input products
     @jsFunctionName(param1: 2, param2: value3, param4: "string",)
 
-    start menu welcome3 {
-        option 1 "sfsdf"
+    if (33 == 3){
+        display "welcome home"
+    } else {
+    @jsFunctionName(param1: 2, param2: value3, param4: "string",)
     }
+
 }

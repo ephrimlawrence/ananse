@@ -25,67 +25,61 @@ class AstTransformer < AST::Visitor(Nil)
 
   def visit_menu_stmt(stmt : AST::MenuStatement)
     # Group the menu definition by statement types
-    grouped_stmt : Hash(String, Array(AST::Stmt)) = {} of String => Array(AST::Stmt)
-
-    # set default values
-    ["display", "option", "input", "goto", "action", "end", "menu"].each do |type|
-      grouped_stmt[type] = [] of AST::Stmt
-    end
-    # execute(stmt.body)
-
-    stmt.body.statements.each do |stmt|
-      # If the statement is a desugared IfStatement, we group by the type of the
-      # single statement it contains in its 'then_branch'.
-      # if stmt.is_a?(IfStatement) && stmt.then_branch.size == 1
-      #   inner_stmt = stmt.then_branch.first
-      #   case inner_stmt
-      #   when DisplayStatement
-      #     grouped_stmt["display"] << stmt # Group the outer IfStatement
-      #   when OptionStatement
-      #     grouped_stmt["option"] << stmt
-      #   when InputStatement
-      #     grouped_stmt["input"] << stmt
-      #   when GotoStatement
-      #     grouped_stmt["goto"] << stmt
-      #   when ActionCall # Now ActionCall is a Statement
-      #     grouped_stmt["action"] << stmt
-      #   when ForEachStatement
-      #     grouped_stmt["for_each"] << stmt
-      #   when EndStatement
-      #     grouped_stmt["end"] << stmt
-      #   else
-      #     # Fallback for any other statement types, or if inner_stmt is not recognized
-      #     grouped_stmt["other"] << stmt
-      #   end
-      # else
-      # For statements that are not IfStatements (e.g., top-level display, input)
-      case stmt
-      when AST::DisplayStatement
-        grouped_stmt["display"] << stmt
-      when AST::OptionStatement
-        grouped_stmt["option"] << stmt
-      when AST::InputStatement
-        grouped_stmt["input"] << stmt
-      when AST::GotoStatement
-        grouped_stmt["goto"] << stmt
-      when AST::ActionStatement
-        grouped_stmt["action"] << stmt
-        execute(stmt)
-        # when ForEachStatement
-        #   grouped_stmt["for_each"] << stmt
-        # when EndStatement
-        #   grouped_stmt["end"] << stmt
-      when AST::MenuStatement
-        visit_menu_stmt(stmt)
-      else
-        puts "Other Statements #{stmt}"
-        # p! stmt
-        # grouped_stmt["other"] << stmt
-      end
-      # end
-    end
-
+    grouped_stmt : Hash(String, Array(AST::Stmt)) = group_statements(stmt.body)
     grouped_stmt["menu"] = [stmt.as(AST::Stmt)]
+
+    # puts grouped_stmt
+    if grouped_stmt["if"].size > 0
+      grouped_stmt["if"].each do |item|
+        # execute(if_stmt)
+        # TODO: add value back to tree
+        if_stmt : AST::IfStatement = item.as(AST::IfStatement)
+
+        grouped_then = group_statements(if_stmt.then_branch)
+        grouped_else : Hash(String, Array(AST::Stmt)) = {} of String => Array(AST::Stmt)
+
+        if !if_stmt.else_branch.nil?
+          grouped_else = group_statements(if_stmt.else_branch.as(AST::Stmt))
+        end
+
+        # Reconstruct the if statement for each group
+        grouped_then.each do |key, value|
+          if value.size == 0
+            next
+          end
+
+          else_block : Array(AST::Stmt) = [] of AST::Stmt
+          if grouped_else.has_key?(key)
+            else_block = grouped_else[key].clone
+            grouped_else[key] = [] of AST::Stmt
+          end
+
+          reconstructed_if = AST::IfStatement.new(
+            if_stmt.condition,
+            AST::BlockStatement.new(value),
+            AST::BlockStatement.new(else_block),
+          )
+          grouped_stmt[key] << reconstructed_if
+        end
+
+        # Re-create if-condition for statements in the else branch without corresponding
+        # statements in then branch
+        # puts grouped_else
+        grouped_else.each do |key, value|
+          if value.size == 0
+            next
+          end
+
+          reconstructed_if = AST::IfStatement.new(
+            if_stmt.condition,
+            AST::BlockStatement.new([] of AST::Stmt),
+            AST::BlockStatement.new(value),
+          )
+          grouped_stmt[key] << reconstructed_if
+        end
+      end
+    end
+
     @transformed_ast.menu_definitions << grouped_stmt
   end
 
@@ -160,6 +154,75 @@ class AstTransformer < AST::Visitor(Nil)
   end
 
   def visit_action_expr(expr : AST::Action) : Nil
+  end
+
+  # Group list of statements account to statement type
+  private def group_statements(block : AST::BlockStatement) : Hash(String, Array(AST::Stmt))
+    # Group the menu definition by statement types
+    grouped_stmt : Hash(String, Array(AST::Stmt)) = {} of String => Array(AST::Stmt)
+
+    # set default values
+    ["display", "option", "input", "goto", "action", "end", "menu", "if"].each do |type|
+      grouped_stmt[type] = [] of AST::Stmt
+    end
+
+    block.statements.each do |stmt|
+      # If the statement is a desugared IfStatement, we group by the type of the
+      # single statement it contains in its 'then_branch'.
+      # if stmt.is_a?(IfStatement) && stmt.then_branch.size == 1
+      #   inner_stmt = stmt.then_branch.first
+      #   case inner_stmt
+      #   when DisplayStatement
+      #     grouped_stmt["display"] << stmt # Group the outer IfStatement
+      #   when OptionStatement
+      #     grouped_stmt["option"] << stmt
+      #   when InputStatement
+      #     grouped_stmt["input"] << stmt
+      #   when GotoStatement
+      #     grouped_stmt["goto"] << stmt
+      #   when ActionCall # Now ActionCall is a Statement
+      #     grouped_stmt["action"] << stmt
+      #   when ForEachStatement
+      #     grouped_stmt["for_each"] << stmt
+      #   when EndStatement
+      #     grouped_stmt["end"] << stmt
+      #   else
+      #     # Fallback for any other statement types, or if inner_stmt is not recognized
+      #     grouped_stmt["other"] << stmt
+      #   end
+      # else
+      # For statements that are not IfStatements (e.g., top-level display, input)
+      case stmt
+      when AST::DisplayStatement
+        grouped_stmt["display"] << stmt
+      when AST::OptionStatement
+        grouped_stmt["option"] << stmt
+      when AST::InputStatement
+        grouped_stmt["input"] << stmt
+      when AST::GotoStatement
+        grouped_stmt["goto"] << stmt
+      when AST::ActionStatement
+        grouped_stmt["action"] << stmt
+        execute(stmt)
+        # when ForEachStatement
+        #   grouped_stmt["for_each"] << stmt
+        # when EndStatement
+        #   grouped_stmt["end"] << stmt
+      when AST::MenuStatement
+        # TODO: think about how to handle nested menu code generation
+        # TODO: menu name nested to be tracked as well
+        visit_menu_stmt(stmt)
+      when AST::IfStatement
+        grouped_stmt["if"] << stmt
+      else
+        puts "Other Statements #{stmt}"
+        # p! stmt
+        grouped_stmt["other"] << stmt
+      end
+      # end
+    end
+
+    grouped_stmt
   end
 
   private def execute(stmt : AST::Stmt)

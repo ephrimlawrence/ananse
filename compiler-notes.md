@@ -23,7 +23,8 @@ menu check_balance {
   display "Enter your account number:";
   input account_number;
   // Assuming an external function or API call to fetch balance
-  action get_balance with {acct = account_number}; // not clear where the results is saved
+  variable_name = @get_balance(acct: account_number) ;
+  @get_balance(acct: account_number) as variable_name
   display "Your balance is: {{balance}}";
   option "0. Back" goto Welcome;
 }

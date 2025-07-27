@@ -61,6 +61,10 @@ module AST
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_expression_stmt(self)
     end
+
+    def clone
+      ExpressionStmt.new(@expression)
+    end
   end
 
   # @deprecated
@@ -75,6 +79,10 @@ module AST
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_variable_stmt(self)
     end
+
+    def clone
+      VariableStmt.new(@name, @initializer)
+    end
   end
 
   # @deprecated
@@ -88,6 +96,10 @@ module AST
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_print_stmt(self)
     end
+
+    def clone
+      Print.new(@expression)
+    end
   end
 
   class IfStatement < Stmt
@@ -100,6 +112,10 @@ module AST
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_if_stmt(self)
+    end
+
+    def clone
+      IfStatement.new(@condition, @then_branch, @else_branch)
     end
   end
 
@@ -119,6 +135,10 @@ module AST
     def start?
       !@start.nil?
     end
+
+    def clone
+      MenuStatement.new(@name, @body, @start)
+    end
   end
 
   class BlockStatement < Stmt
@@ -129,6 +149,10 @@ module AST
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_block_stmt(self)
+    end
+
+    def clone
+      BlockStatement.new(@statements)
     end
   end
 
@@ -141,6 +165,10 @@ module AST
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_option_stmt(self)
     end
+
+    def clone
+      OptionStatement.new(@group)
+    end
   end
 
   class DisplayStatement < Stmt
@@ -151,6 +179,10 @@ module AST
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_display_stmt(self)
+    end
+
+    def clone
+      DisplayStatement.new(@expression)
     end
   end
 
@@ -163,6 +195,10 @@ module AST
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_input_stmt(self)
     end
+
+    def clone
+      InputStatement.new(@variable)
+    end
   end
 
   class GotoStatement < Stmt
@@ -173,6 +209,10 @@ module AST
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_goto_stmt(self)
+    end
+
+    def clone
+      GotoStatement.new(@menu)
     end
   end
 
@@ -185,6 +225,10 @@ module AST
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_variable_stmt(self)
     end
+
+    def clone
+      VariableStatement.new(@name)
+    end
   end
 
   class ActionStatement < Stmt
@@ -195,6 +239,10 @@ module AST
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_action_stmt(self)
+    end
+
+    def clone
+      ActionStatement.new(@expression)
     end
   end
 
@@ -214,6 +262,10 @@ module AST
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_binary_expr(self)
     end
+
+    def clone
+      Binary.new(@left, @operator, @right)
+    end
   end
 
   class Unary < Expr
@@ -225,6 +277,10 @@ module AST
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_unary_expr(self)
+    end
+
+    def clone
+      Unary.new(@operator, @right)
     end
   end
 
@@ -238,6 +294,10 @@ module AST
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_literal_expr(self)
     end
+
+    def clone
+      Literal.new(@token, @value)
+    end
   end
 
   class Grouping < Expr
@@ -249,6 +309,10 @@ module AST
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_grouping_expr(self)
     end
+
+    def clone
+      Grouping.new(@expression)
+    end
   end
 
   class Variable < Expr
@@ -259,6 +323,10 @@ module AST
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_variable_expr(self)
+    end
+
+    def clone
+      Variable.new(@name)
     end
   end
 
@@ -274,6 +342,10 @@ module AST
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_option_expr(self)
     end
+
+    def clone
+      Option.new(@target, @label, @next_menu, @action)
+    end
   end
 
   class Action < Expr
@@ -286,6 +358,10 @@ module AST
 
     def accept(visitor : Visitor(R)) forall R
       visitor.visit_action_expr(self)
+    end
+
+    def clone
+      Action.new(@func_name, @params, @name)
     end
   end
 end
