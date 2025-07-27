@@ -15,6 +15,9 @@ class CodeGenerator < AST::Visitor(Object)
 
   def generate(ast : TransformedAST) : String?
     typescript = String.build do |s|
+      # Add action names as import
+      s << "import { " << ast.actions.join(", ") << " } " << "from './actions';\n"
+
       ast.menu_definitions.each do |definition|
         menu : AST::MenuStatement = definition["menu"].first.as(AST::MenuStatement)
         stmts : Hash(String, Array(AST::Stmt)) = definition

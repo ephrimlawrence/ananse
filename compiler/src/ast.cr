@@ -369,11 +369,11 @@ end
 class TransformedAST
   property menu_definitions : Array(Hash(String, Array(AST::Stmt))) = [] of Hash(String, Array(AST::Stmt)) # [{display => stmts.., input => stmts...}]
 
-  # List of action names
+  # List of action names (javascript functions)
   property actions : Array(String) = [] of String
 
-  def initialize
-  end
+  # def initialize
+  # end
 
   # def add_menu(name : String)
   #   ["display", "option", "input", "goto", "action", "end"].each do |type|
