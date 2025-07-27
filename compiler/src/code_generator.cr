@@ -141,11 +141,26 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_if_stmt(stmt : AST::IfStatement) : String
+    # Skip code generation for empty if statement
+    if stmt.then_branch.statements.size == 0 && stmt.else_branch.nil?
+      return ""
+    end
+
     code = String.build do |s|
-      s << "if (" << evaluate(stmt.condition) << "){"
-      s << execute(stmt.then_branch) << "}"
-      if !stmt.else_branch.nil?
-        s << "else {" << execute(stmt.else_branch.as(AST::Stmt)) << "}"
+      condition : String = "(#{evaluate(stmt.condition)})"
+
+      # then branch might be empty after transformation
+      # whilst the else branch is not empty.
+      # We negate the condition and skip generating code for 'else'
+      if stmt.then_branch.statements.size == 0 && !stmt.else_branch.nil?
+        s << "if " << "(!#{condition})" << "{"
+        s << execute(stmt.else_branch.as(AST::Stmt)) << "}"
+      else
+        s << "if " << condition << "{"
+        s << execute(stmt.then_branch) << "}"
+        if !stmt.else_branch.nil? && stmt.else_branch.as(AST::BlockStatement).statements.size > 0
+          s << "else {" << execute(stmt.else_branch.as(AST::Stmt)) << "}"
+        end
       end
     end
 
