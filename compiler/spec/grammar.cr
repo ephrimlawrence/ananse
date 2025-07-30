@@ -12,4 +12,25 @@ struct Grammar
 
     return str
   end
+
+  # "goto" <space> (<identifier> | "end" | "back" | "start")
+  def self.goto(back : Bool = false, is_end : Bool = false, start : Bool = false, name : String? = nil) : String
+    if back
+      return "goto back"
+    end
+
+    if is_end
+      return "goto end"
+    end
+
+    if start
+      return "goto start"
+    end
+
+    if !name.nil?
+      return "goto #{name}"
+    end
+
+    return "goto menu_name"
+  end
 end

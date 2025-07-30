@@ -6,7 +6,12 @@ start menu welcome {
     if (33 == 3){
         display "welcome home"
     } else {
-    @jsFunctionName(param1: 2, param2: value3, param4: "string",)
+        display "welcome home"
+    }
+    if (33 == 3){
+        display "welcome home44444"
+    } else {
+        display "wel333come home"
     }
 
 }

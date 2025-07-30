@@ -236,15 +236,23 @@ class Parser
   end
 
   # Parse goto statement
-  #   "goto" <menu_name> "\n"
+  #   goto <menu_name> \n
   #
   # Example:
   # ```
   # goto welcome_menu
   # ```
   private def goto_statement : AST::GotoStatement
-    name : Token = consume(TokenType::IDENTIFIER, "Expect variable name.")
-    consume(TokenType::NEW_LINE, "Expected new line after variable.")
+    name : Token = if check(TokenType::START, TokenType::BACK, TokenType::END)
+      advance()
+    else
+      consume(TokenType::IDENTIFIER, "Expected a menu name, 'back', 'start' or 'end' after 'goto'")
+    end
+
+    if check(TokenType::NEW_LINE)
+      advance()
+    end
+
     return AST::GotoStatement.new(name)
   end
 
@@ -419,12 +427,18 @@ class Parser
     false
   end
 
-  private def check(type : TokenType) : Bool
+  private def check(*types : TokenType) : Bool
     if is_at_end?
       return false
     end
 
-    return peek.type == type
+    types.each do |type|
+      if peek.type == type
+        return true
+      end
+    end
+
+    return false
   end
 
   private def advance : Token

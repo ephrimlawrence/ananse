@@ -5,6 +5,38 @@ require "./spec_helper.cr"
 # The parser tests handles the structure of the generates tokens, which is easier
 # than verify the generated tokens in every test
 describe Scanner do
+  describe "goto grammar" do
+    it "goto with menu name" do
+      tokens = scan(Grammar.goto(name: "my_menu"))
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(3)
+    end
+
+    it "goto a nested menu" do
+      tokens = scan(Grammar.goto(name: "parent.child.grand_child"))
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(3)
+    end
+
+    it "goto end" do
+      tokens = scan(Grammar.goto(is_end: true))
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(3)
+    end
+
+    it "goto start" do
+      tokens = scan(Grammar.goto(start: true))
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(3)
+    end
+
+    it "goto back" do
+      tokens = scan(Grammar.goto(back: true))
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(3)
+    end
+  end
+
   describe "action grammar" do
     it "action with params" do
       tokens = scan(Grammar.action)

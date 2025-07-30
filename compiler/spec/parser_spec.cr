@@ -1,6 +1,65 @@
 require "./spec_helper.cr"
 
 describe Parser do
+  describe "goto grammar" do
+    it "goto with menu name" do
+      stmts = parse(Grammar.goto(name: "my_menu"))
+      stmts.size.should eq(1)
+      stmts[0].is_a?(AST::GotoStatement).should eq(true)
+
+      stmt = stmts[0].as(AST::GotoStatement)
+      stmt.menu.value.should eq("my_menu")
+    end
+
+    it "goto back" do
+      stmts = parse(Grammar.goto(back: true))
+      stmts.size.should eq(1)
+      stmts[0].is_a?(AST::GotoStatement).should eq(true)
+
+      stmt = stmts[0].as(AST::GotoStatement)
+      stmt.menu.value.should eq("back")
+      stmt.menu.type.should eq(TokenType::BACK)
+    end
+
+    it "goto start" do
+      stmts = parse(Grammar.goto(start: true))
+      stmts.size.should eq(1)
+      stmts[0].is_a?(AST::GotoStatement).should eq(true)
+
+      stmt = stmts[0].as(AST::GotoStatement)
+      stmt.menu.value.should eq("start")
+      stmt.menu.type.should eq(TokenType::START)
+    end
+
+    it "goto end" do
+      stmts = parse(Grammar.goto(is_end: true))
+      stmts.size.should eq(1)
+      stmts[0].is_a?(AST::GotoStatement).should eq(true)
+
+      stmt = stmts[0].as(AST::GotoStatement)
+      stmt.menu.value.should eq("end")
+      stmt.menu.type.should eq(TokenType::END)
+    end
+
+    # it "goto a nested menu" do
+    #   tokens = scan(Grammar.goto(name: "parent.child.grand_child"))
+    #   tokens.is_a?(Array(Token)).should eq(true)
+    #   tokens.size.should eq(3)
+    # end
+
+    it "goto end" do
+      tokens = scan(Grammar.goto(is_end: true))
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(3)
+    end
+
+    it "goto back" do
+      tokens = scan(Grammar.goto(back: true))
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(3)
+    end
+  end
+
   describe "action grammar" do
     it "action with params" do
       stmts = parse(Grammar.action)
