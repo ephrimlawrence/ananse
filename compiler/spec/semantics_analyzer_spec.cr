@@ -58,6 +58,26 @@ describe SemanticAnalyzer do
     end
   end
 
+  it "rejects if statement with nested menu" do
+    source = <<-USSD
+      start menu welcome {
+        display "Hello World"
+        option 1 "Option 1"
+
+        if (age == 1){
+          menu enter_age {
+            display "Enter your age"
+            input age
+          }
+        }
+      }
+    USSD
+
+    expect_raises(CompilerError, /Nested menu statement is not allowed in an if block/) do
+      analyze(source)
+    end
+  end
+
   it "rejects nested if statements" do
     source = <<-USSD
       start menu welcome {

@@ -99,8 +99,12 @@ class SemanticAnalyzer < AST::Visitor(Nil)
 
   def visit_block_stmt(block : AST::BlockStatement)
     block.statements.each do |stmt|
-      if stmt.is_a?(AST::IfStatement) && @is_evaluating_if_stmt
+      if @is_evaluating_if_stmt && stmt.is_a?(AST::IfStatement)
         raise CompilerError.new("Nested if statement is not allowed")
+      end
+
+      if @is_evaluating_if_stmt && stmt.is_a?(AST::MenuStatement)
+        raise CompilerError.new("Nested menu statement is not allowed in an if block", stmt.name)
       end
     end
   end
