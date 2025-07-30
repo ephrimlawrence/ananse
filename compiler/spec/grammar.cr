@@ -14,7 +14,7 @@ struct Grammar
   end
 
   # <goto_stmt>			::= "goto" <space> ( <navigate_stmt> | ( <identifier> ( "." <identifier> )* ))
-  # <navigate_stmt>		::= "end" | "back"
+  # <navigate_stmt>		::= "end" | "back" | "start"
   def self.goto(back : Bool = false, is_end : Bool = false, start : Bool = false, name : String? = nil) : String
     if back
       return "goto back"

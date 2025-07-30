@@ -15,7 +15,7 @@ describe Scanner do
     it "goto a nested menu" do
       tokens = scan(Grammar.goto(name: "parent.child.grand_child"))
       tokens.is_a?(Array(Token)).should eq(true)
-      tokens.size.should eq(3)
+      tokens.size.should eq(7)
     end
 
     it "goto end" do

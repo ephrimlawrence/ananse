@@ -32,7 +32,7 @@ module Scanner
       "in"      => TokenType::IN,
       "goto"    => TokenType::GOTO,
       "end"     => TokenType::END,
-      "back"     => TokenType::BACK,
+      "back"    => TokenType::BACK,
       "start"   => TokenType::START,
       "print"   => TokenType::PRINT,
       "var"     => TokenType::VAR,
@@ -78,8 +78,8 @@ module Scanner
         add_token(TokenType::RIGHT_BRACE)
       when ','
         add_token(TokenType::COMMA)
-        # when '.' # TODO: might have to delete this
-        #   add_token(TokenType::DOT)
+      when '.'
+        add_token(TokenType::DOT)
       when '-'
         add_token(match('>') ? TokenType::ARROW : TokenType::MINUS)
       when '+'

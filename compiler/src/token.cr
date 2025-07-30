@@ -21,6 +21,7 @@ enum TokenType
   TRUE
   FALSE
   VAR # TODO: remove var, not in our grammar
+  DOT
 
   IDENTIFIER
   NUMBER

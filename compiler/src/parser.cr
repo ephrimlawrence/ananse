@@ -145,7 +145,7 @@ class Parser
 
     if match(TokenType::ARROW)
       # Next menu is defined, parse it
-      next_menu = consume(TokenType::IDENTIFIER, "Expected next menu name after ->")
+      next_menu = consume(TokenType::IDENTIFIER, "Expected next menu name after '->'")
     end
 
     if match(TokenType::ACTION)
@@ -249,8 +249,24 @@ class Parser
     name : Token = if check(TokenType::START, TokenType::BACK, TokenType::END)
       advance()
     else
-      # test = "sdsdf"
-      consume(TokenType::IDENTIFIER, "Expected a menu name, 'back', 'start' or 'end' after 'goto'")
+      # Parse call to nested menu
+      nested_names : Array(Token) = [] of Token
+      nested_names << consume(TokenType::IDENTIFIER, "Expected a menu name, 'back', 'start' or 'end' after 'goto'")
+
+      while match(TokenType::DOT)
+        nested_names << consume(TokenType::IDENTIFIER, "Expected a menu name after '.'.")
+      end
+
+      new_name : String = nested_names.map { |token| token.value }.join(".")
+      Token.new(
+        type: TokenType::IDENTIFIER,
+        value: new_name,
+        location: Location.new(
+          nested_names.first?.as(Token).location.line,
+          nested_names.last?.as(Token).location.column
+        ),
+        literal: nil
+      )
     end
 
     if check(TokenType::NEW_LINE)
