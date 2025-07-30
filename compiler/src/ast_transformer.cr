@@ -111,7 +111,9 @@ class AstTransformer < AST::Visitor(Nil)
   end
 
   def visit_goto_stmt(stmt : AST::GotoStatement)
-    # Check input variable validity
+  end
+
+  def visit_goto_expr(expr : AST::Goto) : Nil
   end
 
   def visit_action_stmt(stmt : AST::ActionStatement)

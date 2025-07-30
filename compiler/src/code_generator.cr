@@ -87,7 +87,7 @@ class CodeGenerator < AST::Visitor(Object)
       s << "{" << "choice: #{expr.target.value},"
       s << "display: #{expr.label.value},"
       if !expr.next_menu.nil?
-        s << "next_menu: '#{expr.next_menu.as(Token).literal}',"
+        s << "next_menu: '#{expr.next_menu.as(AST::Goto).name.literal}',"
       end
       if !expr.action.nil?
         s << "next_menu: async(req, res) => {"
@@ -366,7 +366,11 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_goto_stmt(stmt : AST::GotoStatement) : String
-    return "\"#{stmt.menu.value}\""
+    return evaluate(stmt.menu)
+  end
+
+  def visit_goto_expr(expr : AST::Goto) : String
+    return "\"#{expr.name.value}\""
   end
 
   # TODO: remove this

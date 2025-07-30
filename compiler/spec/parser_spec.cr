@@ -9,7 +9,7 @@ describe Parser do
         stmts[0].is_a?(AST::GotoStatement).should eq(true)
 
         stmt = stmts[0].as(AST::GotoStatement)
-        stmt.menu.value.should eq(name)
+        stmt.menu.name.value.should eq(name)
       end
     end
 
@@ -20,7 +20,7 @@ describe Parser do
         stmts[0].is_a?(AST::GotoStatement).should eq(true)
 
         stmt = stmts[0].as(AST::GotoStatement)
-        stmt.menu.value.should eq(name)
+        stmt.menu.name.value.should eq(name)
       end
     end
 
@@ -30,8 +30,8 @@ describe Parser do
       stmts[0].is_a?(AST::GotoStatement).should eq(true)
 
       stmt = stmts[0].as(AST::GotoStatement)
-      stmt.menu.value.should eq("back")
-      stmt.menu.type.should eq(TokenType::BACK)
+      stmt.menu.name.value.should eq("back")
+      stmt.menu.name.type.should eq(TokenType::BACK)
     end
 
     it "goto start" do
@@ -40,8 +40,8 @@ describe Parser do
       stmts[0].is_a?(AST::GotoStatement).should eq(true)
 
       stmt = stmts[0].as(AST::GotoStatement)
-      stmt.menu.value.should eq("start")
-      stmt.menu.type.should eq(TokenType::START)
+      stmt.menu.name.value.should eq("start")
+      stmt.menu.name.type.should eq(TokenType::START)
     end
 
     it "goto end" do
@@ -50,8 +50,8 @@ describe Parser do
       stmts[0].is_a?(AST::GotoStatement).should eq(true)
 
       stmt = stmts[0].as(AST::GotoStatement)
-      stmt.menu.value.should eq("end")
-      stmt.menu.type.should eq(TokenType::END)
+      stmt.menu.name.value.should eq("end")
+      stmt.menu.name.type.should eq(TokenType::END)
     end
 
     it "goto end" do

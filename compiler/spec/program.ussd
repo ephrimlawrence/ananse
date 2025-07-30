@@ -1,6 +1,6 @@
 start menu welcome {
     display "Welcome to Ananse USSD"
-    input products
+    option 1 "We Move" -> wee.cwe
     @jsFunctionName(param1: 2, param2: value3, param4: "string",)
 
     if (33 == 3){

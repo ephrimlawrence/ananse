@@ -66,7 +66,7 @@ class Parser
     end
 
     if match(TokenType::GOTO)
-      return goto_statement()
+      return AST::GotoStatement.new(parse_goto(shorthand: false))
     end
 
     if match(TokenType::LEFT_BRACE)
@@ -140,16 +140,17 @@ class Parser
     end
 
     label : Token = consume(TokenType::STRING, "Expected label after option target")
-    next_menu : Token? = nil
-    opt_action : AST::Action? = nil
+    next_menu : AST::Goto? = nil
 
     if match(TokenType::ARROW)
       # Next menu is defined, parse it
-      next_menu = consume(TokenType::IDENTIFIER, "Expected next menu name after '->'")
+      next_menu = parse_goto(shorthand: true)
     end
 
-    if match(TokenType::ACTION)
+    opt_action : AST::Action? = if match(TokenType::ACTION)
       opt_action = action()
+    else
+      nil
     end
 
     skip_newline
@@ -245,13 +246,15 @@ class Parser
   # goto parent_menu.child_menu
   # goto parent_menu.child_menu.grandchild.great_grand_child
   # ```
-  private def goto_statement : AST::GotoStatement
+  private def parse_goto(shorthand : Bool) : AST::Goto
     name : Token = if check(TokenType::START, TokenType::BACK, TokenType::END)
       advance()
     else
       # Parse call to nested menu
       nested_names : Array(Token) = [] of Token
-      nested_names << consume(TokenType::IDENTIFIER, "Expected a menu name, 'back', 'start' or 'end' after 'goto'")
+
+      err : String = shorthand ? "Expected next menu name after '->'" : "Expected a menu name, 'back', 'start' or 'end' after 'goto'"
+      nested_names << consume(TokenType::IDENTIFIER, err)
 
       while match(TokenType::DOT)
         nested_names << consume(TokenType::IDENTIFIER, "Expected a menu name after '.'.")
@@ -273,7 +276,7 @@ class Parser
       advance()
     end
 
-    return AST::GotoStatement.new(name)
+    return AST::Goto.new(name)
   end
 
   private def var_definition : AST::Variable

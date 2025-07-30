@@ -122,7 +122,12 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   end
 
   def visit_goto_stmt(stmt : AST::GotoStatement)
-    @menu_env.referenced(stmt.menu)
+    evaluate(stmt.menu)
+  end
+
+  def visit_goto_expr(expr : AST::Goto) : Nil
+    @menu_env.referenced(expr.name)
+    # return "\"#{expr.name.value}\""
   end
 
   def visit_action_stmt(stmt : AST::ActionStatement)
@@ -163,11 +168,15 @@ class SemanticAnalyzer < AST::Visitor(Nil)
 
   def visit_option_expr(expr : AST::Option) : Nil
     if !expr.next_menu.nil?
-      @menu_env.referenced(expr.next_menu.as(Token))
+      @menu_env.referenced(expr.next_menu.as(AST::Goto).name)
     end
   end
 
   def visit_action_expr(expr : AST::Action) : Nil
+  end
+
+  private def evaluate(stmt : AST::Expr)
+    stmt.accept(self)
   end
 
   private def execute(stmt : AST::Stmt)

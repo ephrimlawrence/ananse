@@ -19,6 +19,7 @@ module AST
     abstract def visit_variable_expr(expr : Variable) : R
     abstract def visit_option_expr(expr : Option) : R
     abstract def visit_action_expr(expr : Action) : R
+    abstract def visit_goto_expr(expr : Goto) : R
 
     #
     # Statement visitors
@@ -202,7 +203,7 @@ module AST
   end
 
   class GotoStatement < Stmt
-    property menu : Token
+    property menu : Goto
 
     def initialize(@menu)
     end
@@ -330,10 +331,26 @@ module AST
     end
   end
 
+  class Goto < Expr
+    property name : Token
+
+    def initialize(@name)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_goto_expr(self)
+    end
+
+    def clone
+      Goto.new(@name)
+    end
+  end
+
   class Option < Expr
     property target : Token
     property label : Token
-    property next_menu : Token?
+    # should this be goto stmt?
+    property next_menu : Goto?
     property action : Action?
 
     def initialize(@target, @label, @next_menu, @action)
