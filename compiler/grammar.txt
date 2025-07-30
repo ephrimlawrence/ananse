@@ -32,9 +32,9 @@
 
 <goto_symbol_stmt>	::= "->" <space> (<identifier> | <navigate_stmt>)
 
-<goto_stmt>			::= "goto" <space> (<identifier> | <navigate_stmt>)
+<goto_stmt>			::= "goto" <space> ( <navigate_stmt> | ( <identifier> ( "." <identifier> )* ))
 
-<navigate_stmt>		::= "end" | "back"
+<navigate_stmt>		::= "end" | "back" | "start"
 
 <if_statement> ::= "if" "(" <condition> ")" "{" <statement_list> "}" ("else" "{" <statement_list> "}" )?
 

@@ -236,16 +236,20 @@ class Parser
   end
 
   # Parse goto statement
-  #   goto <menu_name> \n
+  #  <goto_stmt>			::= "goto" <space> ( <navigate_stmt> | ( <identifier> ( "." <identifier> )* ))
+  #  <navigate_stmt>		::= "end" | "back" | "start"
   #
   # Example:
   # ```
-  # goto welcome_menu
+  # goto welcome
+  # goto parent_menu.child_menu
+  # goto parent_menu.child_menu.grandchild.great_grand_child
   # ```
   private def goto_statement : AST::GotoStatement
     name : Token = if check(TokenType::START, TokenType::BACK, TokenType::END)
       advance()
     else
+      # test = "sdsdf"
       consume(TokenType::IDENTIFIER, "Expected a menu name, 'back', 'start' or 'end' after 'goto'")
     end
 

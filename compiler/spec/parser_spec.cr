@@ -3,12 +3,25 @@ require "./spec_helper.cr"
 describe Parser do
   describe "goto grammar" do
     it "goto with menu name" do
-      stmts = parse(Grammar.goto(name: "my_menu"))
-      stmts.size.should eq(1)
-      stmts[0].is_a?(AST::GotoStatement).should eq(true)
+      ["cameCaseName", "snake_case_name"].each do |name|
+        stmts = parse(Grammar.goto(name: name))
+        stmts.size.should eq(1)
+        stmts[0].is_a?(AST::GotoStatement).should eq(true)
 
-      stmt = stmts[0].as(AST::GotoStatement)
-      stmt.menu.value.should eq("my_menu")
+        stmt = stmts[0].as(AST::GotoStatement)
+        stmt.menu.value.should eq(name)
+      end
+    end
+
+    it "goto a nested menu" do
+      ["parentMenu.child_menu.grandChild", "parent_menu.childMenu.grandChild.father"].each do |name|
+        stmts = parse(Grammar.goto(name: name))
+        stmts.size.should eq(1)
+        stmts[0].is_a?(AST::GotoStatement).should eq(true)
+
+        stmt = stmts[0].as(AST::GotoStatement)
+        stmt.menu.value.should eq(name)
+      end
     end
 
     it "goto back" do
@@ -40,12 +53,6 @@ describe Parser do
       stmt.menu.value.should eq("end")
       stmt.menu.type.should eq(TokenType::END)
     end
-
-    # it "goto a nested menu" do
-    #   tokens = scan(Grammar.goto(name: "parent.child.grand_child"))
-    #   tokens.is_a?(Array(Token)).should eq(true)
-    #   tokens.size.should eq(3)
-    # end
 
     it "goto end" do
       tokens = scan(Grammar.goto(is_end: true))
