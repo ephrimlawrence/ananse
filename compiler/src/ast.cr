@@ -47,13 +47,18 @@ module AST
 
   # Statement AST #
   abstract class Stmt
+    property location : Location
+
+    def initialize(@location)
+    end
+
     abstract def accept(visitor : Visitor(R)) forall R
   end
 
   class ExpressionStmt < Stmt
     property expression : Expr
 
-    def initialize(@expression)
+    def initialize(@expression, @location)
     end
 
     def accept(visitor : Visitor(R)) forall R
@@ -61,7 +66,7 @@ module AST
     end
 
     def clone
-      ExpressionStmt.new(@expression)
+      ExpressionStmt.new(@expression, @location)
     end
   end
 
@@ -72,6 +77,7 @@ module AST
     property initializer : Expr?
 
     def initialize(@name, @initializer)
+      @location = name.location
     end
 
     def accept(visitor : Visitor(R)) forall R
@@ -88,7 +94,7 @@ module AST
   class Print < Stmt
     property expression : Expr
 
-    def initialize(@expression)
+    def initialize(@expression, @location)
     end
 
     def accept(visitor : Visitor(R)) forall R
@@ -96,7 +102,7 @@ module AST
     end
 
     def clone
-      Print.new(@expression)
+      Print.new(@expression, @location)
     end
   end
 
@@ -105,7 +111,7 @@ module AST
     property then_branch : BlockStatement
     property else_branch : BlockStatement?
 
-    def initialize(@condition, @then_branch, @else_branch)
+    def initialize(@condition, @then_branch, @else_branch, @location)
     end
 
     def accept(visitor : Visitor(R)) forall R
@@ -113,7 +119,7 @@ module AST
     end
 
     def clone
-      IfStatement.new(@condition, @then_branch, @else_branch)
+      IfStatement.new(@condition, @then_branch, @else_branch, @location)
     end
   end
 
@@ -124,6 +130,11 @@ module AST
     property body : BlockStatement
 
     def initialize(@name, @body, @start)
+      @location = if @start.nil?
+                    name.location
+                  else
+                    start.as(Token).location
+                  end
     end
 
     def accept(visitor : Visitor(R)) forall R
@@ -142,7 +153,7 @@ module AST
   class BlockStatement < Stmt
     property statements : Array(Stmt)
 
-    def initialize(@statements)
+    def initialize(@statements, @location)
     end
 
     def accept(visitor : Visitor(R)) forall R
@@ -150,14 +161,14 @@ module AST
     end
 
     def clone
-      BlockStatement.new(@statements)
+      BlockStatement.new(@statements, @location)
     end
   end
 
   class OptionStatement < Stmt
     property group : Array(Option)
 
-    def initialize(@group)
+    def initialize(@group, @location)
     end
 
     def accept(visitor : Visitor(R)) forall R
@@ -165,14 +176,14 @@ module AST
     end
 
     def clone
-      OptionStatement.new(@group)
+      OptionStatement.new(@group, @location)
     end
   end
 
   class DisplayStatement < Stmt
     property expression : Expr
 
-    def initialize(@expression)
+    def initialize(@expression, @location)
     end
 
     def accept(visitor : Visitor(R)) forall R
@@ -180,7 +191,7 @@ module AST
     end
 
     def clone
-      DisplayStatement.new(@expression)
+      DisplayStatement.new(@expression, @location)
     end
   end
 
@@ -188,6 +199,7 @@ module AST
     property variable : Token
 
     def initialize(@variable)
+      @location = @variable.location
     end
 
     def accept(visitor : Visitor(R)) forall R
@@ -203,6 +215,7 @@ module AST
     property menu : Goto
 
     def initialize(@menu)
+      @location = menu.name.location
     end
 
     def accept(visitor : Visitor(R)) forall R
@@ -217,7 +230,7 @@ module AST
   class VariableStatement < Stmt
     property name : Expr
 
-    def initialize(@name)
+    def initialize(@name, @location)
     end
 
     def accept(visitor : Visitor(R)) forall R
@@ -225,7 +238,7 @@ module AST
     end
 
     def clone
-      VariableStatement.new(@name)
+      VariableStatement.new(@name, @location)
     end
   end
 
@@ -233,6 +246,7 @@ module AST
     property expression : Action
 
     def initialize(@expression)
+      @location = @expression.func_name.location
     end
 
     def accept(visitor : Visitor(R)) forall R

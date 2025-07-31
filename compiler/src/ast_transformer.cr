@@ -56,15 +56,15 @@ class AstTransformer < AST::Visitor(Nil)
 
           reconstructed_if = AST::IfStatement.new(
             if_stmt.condition,
-            AST::BlockStatement.new(value),
-            AST::BlockStatement.new(else_block),
+            AST::BlockStatement.new(value, value.first.location),
+            AST::BlockStatement.new(else_block, else_block.first.location),
+            if_stmt.location
           )
           grouped_stmt[key] << reconstructed_if
         end
 
         # Re-create if-condition for statements in the else branch without corresponding
         # statements in then branch
-        # puts grouped_else
         grouped_else.each do |key, value|
           if value.size == 0
             next
@@ -72,8 +72,9 @@ class AstTransformer < AST::Visitor(Nil)
 
           reconstructed_if = AST::IfStatement.new(
             if_stmt.condition,
-            AST::BlockStatement.new([] of AST::Stmt),
-            AST::BlockStatement.new(value),
+            AST::BlockStatement.new([] of AST::Stmt, if_stmt.location),
+            AST::BlockStatement.new(value, if_stmt.location),
+            if_stmt.location
           )
           grouped_stmt[key] << reconstructed_if
         end

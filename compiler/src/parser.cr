@@ -82,6 +82,8 @@ class Parser
   end
 
   private def if_statement : AST::IfStatement
+    location : Location = previous.location
+
     consume(TokenType::LEFT_PAREN, "Expect '(' after 'if'.")
     condition : AST::Expr = expression()
     consume(TokenType::RIGHT_PAREN, "Expect ')' after if condition.")
@@ -93,7 +95,7 @@ class Parser
       elseBranch = statement().as(AST::BlockStatement)
     end
 
-    return AST::IfStatement.new(condition, thenBranch, elseBranch)
+    return AST::IfStatement.new(condition, thenBranch, elseBranch, location)
   end
 
   # Parse menu statement
@@ -113,6 +115,7 @@ class Parser
 
   # Parse block statements
   private def block_statements : AST::BlockStatement
+    location : Location = previous.location
     statements : Array(AST::Stmt) = [] of AST::Stmt
     skip_newline # Skip newline after '{'
 
@@ -122,7 +125,7 @@ class Parser
 
     consume(TokenType::RIGHT_BRACE, "Expected '}' after menu definition")
     skip_newline
-    return AST::BlockStatement.new(statements)
+    return AST::BlockStatement.new(statements, location)
   end
 
   private def options : AST::OptionStatement
@@ -157,8 +160,7 @@ class Parser
 
     # TODO: peek next, and group options
     option = AST::Option.new(target, label, next_menu, opt_action)
-    # p! option
-    return AST::OptionStatement.new([option])
+    return AST::OptionStatement.new([option], target.location)
   end
 
   private def action : AST::Action
@@ -218,9 +220,11 @@ class Parser
   # display 3
   # ```
   private def display_statement : AST::DisplayStatement
+    location : Location = previous.location
     expr : AST::Expr = expression()
     consume(TokenType::NEW_LINE, "Expected new line after value.")
-    return AST::DisplayStatement.new(expr)
+
+    return AST::DisplayStatement.new(expr, location)
   end
 
   # Parse input statement
