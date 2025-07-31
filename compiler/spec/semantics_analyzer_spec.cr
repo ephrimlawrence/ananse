@@ -2,6 +2,49 @@ require "./spec_helper"
 
 describe SemanticAnalyzer do
   describe "menu analysis" do
+    it "rejects duplicated menu" do
+      # test 1: no nested menus
+      base = <<-USSD
+        start menu welcome {
+          display "Hello World"
+          goto enter_age
+        }
+      USSD
+
+      expect_raises(CompilerError, "Menu 'welcome' is already defined") do
+        code = <<-USSD
+            #{base}
+            menu welcome {
+              display "Hello World"
+              goto enter_age
+            }
+          USSD
+        analyze(code)
+      end
+
+      # test 2: in a nested menu
+      expect_raises(CompilerError, /Menu 'child_menu' is already defined/) do
+        code = <<-USSD
+            #{base}
+            menu enter_age {
+              display "Enter Age"
+              goto child_menu
+
+              menu child_menu {
+                display "Hi"
+                goto child_menu2
+              }
+
+              menu child_menu {
+                display "Hi"
+              }
+            }
+          USSD
+        analyze(code)
+      end
+
+    end
+
     it "report referenced but undefined menu" do
       # test 1: only 1 menu
       source = <<-USSD
@@ -60,12 +103,12 @@ describe SemanticAnalyzer do
         analyze(code)
       end
 
-      # Reference in a sub menu to another sub-sub-child
+      # References in a sub menu to another sub-sub-child
       source = <<-USSD
         #{source}
         menu child_menu4 {
           display "Enter Age"
-          goto another_child
+          goto another_child.sub_sub_child
 
           menu another_child {
             display "Hi"
@@ -73,6 +116,7 @@ describe SemanticAnalyzer do
 
             menu sub_sub_child {
               display "Hi"
+              goto another_child.child_menu4
             }
           }
         }
