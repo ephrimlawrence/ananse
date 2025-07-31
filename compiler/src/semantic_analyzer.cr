@@ -6,12 +6,17 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   property menu_env : MenuEnvironment = MenuEnvironment.new
   property is_start_menu_defined : Bool = false
   property is_evaluating_if_stmt : Bool = false
+  property menus_pending_resolution : Array(MenuEnvironment) = [] of MenuEnvironment
 
   def initialize(@statements)
   end
 
   def analyze : Bool
     @statements.each do |stmt|
+      if (stmt.is_a?(AST::MenuStatement))
+        @menus_pending_resolution.unshift(@menu_env.define(stmt.name))
+      end
+
       stmt.accept(self)
     end
 
@@ -20,25 +25,26 @@ class SemanticAnalyzer < AST::Visitor(Nil)
     end
 
     # Report unused menu definitions
-    @menu_env.references.each do |name, (count, token)|
-      if count == 0
-        raise CompilerError.new("Menu '#{name}' is defined but never used", token)
-      end
-    end
+    # @menu_env.references.each do |name, (count, token)|
+    #   if count == 0
+    #     raise CompilerError.new("Menu '#{name}' is defined but never used", token)
+    #   end
+    # end
 
-    # Report referenced but undefined menus
-    @menu_env.references.each do |name, (count, token)|
-      if count > 0 && !@menu_env.get(token)
-        raise CompilerError.new("Menu '#{name}' is referenced but not defined", token)
-      end
-    end
+    # # Report referenced but undefined menus
+    # @menu_env.references.each do |name, (count, token)|
+    #   if count > 0 && !@menu_env.get(token)
+    #     raise CompilerError.new("Menu '#{name}' is referenced but not defined", token)
+    #   end
+    # end
 
     true
   end
 
   def visit_menu_stmt(stmt : AST::MenuStatement)
     # TODO: implement reference to nested menus
-    @menu_env.add(stmt.name)
+
+    env : MenuEnvironment = @menus_pending_resolution.first?.as(MenuEnvironment)
 
     if @is_start_menu_defined && stmt.start?
       raise CompilerError.new("Start menu is already defined", stmt.name)
@@ -86,7 +92,20 @@ class SemanticAnalyzer < AST::Visitor(Nil)
         execute(s)
         @is_evaluating_if_stmt = false
       end
+
+      # Sub menu
+      if s.is_a?(AST::MenuStatement)
+        # TODO: the enclosing must somehow know whether it is a child or parent
+        @menus_pending_resolution.unshift(env.define(s.name))
+        # @menu_env.sub_menu
+      end
+
+      execute(s)
     end
+
+    pp @menu_env
+    puts "new menu"
+    @menus_pending_resolution.shift
   end
 
   def visit_if_stmt(stmt : AST::IfStatement)
@@ -126,7 +145,7 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   end
 
   def visit_goto_expr(expr : AST::Goto) : Nil
-    @menu_env.referenced(expr.name)
+    @menus_pending_resolution.first?.as(MenuEnvironment).referenced(expr.name)
     # return "\"#{expr.name.value}\""
   end
 

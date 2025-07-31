@@ -26,8 +26,6 @@ module AST
     #
     abstract def visit_if_stmt(stmt : IfStatement) forall R
     abstract def visit_print_stmt(stmt : Print) forall R
-    #     R visitBlockStmt(Block stmt);
-    # R visitClassStmt(Class stmt);
     abstract def visit_expression_stmt(stmt : ExpressionStmt) forall R
     abstract def visit_variable_stmt(stmt : VariableStatement) forall R
     abstract def visit_display_stmt(stmt : DisplayStatement) forall R
@@ -41,7 +39,6 @@ module AST
     # TODO: remove this
     abstract def visit_variable_stmt(stmt : VariableStmt) forall R
     # R visitFunctionStmt(Function stmt);
-    # R visitIfStmt(If stmt);
     # R visitPrintStmt(Print stmt);
     # R visitReturnStmt(Return stmt);
     # R visitVarStmt(Var stmt);

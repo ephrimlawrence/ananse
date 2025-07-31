@@ -14,4 +14,15 @@ start menu welcome {
         display "wel333come home"
     }
 
+    menu new_day {
+        display "Hi"
+    }
+}
+
+menu wee {
+    display "Hi"
+
+        menu cwe {
+            display "Hi"
+        }
 }
