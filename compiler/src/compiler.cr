@@ -19,12 +19,11 @@ module Compiler
       raise CompilerError.new("No source file/directory provided! Specify path to the .ussd file")
     end
 
-    f : File = File.new(path)
     if !File.exists?(path)
       raise CompilerError.new("No file exists at #{path}")
     end
 
-    source : String = File.read("spec/program.ussd")
+    source : String = File.read(path)
 
     begin
       scanner : Scanner::Scan = Scanner::Scan.new(source)
@@ -37,13 +36,18 @@ module Compiler
 
       transformed_ast = AstTransformer.new(program).transform
       code = CodeGenerator.new.generate(transformed_ast)
-      STDOUT.puts code
+
+      # Save generated code to output file
+      output_file = "#{File.dirname(path)}/#{File.basename(path, suffix: File.extname(path))}.ts"
+      File.write(output_file, code)
+      # STDOUT.puts code
     rescue err
       STDERR.puts err.message
     end
   end
 
-  def self.read_script
+  def save_output
+
     # TODO: read path from cli/config file or dedicated file; eg. main.ussd
   end
 end
@@ -66,9 +70,11 @@ OptionParser.parse do |parser|
 
   parser.on "watch", "Starts compiler in watch mode USSD code on file changes" do
     parser.on "-p PATH", "--path=PATH", path_msg do |src|
-      # path = src
+      # Trigger initial build
+      Compiler.run(src)
+
       FileWatcher.watch(src) do |event|
-        puts event.path # Path to file, eg. "path/to/folder/file.txt"
+        puts event.path
         Compiler.run(src)
       end
     end

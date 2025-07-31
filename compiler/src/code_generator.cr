@@ -18,11 +18,12 @@ class CodeGenerator < AST::Visitor(Object)
 
   def generate(ast : TransformedAST) : String?
     typescript = String.build do |s|
-      # Add action names as import
-      s << "import { MenuRouter } from 'ananse';\n"
+      # Add Ananse imports
+      s << "import { " << ["BaseMenu", "MenuRouter"].join(", ") << " } from 'ananse';\n"
 
+      # Add action names as import
       if !ast.actions.empty?
-        s << "import { " << ast.actions.join(", ") << " } " << "from './actions';\n"
+        s << "import { " << ast.actions.join(", ") << " } from './actions';\n"
       end
 
       ast.menu_definitions.each do |definition|
@@ -40,7 +41,7 @@ class CodeGenerator < AST::Visitor(Object)
 
       # Add menus to router
       @menu_class_names.each do |name, class_name|
-        s << "MenuRouter.add(#{class_name}, '#{name}');"
+        s << "MenuRouter.add(#{class_name}, '#{name}');\n"
       end
     end
 
