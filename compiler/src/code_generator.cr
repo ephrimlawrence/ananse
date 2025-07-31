@@ -159,7 +159,7 @@ class CodeGenerator < AST::Visitor(Object)
     # Track menu name and class name
     @menu_class_names[stmt.name.value] = class_name
 
-    code = "export class #{class_name} extends BaseMenu #{opening_brace}"
+    code = "export class #{class_name} extends BaseMenu {"
     if !stmt.start.nil?
       code = <<-JS
         #{code}
