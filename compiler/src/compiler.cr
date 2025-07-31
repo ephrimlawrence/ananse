@@ -2,7 +2,6 @@
 require "./scanner.cr"
 require "./parser.cr"
 require "./error.cr"
-# require "./ast_printer.cr"
 require "./code_generator.cr"
 require "./ast.cr"
 require "./semantic_analyzer"
@@ -44,11 +43,6 @@ module Compiler
     rescue err
       STDERR.puts err.message
     end
-  end
-
-  def save_output
-
-    # TODO: read path from cli/config file or dedicated file; eg. main.ussd
   end
 end
 
