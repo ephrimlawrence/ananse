@@ -102,16 +102,14 @@ class SemanticAnalyzer < AST::Visitor(Nil)
 
       # Sub menu
       if s.is_a?(AST::MenuStatement)
-        # TODO: the enclosing must somehow know whether it is a child or parent
+        # Push new menu to the stack
         @menus_pending_resolution.unshift(env.define(s.name))
-        # @menu_env.sub_menu
       end
 
       execute(s)
     end
 
-    # pp @menu_env
-    # puts "new menu"
+    # Pop resolved menu from the stack
     @menus_pending_resolution.shift
   end
 

@@ -109,9 +109,9 @@ class MenuEnvironment
     return @names.has_key?(name.value)
   end
 
-  def nested_call?(menu_reference : String) : Bool
-    menu_reference.includes?('.')
-  end
+  # def nested_call?(menu_reference : String) : Bool
+  #   menu_reference.includes?('.')
+  # end
 
   # Walks the menu tree, and indicates menus that are defined and used
   def resolve_nested_call(name : String) : MenuEnvironment?
@@ -133,12 +133,9 @@ class MenuEnvironment
   def gather_errors(previous_errors : Array(String) = [] of String) : Array(String)
     # TODO: resolve 'nested.menu.names'
     @menu_references.each do |name, (is_defined, token)|
-      if !is_defined && nested_call?(token.value)
-        # is_nested_call : Bool = token.value.includes?('.')
-        # if is_nested_call
-        # Do final resolution for nested menu calls
+      if !is_defined
+        # Perform final resolution
         is_defined = !resolve_nested_call(token.value).nil?
-        # end
       end
 
       if !is_defined

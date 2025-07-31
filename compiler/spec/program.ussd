@@ -1,28 +1,24 @@
 start menu welcome {
-    display "Welcome to Ananse USSD"
-    option 1 "We Move" -> wee.cwe
-    @jsFunctionName(param1: 2, param2: value3, param4: "string",)
+    display "Hello World"
+    goto enter_age
+  }
 
-    if (33 == 3){
-        display "welcome home"
-    } else {
-        display "welcome home"
-    }
-    if (33 == 3){
-        display "welcome home44444"
-    } else {
-        display "wel333come home"
+  menu enter_age {
+    display "Enter Age"
+    goto child_menu
+
+    menu child_menu {
+      display "Hi"
+      goto child_menu2
     }
 
-    menu new_day {
-        display "Hi"
+    menu child_menu2 {
+      display "Hi"
+      goto child_menu3
+
+      menu child_menu3 {
+        display "Hi again"
+        goto child_menu4
+      }
     }
-}
-
-menu wee {
-    display "Hi"
-
-        menu cwe {
-            display "Hi"
-        }
-}
+  }
