@@ -190,8 +190,7 @@ class CodeGenerator < AST::Visitor(Object)
   def generate_action_function(action_stmts : Array(AST::Stmt), input_stmts : Array(AST::Stmt))
     # Merge and sort (by line number) action and input statements
     # This ensures that the order of the generated codes matches closely with the source
-    stmts : Array(AST::Stmt) = action_stmts.concat(input_stmts)
-    # .sort_by { |stmt| stmt}
+    stmts : Array(AST::Stmt) = action_stmts.concat(input_stmts).sort_by { |stmt| stmt.location.line }
 
     # TODO: merge all action code into an option with .* choice
     code = String.build do |s|

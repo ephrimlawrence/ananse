@@ -57,7 +57,7 @@ class AstTransformer < AST::Visitor(Nil)
           reconstructed_if = AST::IfStatement.new(
             if_stmt.condition,
             AST::BlockStatement.new(value, value.first.location),
-            AST::BlockStatement.new(else_block, else_block.first.location),
+            AST::BlockStatement.new(else_block, else_block.empty? ? Location.new(0, 0) : else_block.first.location),
             if_stmt.location
           )
           grouped_stmt[key] << reconstructed_if
