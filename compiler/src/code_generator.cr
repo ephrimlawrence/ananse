@@ -32,8 +32,15 @@ class CodeGenerator < AST::Visitor(Object)
         s << execute(menu)
         s << generate_input_function(menu.name.value, definition["input"])
         s << generate_display_function(menu.name.value, definition["display"])
-        s << generate_options_code(definition["option"])
-        s << generate_action_function(definition["action"])
+
+        if !definition["option"].empty?
+          s << generate_options_code(definition["option"])
+        end
+
+        if !definition["action"].empty?
+          s << generate_action_function(definition["action"])
+        end
+
         s << generate_goto_function(menu.name.value, definition["goto"])
         # message() code generation
         s << "}\n"
@@ -218,22 +225,20 @@ class CodeGenerator < AST::Visitor(Object)
 
   # Generates corresponding `action` function
   def generate_action_function(stmts : Array(AST::Stmt))
+    # TODO: merge all action code into an option with .* choice
     code = String.build do |s|
-      s << "async action() #{opening_brace}"
+      s << "async actions() #{opening_brace}"
 
       if stmts.empty?
-        s << "return undefined; #{closing_brace}"
+        s << "return [];#{closing_brace}"
         return s.to_s
       end
 
-      variable_name = "actions_list" # variable name for options
-      s << "const #{variable_name}: MenuAction[] = [];\n"
+      s << "return [{ choice: /.*/, display: undefined, handler: async (req: Request) => {"
       stmts.each do |stmt|
         value = execute(stmt)
-        s << value.gsub(/\sreq\./, " this.request.") # replace "req" which is for option closure with "this.request", class variable
       end
-
-      s << closing_brace
+      s << "}}];" << closing_brace
     end
 
     return code.to_s
@@ -327,6 +332,7 @@ class CodeGenerator < AST::Visitor(Object)
 
   # Generates corresponding input function
   def generate_input_function(menu : String, stmts : Array(AST::Stmt))
+    # TODO: merge to gen action function
     code = String.build do |s|
       # TODO: implement 'input()' api for BaseMenu in the runtime
       s << "async input() #{opening_brace}"
