@@ -251,7 +251,7 @@ class Parser
   # goto parent_menu.child_menu.grandchild.great_grand_child
   # ```
   private def parse_goto(shorthand : Bool) : AST::Goto
-    name : Token = if check(TokenType::START, TokenType::BACK, TokenType::END)
+    name : Token = if check(TokenType::START, TokenType::END)
       advance()
     else
       # Parse call to nested menu

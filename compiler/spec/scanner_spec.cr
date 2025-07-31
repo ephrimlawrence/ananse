@@ -29,12 +29,6 @@ describe Scanner do
       tokens.is_a?(Array(Token)).should eq(true)
       tokens.size.should eq(3)
     end
-
-    it "goto back" do
-      tokens = scan(Grammar.goto(back: true))
-      tokens.is_a?(Array(Token)).should eq(true)
-      tokens.size.should eq(3)
-    end
   end
 
   describe "action grammar" do

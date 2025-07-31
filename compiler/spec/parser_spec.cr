@@ -24,16 +24,6 @@ describe Parser do
       end
     end
 
-    it "goto back" do
-      stmts = parse(Grammar.goto(back: true))
-      stmts.size.should eq(1)
-      stmts[0].is_a?(AST::GotoStatement).should eq(true)
-
-      stmt = stmts[0].as(AST::GotoStatement)
-      stmt.menu.name.value.should eq("back")
-      stmt.menu.name.type.should eq(TokenType::BACK)
-    end
-
     it "goto start" do
       stmts = parse(Grammar.goto(start: true))
       stmts.size.should eq(1)
@@ -56,12 +46,6 @@ describe Parser do
 
     it "goto end" do
       tokens = scan(Grammar.goto(is_end: true))
-      tokens.is_a?(Array(Token)).should eq(true)
-      tokens.size.should eq(3)
-    end
-
-    it "goto back" do
-      tokens = scan(Grammar.goto(back: true))
       tokens.is_a?(Array(Token)).should eq(true)
       tokens.size.should eq(3)
     end

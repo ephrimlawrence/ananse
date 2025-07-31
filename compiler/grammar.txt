@@ -34,7 +34,7 @@
 
 <goto_stmt>			::= "goto" <space> ( <navigate_stmt> | ( <identifier> ( "." <identifier> )* ))
 
-<navigate_stmt>		::= "end" | "back" | "start"
+<navigate_stmt>		::= "end" | "start"
 
 <if_statement> ::= "if" "(" <condition> ")" "{" <statement_list> "}" ("else" "{" <statement_list> "}" )?
 

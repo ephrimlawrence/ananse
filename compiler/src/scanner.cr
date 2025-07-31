@@ -32,7 +32,7 @@ module Scanner
       "in"      => TokenType::IN,
       "goto"    => TokenType::GOTO,
       "end"     => TokenType::END,
-      "back"    => TokenType::BACK,
+      # "back"    => TokenType::BACK,
       "start"   => TokenType::START,
       "print"   => TokenType::PRINT,
       "var"     => TokenType::VAR,
