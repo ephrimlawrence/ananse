@@ -19,7 +19,7 @@ class CodeGenerator < AST::Visitor(Object)
   def generate(ast : TransformedAST) : String?
     typescript = String.build do |s|
       # Add action names as import
-      s << "import { MenuRouter } from 'ananse';"
+      s << "import { MenuRouter } from 'ananse';\n"
 
       if !ast.actions.empty?
         s << "import { " << ast.actions.join(", ") << " } " << "from './actions';\n"
