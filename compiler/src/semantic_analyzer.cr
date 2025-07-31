@@ -191,7 +191,7 @@ class SemanticAnalyzer < AST::Visitor(Nil)
 
   def visit_option_expr(expr : AST::Option) : Nil
     if !expr.next_menu.nil?
-      @menu_env.referenced(expr.next_menu.as(AST::Goto).name)
+      evaluate(expr.next_menu.as(AST::Goto))
     end
   end
 

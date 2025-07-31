@@ -95,8 +95,7 @@ describe SemanticAnalyzer do
             goto another_child
 
             menu another_child {
-              display "Hi"
-              goto enter_age.child_menu10
+              option 1 "Click me" -> enter_age.child_menu10
             }
           }
         USSD
