@@ -9,29 +9,22 @@ require "./semantic_analyzer"
 require "./ast_transformer.cr"
 require "option_parser"
 require "option_parser"
-
-# require "./lexer.cr"
+require "file_watcher"
 
 module Compiler
   VERSION = "0.1.0"
 
-  # @@program : String = ""
-  # @@had_error : Bool = false
+  def self.run(path : String?)
+    if path.nil?
+      raise CompilerError.new("No source file/directory provided! Specify path to the .ussd file")
+    end
 
-  def self.run
+    f : File = File.new(path)
+    if !File.exists?(path)
+      raise CompilerError.new("No file exists at #{path}")
+    end
+
     source : String = File.read("spec/program.ussd")
-    # @@program = file.gets_to_end
-    # file.close
-
-    # p! @@program
-
-    # // Stop if there was a syntax error.
-    # if @@had_error
-    #   return
-    # end
-
-    # puts program
-    # puts AstPrinter.new.print(expression)
 
     begin
       scanner : Scanner::Scan = Scanner::Scan.new(source)
@@ -48,23 +41,6 @@ module Compiler
     rescue err
       STDERR.puts err.message
     end
-    # code_gen.generate(expression.as(Expression::Expr))
-
-    # puts scanner.scan_tokens
-
-    # p! scanner
-    # lexer = Scanner::Lexer.new(@@program)
-
-    # parser = Parser.new(lexer)
-    # program = parser.parse_program
-    # puts "Parsing successful! Generated AST (simplified output):"
-    # p! program
-
-    # loop do
-    #   token = lexer.next_token
-    #   puts token
-    #   break if token.type == Scanner::TokenType::EOF
-    # end
   end
 
   def self.read_script
@@ -72,21 +48,34 @@ module Compiler
   end
 end
 
-# Call run on script execution
-# Compiler.run
-
-build : Bool = false
+path : String? = nil
 
 OptionParser.parse do |parser|
+  path_msg = "Compiles the USSD project located at the specified path."
+
   parser.banner = "Ananse USSD Compiler"
 
-  parser.on "-b", "--build", "Generate Typescript code" do
-    build = true
-    Compiler.run
+  parser.on "build", "Compiles USSD code" do
+    parser.on "-p PATH", "--path=PATH", path_msg do |src|
+      path = src
+
+      Compiler.run(path)
+      exit
+    end
+  end
+
+  parser.on "watch", "Starts compiler in watch mode USSD code on file changes" do
+    parser.on "-p PATH", "--path=PATH", path_msg do |src|
+      # path = src
+      FileWatcher.watch(src) do |event|
+        puts event.path # Path to file, eg. "path/to/folder/file.txt"
+        Compiler.run(src)
+      end
+    end
   end
 
   parser.on "-v", "--version", "Show version" do
-    puts "version 1.0"
+    puts Compiler::VERSION
     exit
   end
 

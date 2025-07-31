@@ -11,3 +11,7 @@ targets:
 crystal: '>= 1.16.0'
 
 license: MIT
+
+dependencies:
+  file_watcher:
+    github: stephannv/file_watcher
