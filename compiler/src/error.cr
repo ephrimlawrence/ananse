@@ -5,9 +5,9 @@ class CompilerError < Exception
 
   def initialize(message : String, token : Token)
     if (token.type == TokenType::EOF)
-      super report(token.location, " at end", message)
+      super CompilerError.report(token.location, " at end", message)
     else
-      super report(token.location, " at '" + token.value + "'", message)
+      super CompilerError.report(token.location, " at '" + token.value + "'", message)
     end
   end
 
@@ -16,7 +16,7 @@ class CompilerError < Exception
   end
 
   def initialize(location : Location, message : String)
-    super report(location, "", message)
+    super CompilerError.report(location, "", message)
   end
 
   # def self.error(token : Token, message : String)
@@ -36,7 +36,7 @@ class CompilerError < Exception
   #   hadRuntimeError = true;
   # }
 
-  private def report(location : Location, where : String, message : String)
+  def self.report(location : Location, where : String, message : String)
     return "[line #{location.line}:#{location.column}] Error #{where} : #{message}"
   end
 

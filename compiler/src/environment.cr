@@ -88,6 +88,33 @@ class MenuEnvironment
 
     # @menu_references[name] = {false, ref}
     # if name.includes?('.')
+    # parts : Array(String) = name.split('.')
+    # result : MenuEnvironment? = resolve(parts.shift)
+
+    # # Handle nested menu calls eg. parent.child.child.grandchild
+    # # Start from the parent (first array item), to the last child (last array item)
+    # while parts.size > 0
+    #   if result.nil?
+    #     break
+    #   end
+    #   result = result.resolve(parts.shift)
+    # end
+    # end
+
+    @menu_references[name] = {!resolve_nested_call(name).nil?, ref}
+    return @menu_references[name][0]
+  end
+
+  def get(name : Token) : Tuple(Bool, Token)
+    return @names.has_key?(name.value)
+  end
+
+  def nested_call?(menu_reference : String) : Bool
+    menu_reference.includes?('.')
+  end
+
+  # Walks the menu tree, and indicates menus that are defined and used
+  def resolve_nested_call(name : String) : MenuEnvironment?
     parts : Array(String) = name.split('.')
     result : MenuEnvironment? = resolve(parts.shift)
 
@@ -99,19 +126,54 @@ class MenuEnvironment
       end
       result = result.resolve(parts.shift)
     end
+
+    return result
+  end
+
+  def gather_errors(previous_errors : Array(String) = [] of String) : Array(String)
+    # TODO: resolve 'nested.menu.names'
+    @menu_references.each do |name, (is_defined, token)|
+      if !is_defined && nested_call?(token.value)
+        # is_nested_call : Bool = token.value.includes?('.')
+        # if is_nested_call
+        # Do final resolution for nested menu calls
+        is_defined = !resolve_nested_call(token.value).nil?
+        # end
+      end
+
+      if !is_defined
+        ref : String = name.split(".").join(" > ")
+        previous_errors << CompilerError.report(
+          location: token.location,
+          where: " at '#{token.value}'",
+          message: "Reference to '#{ref}' menu but it is not defined"
+        )
+      end
+    end
+
+    @children.each do |name, env|
+      previous_errors = env.gather_errors(previous_errors)
+    end
+
+    return previous_errors
+    # if @children.has_key?(name)
+    #   if @menu_references.has_key?(name)
+    #     @menu_references[name] = {true, @menu_references[name][1]}
+    #     # return true
+    #   end
+
+    #   return @children[name]
     # end
 
-    @menu_references[name] = {!resolve(name).nil?, ref}
-    return @menu_references[name][0]
+    # if @parent.nil?
+    #   # We are at the root node, stop
+    #   return nil
+    # end
+
+    # return @parent.as(MenuEnvironment).resolve(name)
   end
 
-  def get(name : Token) : Tuple(Bool, Token)
-    return @names.has_key?(name.value)
-  end
-
-  # Walks the menu tree, and indicates menus that are defined and used
   def resolve(name : String) : MenuEnvironment?
-    # TODO: resolve 'nested.menu.names'
     if @children.has_key?(name)
       if @menu_references.has_key?(name)
         @menu_references[name] = {true, @menu_references[name][1]}

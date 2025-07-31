@@ -25,6 +25,13 @@ class SemanticAnalyzer < AST::Visitor(Nil)
     end
 
     # Report unused menu definitions
+    errors : Array(String) = @menu_env.gather_errors()
+    if !errors.empty?
+      raise CompilerError.new(errors.join("\n"))
+    end
+    # pp errors
+    # pp @menu_env
+
     # @menu_env.references.each do |name, (count, token)|
     #   if count == 0
     #     raise CompilerError.new("Menu '#{name}' is defined but never used", token)
@@ -103,8 +110,8 @@ class SemanticAnalyzer < AST::Visitor(Nil)
       execute(s)
     end
 
-    pp @menu_env
-    puts "new menu"
+    # pp @menu_env
+    # puts "new menu"
     @menus_pending_resolution.shift
   end
 
@@ -146,7 +153,6 @@ class SemanticAnalyzer < AST::Visitor(Nil)
 
   def visit_goto_expr(expr : AST::Goto) : Nil
     @menus_pending_resolution.first?.as(MenuEnvironment).referenced(expr.name)
-    # return "\"#{expr.name.value}\""
   end
 
   def visit_action_stmt(stmt : AST::ActionStatement)
