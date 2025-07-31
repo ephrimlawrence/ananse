@@ -224,7 +224,7 @@ class CodeGenerator < AST::Visitor(Object)
       s << "return [{ choice: /.*/, display: undefined, handler: async (req: Request) => {"
       stmts.each do |stmt|
         p! stmt
-        s << execute(stmt) << @newline;
+        s << execute(stmt) << @newline
       end
       s << "}}];" << closing_brace
     end
@@ -363,43 +363,33 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_action_stmt(stmt : AST::ActionStatement) : String
-    # TODO: save js fun to environment
-    # TODO: save action var name to environment
-
-    expr : AST::Action = stmt.expression
-
-    if !expr.name.nil?
-      # Add action variable to environment
-      @environment.define(expr.name.as(Token).value, "true")
-    end
-
-    return evaluate(expr)
+    return evaluate(stmt.expression)
   end
 
-
   def visit_action_expr(expr : AST::Action) : String
-    code = String.build do |s|
-      func_call : String = "await #{expr.func_name.value}({"
-      expr.params.each_key do |key|
-        func_call += "#{key.value}:"
+    code : String = "await #{expr.func_name.value}({"
 
-        param : Token = expr.params[key]
-        if param.type == TokenType::IDENTIFIER
-          func_call += "await req.session.get('#{param.value}'),"
-        else
-          func_call += "#{param.value},"
-        end
-      end
-      func_call += "});"
+    expr.params.each_key do |key|
+      code += "#{key.value}:"
+      param : Token = expr.params[key]
 
-      if expr.name != nil
-        var_name = Util.generate_identifier_name
-        s << "const #{var_name} = " << s
-        s << "await req.session.set('#{var_name}', #{var_name});"
+      if param.type == TokenType::IDENTIFIER
+        code += "await req.session.get('#{param.value}'),"
+      else
+        code += "#{param.value},"
       end
     end
+    code += "});"
 
-    return code.to_s
+    if expr.name != nil
+      var_name = Util.generate_identifier_name
+      code = <<-JS
+          const #{var_name} = #{code}
+          await req.session.set("#{expr.name.as(Token).value}", #{var_name});
+        JS
+    end
+
+    return code
   end
 
   def visit_goto_stmt(stmt : AST::GotoStatement) : String
