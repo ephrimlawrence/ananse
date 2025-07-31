@@ -17,25 +17,11 @@ class Environment
   end
 end
 
-# struct Menu
-#   property names : Hash(String, Bool) = {} of String => Bool
-#   property children : Array(Menu) = [] of Menu
-
-#   # def initialize
-#   # end
-# end
-
 class MenuEnvironment
   property menu_references : Hash(String, Tuple(Bool, Token)) = {} of String => Tuple(Bool, Token)
   property children : Hash(String, MenuEnvironment) = {} of String => MenuEnvironment
   property menu : Token? = nil
   property parent : MenuEnvironment? = nil
-
-  # property names : Hash(String, Token) = {} of String => Token
-
-  # Tracks calls to menu definitions
-  # {menu_name: (number_of_calls, token)}
-  # property references : Hash(String, Tuple(Int32, Token)) = {} of String => Tuple(Int32, Token)
 
   def initialize(@menu = nil, @parent = nil)
   end
@@ -51,26 +37,15 @@ class MenuEnvironment
   def define(menu : Token)
     name : String = menu.value
 
-    # submenu()
-    # if !@children.has_key?(name)
-    #   @children[name] = submenu()
-    # end
-
     if @children.has_key?(name)
-      # value : Tuple(Bool, Token) = @names[name]
-
-      # if @names[name][0]
       raise CompilerError.new("Duplicate menu definitions! Menu '#{name}' is already defined on #{@children[name].menu.as(Token).location.to_s}", menu)
-      # end
     end
 
     sub = MenuEnvironment.new(menu, self)
-    # @children << sub
     @children[name] = sub
     resolve(name)
 
     return sub
-    # @names[name] = {true, menu}
   end
 
   def referenced(ref : Token) : Bool
@@ -86,31 +61,12 @@ class MenuEnvironment
       #  ? true : resolve(name)
     end
 
-    # @menu_references[name] = {false, ref}
-    # if name.includes?('.')
-    # parts : Array(String) = name.split('.')
-    # result : MenuEnvironment? = resolve(parts.shift)
-
-    # # Handle nested menu calls eg. parent.child.child.grandchild
-    # # Start from the parent (first array item), to the last child (last array item)
-    # while parts.size > 0
-    #   if result.nil?
-    #     break
-    #   end
-    #   result = result.resolve(parts.shift)
-    # end
-    # end
-
     @menu_references[name] = {!resolve_nested_call(name).nil?, ref}
     return @menu_references[name][0]
   end
 
-  def get(name : Token) : Tuple(Bool, Token)
-    return @names.has_key?(name.value)
-  end
-
-  # def nested_call?(menu_reference : String) : Bool
-  #   menu_reference.includes?('.')
+  # def get(name : Token) : Tuple(Bool, Token)
+  #   return @names.has_key?(name.value)
   # end
 
   # Walks the menu tree, and indicates menus that are defined and used
@@ -131,7 +87,6 @@ class MenuEnvironment
   end
 
   def gather_errors(previous_errors : Array(String) = [] of String) : Array(String)
-    # TODO: resolve 'nested.menu.names'
     @menu_references.each do |name, (is_defined, token)|
       if !is_defined
         # Perform final resolution
@@ -153,28 +108,12 @@ class MenuEnvironment
     end
 
     return previous_errors
-    # if @children.has_key?(name)
-    #   if @menu_references.has_key?(name)
-    #     @menu_references[name] = {true, @menu_references[name][1]}
-    #     # return true
-    #   end
-
-    #   return @children[name]
-    # end
-
-    # if @parent.nil?
-    #   # We are at the root node, stop
-    #   return nil
-    # end
-
-    # return @parent.as(MenuEnvironment).resolve(name)
   end
 
   def resolve(name : String) : MenuEnvironment?
     if @children.has_key?(name)
       if @menu_references.has_key?(name)
         @menu_references[name] = {true, @menu_references[name][1]}
-        # return true
       end
 
       return @children[name]
