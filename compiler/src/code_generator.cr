@@ -11,12 +11,19 @@ class CodeGenerator < AST::Visitor(Object)
   # A variable name is removed from the stack after executing a menu block
   property display_variable_names : Array(String) = [] of String
 
+  # Tracks menu and class names
+  property menu_class_names : Hash(String, String) = {} of String => String
+
   alias ExpressionType = String | Int32 | Float64 | Bool | AST::Expr | Nil
 
   def generate(ast : TransformedAST) : String?
     typescript = String.build do |s|
       # Add action names as import
-      s << "import { " << ast.actions.join(", ") << " } " << "from './actions';\n"
+      s << "import { MenuRouter } from 'ananse';"
+
+      if !ast.actions.empty?
+        s << "import { " << ast.actions.join(", ") << " } " << "from './actions';\n"
+      end
 
       ast.menu_definitions.each do |definition|
         menu : AST::MenuStatement = definition["menu"].first.as(AST::MenuStatement)
@@ -29,6 +36,11 @@ class CodeGenerator < AST::Visitor(Object)
         s << generate_goto_function(menu.name.value, definition["goto"])
         # message() code generation
         s << "}\n"
+      end
+
+      # Add menus to router
+      @menu_class_names.each do |name, class_name|
+        s << "MenuRouter.add(#{class_name}, '#{name}');"
       end
     end
 
@@ -177,6 +189,10 @@ class CodeGenerator < AST::Visitor(Object)
   # Generates menu class definition code stub
   def visit_menu_stmt(stmt : AST::MenuStatement) : String
     class_name = "Menu_#{Util.generate_identifier_name(stmt.name.value)}".camelcase
+
+    # Track menu name and class name
+    @menu_class_names[stmt.name.value] = class_name
+
     code = "export class #{class_name} extends BaseMenu #{opening_brace}"
     if !stmt.start.nil?
       code = <<-JS

@@ -18,7 +18,6 @@ start menu welcome {
 
       menu child_menu3 {
         display "Hi again"
-        goto child_menu4
       }
     }
   }
