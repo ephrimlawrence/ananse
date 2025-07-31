@@ -102,25 +102,6 @@ class CodeGenerator < AST::Visitor(Object)
     return @environment.get(expr.name)
   end
 
-  def visit_option_expr(expr : AST::Option) : String
-    # TODO: generate code
-    code = String.build do |s|
-      # TODO: check token type, if number/string, add to label
-      s << "{" << "choice: #{expr.target.value},"
-      s << "display: #{expr.label.value},"
-      if !expr.next_menu.nil?
-        s << "next_menu: '#{expr.next_menu.as(AST::Goto).name.literal}',"
-      end
-      if !expr.action.nil?
-        s << "next_menu: async(req, res) => {"
-        s << evaluate(expr.action.as(AST::Action))
-        s << "},"
-      end
-      s << "}"
-    end
-    return code.to_s
-  end
-
   # private def is_truthy?(object : ExpressionType) : Bool
   #   if object == "null"
   #     return false
@@ -223,7 +204,6 @@ class CodeGenerator < AST::Visitor(Object)
 
       s << "return [{ choice: /.*/, display: undefined, handler: async (req: Request) => {"
       stmts.each do |stmt|
-        p! stmt
         s << execute(stmt) << @newline
       end
       s << "}}];" << closing_brace
@@ -359,6 +339,24 @@ class CodeGenerator < AST::Visitor(Object)
       s << ");\n"
     end
 
+    return code.to_s
+  end
+
+  def visit_option_expr(expr : AST::Option) : String
+    code = String.build do |s|
+      # TODO: check token type, if number/string, add to label
+      s << "{" << "choice: #{expr.target.value},"
+      s << "display: #{expr.label.value},"
+      if !expr.next_menu.nil?
+        s << "next_menu: '#{expr.next_menu.as(AST::Goto).name.literal}',"
+      end
+      if !expr.action.nil?
+        s << "next_menu: async(req, res) => {"
+        s << evaluate(expr.action.as(AST::Action))
+        s << "},"
+      end
+      s << "}"
+    end
     return code.to_s
   end
 
