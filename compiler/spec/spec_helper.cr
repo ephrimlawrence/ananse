@@ -22,6 +22,10 @@ def analyze(ast : Array(AST::Stmt)) : Bool
   analyzer.analyze
 end
 
+def transform_ast(ast : Array(AST::Stmt)) : TransformedAST
+  AstTransformer.new(ast).transform
+end
+
 def analyze(source : String)
   tokens = scan(source)
   ast = parse(tokens)
@@ -32,5 +36,5 @@ def generate_js(source : String)
   tokens = scan(source)
   ast = parse(tokens)
   analyze(ast)
-  CodeGenerator.new.generate(ast)
+  CodeGenerator.new.generate(transform_ast(ast))
 end
