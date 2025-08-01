@@ -146,54 +146,6 @@ class Simulator
     text || "Unable to parse text from response"
   end
 
-  # Parses command-line arguments.
-  # private def parse_arguments
-  # OptionParser.parse(ARGV) do |parser|
-  #   parser.banner = "Usage: simulator [options]"
-  #   parser.on("-p PROVIDER", "--provider=PROVIDER", "The USSD gateway provider (wigal or emergent_technology)") do |p|
-  #     case p.downcase
-  #     when "wigal"
-  #       @provider = SupportedGateway::Wigal
-  #     when "emergent_technology"
-  #       @provider = SupportedGateway::EmergentTechnology
-  #     else
-  #       raise "Unsupported provider: #{p}"
-  #     end
-  #   end
-  #   parser.on("-n NUMBER", "--phone=NUMBER", "The phone number to use for the simulation") do |n|
-  #     @phone = n
-  #   end
-  #   parser.on("-u URL", "--url=URL", "The base URL for the USSD application") do |u|
-  #     @url = u
-  #   end
-  #   parser.on("--debug", "Enable debug logging") do
-  #     @debug = true
-  #   end
-  #   parser.on("-h", "--help", "Show this help") do
-  #     puts parser
-  #     exit
-  #   end
-  # end
-
-  # if @phone.nil? || @phone.as(String).empty? || !@phone.as(String).match(/[0-9]{10,}/)
-  #   puts "Please provide a valid phone number (e.g., -n 024xxxxxxx)"
-  #   Process.exit(1)
-  # end
-  # if @provider.nil?
-  #   puts "Please provide a provider (e.g., -p wigal)"
-  #   Process.exit(1)
-  # end
-  # end
-
-  # Logs data to the console if debug mode is enabled.
-  # def log(data : _)
-  #   if @debug
-  #     puts ""
-  #     puts data
-  #     puts ""
-  #   end
-  # end
-
   private def generate_phone : String
     number : String = "024"
     while number.size < 10
