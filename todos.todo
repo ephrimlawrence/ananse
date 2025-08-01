@@ -7,6 +7,16 @@ Compiler:
     ☐ action variable resolution
     ☐ input variable resolution
 
+  ☐ program testing
+    ☐ all actions must be in one file
+    ☐ tests code generation
+      ☐ save code to tempfile in tmp/
+      ☐ select random unused port
+        ☐ start ananse server
+      ☐ read test cases from yaml file
+        ☐ run against server via simulator
+      ☐ clean up resources
+
 Pending features:
   ☐ input validation error display
   ☐ implement menu.input((req, res)) => NextMenu
