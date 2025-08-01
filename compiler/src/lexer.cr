@@ -97,8 +97,8 @@ module Scanner
       "goto"    => TokenType::KEYWORD_GOTO,
       "end"     => TokenType::KEYWORD_END,
       # "js"      => TokenType::KEYWORD_JS,
-      "true"    => TokenType::KEYWORD_TRUE,
-      "false"   => TokenType::KEYWORD_FALSE,
+      "true"  => TokenType::KEYWORD_TRUE,
+      "false" => TokenType::KEYWORD_FALSE,
     }
 
     def initialize(@source : String)
@@ -183,11 +183,11 @@ module Scanner
       buffer = String.build do |s|
         while @char != quote_char && @char != '\0' && @char != '\n'
           if @char == '\\'                       # Handle escape sequences
-            s.puts(@char)                         # Put the backslash
+            s.puts(@char)                        # Put the backslash
             read_char                            # Consume the escaped char
-            s.puts(@char)                         # Put the escaped char
+            s.puts(@char)                        # Put the escaped char
           elsif @char == '{' && peek_char == '{' # Handle {{ interpolation markers
-            s.puts(@char)                         # Put first {
+            s.puts(@char)                        # Put first {
             read_char
             s.puts(@char) # Put second {
             read_char
@@ -281,7 +281,7 @@ module Scanner
                 end
               when ';' then Token.new(TokenType::SEMICOLON, @char.to_s, current_location)
               when '=' then Token.new(TokenType::ASSIGN, @char.to_s, current_location)
-              # when ':' then Token.new(TokenType::COLON, @char.to_s, current_location)
+                # when ':' then Token.new(TokenType::COLON, @char.to_s, current_location)
               when ',' then Token.new(TokenType::COMMA, @char.to_s, current_location)
               when '-'
                 if peek_char == '>'

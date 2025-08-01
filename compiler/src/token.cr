@@ -56,8 +56,8 @@ enum TokenType
   LESS_EQUAL    # <=
 
   NEW_LINE # "\n"
-  EOF     # End of File
-  UNKNOWN # For unrecognised characters
+  EOF      # End of File
+  UNKNOWN  # For unrecognised characters
 end
 
 struct Location
@@ -74,7 +74,7 @@ end
 
 struct Token
   property type : TokenType
-  property value : String                        # same as lexeme
+  property value : String                                # same as lexeme
   property literal : String? | Int32? | Float64? | Bool? # Raw value passed, eg. string with quotes
   property location : Location
 

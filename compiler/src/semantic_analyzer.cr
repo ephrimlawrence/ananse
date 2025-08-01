@@ -25,7 +25,7 @@ class SemanticAnalyzer < AST::Visitor(Nil)
     end
 
     # Report unused menu definitions
-    errors : Array(String) = @menu_env.gather_errors()
+    errors : Array(String) = @menu_env.gather_errors
     if !errors.empty?
       raise CompilerError.new(errors.join("\n"))
     end

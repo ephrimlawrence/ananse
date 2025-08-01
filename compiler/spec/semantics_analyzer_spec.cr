@@ -42,7 +42,6 @@ describe SemanticAnalyzer do
           USSD
         analyze(code)
       end
-
     end
 
     it "report referenced but undefined menu" do

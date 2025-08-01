@@ -1,0 +1,222 @@
+#!/usr/bin/crystal
+
+require "http/client"
+require "json"
+require "option_parser"
+require "uuid"
+
+# Define the gateways
+enum SupportedGateway
+  Wigal
+  EmergentTechnology
+end
+
+# This cache holds session data for each provider, acting as a simple in-memory store.
+CACHE = {
+  SupportedGateway::Wigal              => {session_id: nil, operator: nil},
+  SupportedGateway::EmergentTechnology => {session_id: nil, operator: nil},
+}
+
+# The main Simulator class to handle the USSD flow.
+class Simulator
+  private property phone : String
+  private property url : String
+
+  getter provider : SupportedGateway
+  getter port : Int64
+
+  # @debug : Bool = false
+
+  # Initializes the simulator by parsing arguments from the command line.
+  def initialize(@provider, @port, phone_number : String? = nil)
+    @url = "http://localhost:#{@port}"
+
+    # Generate phone number for the session
+    if phone_number.nil?
+      @phone = generate_phone
+    else
+      @phone = phone_number
+    end
+  end
+
+  # Start the USSD session.
+  def init(url : String? = nil, request_body : String? = nil)
+    begin
+      case @provider
+      when SupportedGateway::Wigal
+        # For Wigal, we make a GET request.
+        response = HTTP::Client.get(url || reply.as(String))
+        data = response.body
+        wigal_response = parse_response(data)
+
+        # Output the display text and check if the session should end.
+        puts ""
+        puts display_text(wigal_response["userdata"].to_s)
+        puts ""
+
+        if wigal_response["mode"] == "end"
+          Process.exit(0)
+        end
+
+        # Prompt the user for input and continue the session.
+        print "Response: "
+        input = STDIN.gets
+        return init(reply(wigal_response, input)["url"].as(String))
+      when SupportedGateway::EmergentTechnology
+        # For Emergent Technology, we make a POST request with a JSON body.
+        reply_data = reply(nil, request_body).as(Hash(String, JSON::Any))
+        response = HTTP::Client.post(reply_data["url"].to_s, body: reply_data["body"].to_json)
+
+        # Parse the JSON response.
+        json : Hash(String, String) = Hash(String, String).from_json(response.body)
+
+        puts ""
+        puts display_text(json["Message"].to_s)
+        puts ""
+
+        if json["Type"].to_s == "Release"
+          Process.exit(0)
+        end
+
+        # Prompt the user for input and continue the session with a new POST body.
+        print "Response: "
+        input = STDIN.gets
+        reply_data = reply(json, input).as(Hash(String, JSON::Any))
+        return init(reply_data["url"].to_s, reply_data["body"].to_json)
+      end
+    rescue ex
+      # Log any errors that occur during the simulation.
+      puts "Simulator error: #{ex.message}"
+      # log(ex)
+      Process.exit(1)
+    end
+  end
+
+  # Helper method to generate the URL or request body for the next step.
+  def reply(data : Hash(String, String)? = nil, input : String? = nil) : Hash(String, Hash(String, String) | String) | Hash(String, String)
+    case @provider
+    when SupportedGateway::Wigal
+      # For Wigal, build a query string.
+      data ||= {"network" => "wigal_mtn_gh", "sessionid" => "#{UUID.random.to_s}", "mode" => "start", "msisdn" => "#{@phone}", "username" => "test_user"}
+
+      # URL-encode the input if it contains a hash symbol.
+      input = input.try { |i| i.chomp.gsub("#", "%23") }
+      session_id : String = data["sessionid"].to_s || UUID.random.to_s
+
+      req_url : String = "#{@url}?network=#{data["network"]}&sessionid=#{session_id}&mode=#{data["mode"]}&msisdn=#{data["msisdn"]}&userdata=#{input.to_s}&username=#{data["username"]}&trafficid=#{UUID.random.to_s}"
+      # log(url)
+      return {"url" => req_url}
+    when SupportedGateway::EmergentTechnology
+      # For Emergent Technology, build a JSON body.
+      data ||= {"Mobile" => "#{@phone}", "Message" => "*714#"}
+      data["Message"] = input.try(&.chomp) || data["Message"]
+
+      # Use the session ID from the cache or generate a new one.
+      cache = CACHE[SupportedGateway::EmergentTechnology].as(Hash(Symbol, String?))
+      data["SessionId"] = cache[:session_id] || UUID.random.to_s
+      data["Type"] = "Initiation"
+      data["Mobile"] = @phone
+      data["Operator"] = "Vodafone"
+      data["ServiceCode"] = "714"
+
+      # Update the cache with the current session ID.
+      cache[:session_id] = data["SessionId"].to_s
+
+      return {"url" => @url, "body" => data}
+    else
+      raise "Reply is not implemented for #{@provider}"
+    end
+  end
+
+  # Parses the response from the Wigal gateway.
+  def parse_response(data : String) : Hash(String, String)
+    # log(data)
+
+    if @provider == SupportedGateway::Wigal
+      resp = data.split("|")
+      {
+        "network"   => resp[0],
+        "mode"      => resp[1],
+        "msisdn"    => resp[2],
+        "sessionid" => resp[3],
+        "userdata"  => resp[4].gsub("^", "\n"),
+        "username"  => resp[5],
+        "trafficid" => resp[6],
+        "other"     => resp[7],
+      }
+    else
+      raise "Response parsing is not implemented for #{@provider}"
+    end
+  end
+
+  # Formats the display text by replacing `^` with newlines.
+  def display_text(text : String?)
+    text || "Unable to parse text from response"
+  end
+
+  # Parses command-line arguments.
+  # private def parse_arguments
+  # OptionParser.parse(ARGV) do |parser|
+  #   parser.banner = "Usage: simulator [options]"
+  #   parser.on("-p PROVIDER", "--provider=PROVIDER", "The USSD gateway provider (wigal or emergent_technology)") do |p|
+  #     case p.downcase
+  #     when "wigal"
+  #       @provider = SupportedGateway::Wigal
+  #     when "emergent_technology"
+  #       @provider = SupportedGateway::EmergentTechnology
+  #     else
+  #       raise "Unsupported provider: #{p}"
+  #     end
+  #   end
+  #   parser.on("-n NUMBER", "--phone=NUMBER", "The phone number to use for the simulation") do |n|
+  #     @phone = n
+  #   end
+  #   parser.on("-u URL", "--url=URL", "The base URL for the USSD application") do |u|
+  #     @url = u
+  #   end
+  #   parser.on("--debug", "Enable debug logging") do
+  #     @debug = true
+  #   end
+  #   parser.on("-h", "--help", "Show this help") do
+  #     puts parser
+  #     exit
+  #   end
+  # end
+
+  # if @phone.nil? || @phone.as(String).empty? || !@phone.as(String).match(/[0-9]{10,}/)
+  #   puts "Please provide a valid phone number (e.g., -n 024xxxxxxx)"
+  #   Process.exit(1)
+  # end
+  # if @provider.nil?
+  #   puts "Please provide a provider (e.g., -p wigal)"
+  #   Process.exit(1)
+  # end
+  # end
+
+  # Logs data to the console if debug mode is enabled.
+  # def log(data : _)
+  #   if @debug
+  #     puts ""
+  #     puts data
+  #     puts ""
+  #   end
+  # end
+
+  private def generate_phone : String
+    number : String = "024"
+    while number.size < 10
+      number += Random.new.next_int.to_s.gsub('-', "")
+    end
+
+    if number.size > 10
+      number = number[..9]
+    end
+
+    return number
+  end
+end
+
+# Create a new Simulator instance and run it.
+simulator = Simulator.new(SupportedGateway::Wigal, 332)
+# simulator.init
+simulator.init
