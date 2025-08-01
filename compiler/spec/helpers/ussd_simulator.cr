@@ -11,16 +11,11 @@ enum SupportedGateway
   EmergentTechnology
 end
 
-# This cache holds session data for each provider, acting as a simple in-memory store.
-CACHE = {
-  SupportedGateway::Wigal              => {session_id: nil, operator: nil},
-  SupportedGateway::EmergentTechnology => {session_id: nil, operator: nil},
-}
-
 # The main Simulator class to handle the USSD flow.
 class Simulator
   private property phone : String
   private property url : String
+  private property session_cache : Hash(Symbol, String) = {:emergent => ""}
 
   getter provider : SupportedGateway
   getter port : Int64
@@ -45,7 +40,7 @@ class Simulator
       case @provider
       when SupportedGateway::Wigal
         # For Wigal, we make a GET request.
-        response = HTTP::Client.get(url || reply.as(String))
+        response = HTTP::Client.get(url || wigal_reply())
         data = response.body
         wigal_response = parse_response(data)
 
@@ -61,10 +56,10 @@ class Simulator
         # Prompt the user for input and continue the session.
         print "Response: "
         input = STDIN.gets
-        return init(reply(wigal_response, input)["url"].as(String))
+        return init(wigal_reply(wigal_response, input)["url"])
       when SupportedGateway::EmergentTechnology
         # For Emergent Technology, we make a POST request with a JSON body.
-        reply_data = reply(nil, request_body).as(Hash(String, JSON::Any))
+        reply_data = emergent_reply(nil, request_body)
         response = HTTP::Client.post(reply_data["url"].to_s, body: reply_data["body"].to_json)
 
         # Parse the JSON response.
@@ -81,7 +76,7 @@ class Simulator
         # Prompt the user for input and continue the session with a new POST body.
         print "Response: "
         input = STDIN.gets
-        reply_data = reply(json, input).as(Hash(String, JSON::Any))
+        reply_data = emergent_reply(json, input)
         return init(reply_data["url"].to_s, reply_data["body"].to_json)
       end
     rescue ex
@@ -93,43 +88,40 @@ class Simulator
   end
 
   # Helper method to generate the URL or request body for the next step.
-  def reply(data : Hash(String, String)? = nil, input : String? = nil) : Hash(String, Hash(String, String) | String) | Hash(String, String)
-    case @provider
-    when SupportedGateway::Wigal
-      # For Wigal, build a query string.
-      data ||= {"network" => "wigal_mtn_gh", "sessionid" => "#{UUID.random.to_s}", "mode" => "start", "msisdn" => "#{@phone}", "username" => "test_user"}
+  private def emergent_reply(data : Hash(String, String)? = nil, input : String? = nil) : Hash(String, Hash(String, String) | String)
+    # For Emergent Technology, build a JSON body.
+    data ||= {"Mobile" => "#{@phone}", "Message" => "*714#"}
+    data["Message"] = input.try(&.chomp) || data["Message"]
 
-      # URL-encode the input if it contains a hash symbol.
-      input = input.try { |i| i.chomp.gsub("#", "%23") }
-      session_id : String = data["sessionid"].to_s || UUID.random.to_s
+    # Use the session ID from the cache or generate a new one.
+    cache = @session_cache[:emergent]
+    data["SessionId"] = cache || UUID.random.to_s
+    data["Type"] = "Initiation"
+    data["Mobile"] = @phone
+    data["Operator"] = "Vodafone"
+    data["ServiceCode"] = "714"
 
-      req_url : String = "#{@url}?network=#{data["network"]}&sessionid=#{session_id}&mode=#{data["mode"]}&msisdn=#{data["msisdn"]}&userdata=#{input.to_s}&username=#{data["username"]}&trafficid=#{UUID.random.to_s}"
-      # log(url)
-      return {"url" => req_url}
-    when SupportedGateway::EmergentTechnology
-      # For Emergent Technology, build a JSON body.
-      data ||= {"Mobile" => "#{@phone}", "Message" => "*714#"}
-      data["Message"] = input.try(&.chomp) || data["Message"]
+    # Update the cache with the current session ID.
+    @session_cache[:emergent] = data["SessionId"].to_s
 
-      # Use the session ID from the cache or generate a new one.
-      cache = CACHE[SupportedGateway::EmergentTechnology].as(Hash(Symbol, String?))
-      data["SessionId"] = cache[:session_id] || UUID.random.to_s
-      data["Type"] = "Initiation"
-      data["Mobile"] = @phone
-      data["Operator"] = "Vodafone"
-      data["ServiceCode"] = "714"
+    return {"url" => @url, "body" => data}
+  end
 
-      # Update the cache with the current session ID.
-      cache[:session_id] = data["SessionId"].to_s
+  private def wigal_reply(data : Hash(String, String)? = nil, input : String? = nil) : String
+    # For Wigal, build a query string.
+    data ||= {"network" => "wigal_mtn_gh", "sessionid" => "#{UUID.random.to_s}", "mode" => "start", "msisdn" => "#{@phone}", "username" => "test_user"}
 
-      return {"url" => @url, "body" => data}
-    else
-      raise "Reply is not implemented for #{@provider}"
-    end
+    # URL-encode the input if it contains a hash symbol.
+    input = input.try { |i| i.chomp.gsub("#", "%23") }
+    session_id : String = data["sessionid"].to_s || UUID.random.to_s
+
+    req_url : String = "#{@url}?network=#{data["network"]}&sessionid=#{session_id}&mode=#{data["mode"]}&msisdn=#{data["msisdn"]}&userdata=#{input.to_s}&username=#{data["username"]}&trafficid=#{UUID.random.to_s}"
+    # log(url)
+    req_url
   end
 
   # Parses the response from the Wigal gateway.
-  def parse_response(data : String) : Hash(String, String)
+  private def parse_response(data : String) : Hash(String, String)
     # log(data)
 
     if @provider == SupportedGateway::Wigal
@@ -150,7 +142,7 @@ class Simulator
   end
 
   # Formats the display text by replacing `^` with newlines.
-  def display_text(text : String?)
+  private def display_text(text : String?)
     text || "Unable to parse text from response"
   end
 
