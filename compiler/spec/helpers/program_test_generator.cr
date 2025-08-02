@@ -34,7 +34,7 @@ class ProgramTestGenerator
     code_stub : String = File.read(PROGRAM_STUB_FILE)
     # TODO: generate code for gateway/session combinations
     code_stub = code_stub.gsub("__GATEWAY__", "'wigal'")
-    code_stub = code_stub.gsub("__SESSION__", "{type: 'memory'}")
+    code_stub = code_stub.gsub("__SESSION__", "'memory'")
 
     @files.each do |basename, value|
       # Generate typescript file

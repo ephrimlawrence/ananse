@@ -19,6 +19,7 @@ class Simulator
   getter provider : SupportedGateway
   getter port : String
   getter message : String?
+
   # @debug : Bool = false
 
   # Initializes the simulator by parsing arguments from the command line.
@@ -34,60 +35,79 @@ class Simulator
   end
 
   # Start the USSD session.
-  def init(url : String? = nil, request_body : String? = nil)
+  private def make_request(url : String? = nil, request_body : String? = nil)
     begin
       case @provider
       when SupportedGateway::Wigal
         # For Wigal, we make a GET request.
         response = HTTP::Client.get(url || wigal_reply())
+
         data = response.body
-        wigal_response = parse_response(data)
+        @session_cache = parse_response(data)
 
         # Output the display text and check if the session should end.
         # puts ""
         # puts display_text(wigal_response["userdata"].to_s)
         # puts ""
-        @message = wigal_response["userdata"].to_s
+        @message = @session_cache["userdata"].to_s
 
-        if wigal_response["mode"] == "end"
-          Process.exit(0)
+        if @session_cache["mode"] == "end"
+          exit 0
         end
 
         # Prompt the user for input and continue the session.
-        print "Response: "
-        input = STDIN.gets
-        return init(wigal_reply(wigal_response, input)["url"])
+        # print "Response: "
+        # input = STDIN.gets
+        # return init(wigal_reply(wigal_response, input)["url"])
       when SupportedGateway::EmergentTechnology
         # For Emergent Technology, we make a POST request with a JSON body.
         reply_data = emergent_reply(nil, request_body)
         response = HTTP::Client.post(reply_data["url"].to_s, body: reply_data["body"].to_json)
 
         # Parse the JSON response.
-        json : Hash(String, String) = Hash(String, String).from_json(response.body)
+        @session_cache = Hash(String, String).from_json(response.body)
 
         # puts ""
         # puts display_text(json["Message"].to_s)
         # puts ""
-        @message = json["Message"].to_s
+        @message = json["Message"]
 
-        if json["Type"].to_s == "Release"
+        if session_cache["Type"] == "Release"
           Process.exit(0)
         end
 
         # Prompt the user for input and continue the session with a new POST body.
-        print "Response: "
-        input = STDIN.gets
-        # TODO: find a way to get this from paramters
-        reply_data = emergent_reply(json, input)
+        # print "Response: "
+        # input = STDIN.gets
+        # # TODO: find a way to get this from paramters
+        # reply_data = emergent_reply(json, input)
 
-        return init(reply_data["url"].to_s, reply_data["body"].to_json)
+        # return init(reply_data["url"].to_s, reply_data["body"].to_json)
       end
+      return self
     rescue ex
       # Log any errors that occur during the simulation.
       puts "Simulator error: #{ex.message}"
       # log(ex)
       Process.exit(1)
     end
+  end
+
+  def input(value : String) : Simulator
+    case @provider
+    when SupportedGateway::Wigal
+      return make_request(wigal_reply(wigal_response, value)["url"])
+    when SupportedGateway::EmergentTechnology
+      data = emergent_reply(json, value)
+      return make_request(data["url"].to_s, data["body"].to_json)
+    end
+  end
+
+  def input(values : Array(String)) : Simulator
+    values.each do |v|
+      input(v)
+    end
+    return self
   end
 
   # Helper method to generate the URL or request body for the next step.

@@ -17,6 +17,10 @@ Compiler:
         ☐ run against server via simulator
       ☐ clean up resources
 
+Runtime:
+  ☐ handle missing menu errors gracefully
+    ☐ don't terminate the server in production
+
 Pending features:
   ☐ input validation error display
   ☐ implement menu.input((req, res)) => NextMenu

@@ -12,18 +12,42 @@ class TestDriver
   def initialize(@program_name)
   end
 
-  # TODO: integrate simulator
+  def finalize
+    stop
+  end
 
-  def run
+  def start
     port = generate_port_number.to_s
     @server = Process.new(TSX_BIN, ["#{EXPECTED_DIR}/#{program_name}", port])
     @simulator = Simulator.new(SupportedGateway::Wigal, port)
+    puts port
   end
 
-  def end_test
-    if !@server.nil?
-      @server.terminate
+  def stop
+    begin
+      if !@server.nil? && !@server.as(Process).terminated?
+        @server.as(Process).terminate
+      end
+    rescue e
     end
+  end
+
+  def input(value : String | Array(String))
+    if @simulator.nil?
+      stop
+      start
+    end
+
+    @simulator.input(value)
+    return self
+  end
+
+  def result : String?
+    if @simulator.nil?
+      return nil
+    end
+
+    @simulator.message
   end
 
   def generate_port_number : UInt16
@@ -55,4 +79,4 @@ class TestDriver
   end
 end
 
-puts TestDriver.new("program.ts").run
+puts TestDriver.new("program.ts").start
