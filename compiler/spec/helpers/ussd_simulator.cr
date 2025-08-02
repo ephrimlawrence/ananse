@@ -14,10 +14,10 @@ class Simulator
   private property phone : String
   private property url : String
   private property session_key_cache : Hash(Symbol, String) = {:emergent => ""}
-  private property session_cache : Hash(String, String) = {} => String of String
+  private property session_cache : Hash(String, String) = {} of String => String
 
   getter provider : SupportedGateway
-  getter port : Int64
+  getter port : String
   getter message : String?
   # @debug : Bool = false
 
