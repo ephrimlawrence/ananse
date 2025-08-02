@@ -1,6 +1,6 @@
 # TODO: add extensive comments {file naming pattern, code generation}
 require "yaml"
-# require "../spec_helper.cr"
+require "../spec_helper.cr"
 
 class ProgramTestGenerator
   EXPECTED_DIR      = "spec/expected"
@@ -82,11 +82,15 @@ class ProgramTestGenerator
         s << "describe \"#{test["description"]}\" do\n"
 
         stub = <<-CR
-        server : TestDriver? = nil
-        before_all do
-          server = TestDriver.new("#{ts_file}")
-        end\n
-      CR
+          server : TestDriver? = nil
+          before_all do
+            server = TestDriver.new("#{ts_file}")
+          end
+
+          after_all do
+            server.as(TestDriver).stop
+          end\n
+        CR
         s << stub
 
         s << <<-CR
@@ -116,12 +120,14 @@ class ProgramTestGenerator
             params = %("#{scenario["input"].as_s}")
           end
 
-          s << "resp : String = server.as(TestDriver).input([#{params}])\n"
+          var_name : String = "resp#{Random.new.next_u.to_s}"
+          s << "#{var_name} : String? = server.as(TestDriver).input([#{params}])\n"
 
           if scenario.has_key?("assert_output")
             outputs = scenario["assert_output"].as_a
             outputs.each do |o|
-              s << %(resp.includes?("#{o}").should eq(true)\n)
+              s << %(#{var_name}.nil?.should eq(false)\n)
+              s << %(#{var_name}.as(String).includes?("#{o}").should eq(true)\n)
             end
             # puts scenario["assert_output"]
           end

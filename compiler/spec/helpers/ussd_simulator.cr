@@ -108,7 +108,9 @@ class Simulator
 
   private def wigal_reply(data : Hash(String, String)? = nil, input : String? = nil) : String
     # For Wigal, build a query string.
-    data ||= {"network" => "wigal_mtn_gh", "sessionid" => "#{UUID.random.to_s}", "mode" => "start", "msisdn" => "#{@phone}", "username" => "test_user"}
+    if data.nil? || data.empty?
+      data = {"network" => "wigal_mtn_gh", "sessionid" => "#{UUID.random.to_s}", "mode" => "start", "msisdn" => "#{@phone}", "username" => "test_user"}
+    end
 
     # URL-encode the input if it contains a hash symbol.
     input = input.try { |i| i.chomp.gsub("#", "%23") }
