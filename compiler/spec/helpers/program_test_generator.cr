@@ -51,6 +51,7 @@ class ProgramTestGenerator
 
     # Generate spec files
     spec = String.build do |s|
+      s << %(require "./spec_helper" \n)
       s << "describe CodeGenerator do \n"
 
       @files.each do |basename, value|
@@ -58,7 +59,9 @@ class ProgramTestGenerator
           next
         end
 
+        s << %(describe "#{value[:test]}" do \n)
         s << generate_tests(value[:test].as(String), value[:program])
+        s << end_s
       end
       s << end_s
     end
@@ -79,7 +82,7 @@ class ProgramTestGenerator
         s << "describe \"#{test["description"]}\" do\n"
 
         stub = <<-CR
-        server : Process = nil
+        server : TestDriver? = nil
         before_all do
           server = TestDriver.new("#{ts_file}")
         end\n
@@ -108,7 +111,7 @@ class ProgramTestGenerator
 
           params : String = ""
           begin
-            params = scenario["input"].as_a.map { |i| %("#{i}")}.join(',')
+            params = scenario["input"].as_a.map { |i| %("#{i}") }.join(',')
           rescue e : TypeCastError
             params = %("#{scenario["input"].as_s}")
           end
