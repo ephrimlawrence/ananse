@@ -10,7 +10,12 @@ const ussd = new Ananse().configure({
 
 __BUSINESS_LOGIN__
 
-const port = __PORT__;
+const port = process.argv[3];
+if (port == null) {
+	throw new Error(
+		"Port is required. Please provide a port number as argument to the script",
+	);
+}
 ussd.listen(port, "localhost", () => {
 	console.log(`Server listening on port ${port}`);
 });

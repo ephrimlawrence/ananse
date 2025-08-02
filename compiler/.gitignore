@@ -5,3 +5,4 @@
 *.dwarf
 compiler
 tmp
+node_modules
