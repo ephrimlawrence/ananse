@@ -1,5 +1,3 @@
-#!/usr/bin/crystal
-
 require "http/client"
 require "json"
 require "option_parser"
@@ -15,11 +13,12 @@ end
 class Simulator
   private property phone : String
   private property url : String
-  private property session_cache : Hash(Symbol, String) = {:emergent => ""}
+  private property session_key_cache : Hash(Symbol, String) = {:emergent => ""}
+  private property session_cache : Hash(String, String) = {} => String of String
 
   getter provider : SupportedGateway
   getter port : Int64
-
+  getter message : String?
   # @debug : Bool = false
 
   # Initializes the simulator by parsing arguments from the command line.
@@ -45,9 +44,10 @@ class Simulator
         wigal_response = parse_response(data)
 
         # Output the display text and check if the session should end.
-        puts ""
-        puts display_text(wigal_response["userdata"].to_s)
-        puts ""
+        # puts ""
+        # puts display_text(wigal_response["userdata"].to_s)
+        # puts ""
+        @message = wigal_response["userdata"].to_s
 
         if wigal_response["mode"] == "end"
           Process.exit(0)
@@ -65,9 +65,10 @@ class Simulator
         # Parse the JSON response.
         json : Hash(String, String) = Hash(String, String).from_json(response.body)
 
-        puts ""
-        puts display_text(json["Message"].to_s)
-        puts ""
+        # puts ""
+        # puts display_text(json["Message"].to_s)
+        # puts ""
+        @message = json["Message"].to_s
 
         if json["Type"].to_s == "Release"
           Process.exit(0)
@@ -76,7 +77,9 @@ class Simulator
         # Prompt the user for input and continue the session with a new POST body.
         print "Response: "
         input = STDIN.gets
+        # TODO: find a way to get this from paramters
         reply_data = emergent_reply(json, input)
+
         return init(reply_data["url"].to_s, reply_data["body"].to_json)
       end
     rescue ex
@@ -94,7 +97,7 @@ class Simulator
     data["Message"] = input.try(&.chomp) || data["Message"]
 
     # Use the session ID from the cache or generate a new one.
-    cache = @session_cache[:emergent]
+    cache = @session_key_cache[:emergent]
     data["SessionId"] = cache || UUID.random.to_s
     data["Type"] = "Initiation"
     data["Mobile"] = @phone
@@ -142,9 +145,9 @@ class Simulator
   end
 
   # Formats the display text by replacing `^` with newlines.
-  private def display_text(text : String?)
-    text || "Unable to parse text from response"
-  end
+  # private def display_text(text : String?)
+  #   text || "Unable to parse text from response"
+  # end
 
   private def generate_phone : String
     number : String = "024"
@@ -161,6 +164,6 @@ class Simulator
 end
 
 # Create a new Simulator instance and run it.
-simulator = Simulator.new(SupportedGateway::Wigal, 332)
+# simulator = Simulator.new(SupportedGateway::Wigal, 332)
+# # simulator.init
 # simulator.init
-simulator.init

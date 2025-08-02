@@ -1,7 +1,9 @@
 # TODO: add extensive comments {file naming pattern, code generation}
+require "yaml"
 require "../spec_helper.cr"
 
 class ProgramTestGenerator
+  EXPECTED_DIR      = "spec/expected"
   PROGRAMS_DIR      = "spec/programs"
   PROGRAM_STUB_FILE = "spec/helpers/program_stub.txt"
   ACTIONS_JS        = "#{PROGRAMS_DIR}/actions.ts"
@@ -39,17 +41,43 @@ class ProgramTestGenerator
       js = generate_js(File.read("#{PROGRAMS_DIR}/#{value[:program]}"))
       code_stub = code_stub.gsub("__BUSINESS_LOGIN__", js)
 
-      File.write("#{PROGRAMS_DIR}/js/#{basename}.ts", code_stub)
+      File.write("#{EXPECTED_DIR}/#{basename}.ts", code_stub)
       # puts value[:program], value[:test]
     end
 
     # Copy update actions to js
-    dest : String = "#{PROGRAMS_DIR}/js/actions.ts"
+    dest : String = "#{EXPECTED_DIR}/actions.ts"
     if File.exists?(dest)
       File.delete(dest)
     end
 
     File.copy(ACTIONS_JS, dest)
+  end
+
+  def generate_tests(test_file : String)
+    code = String.builder do |s|
+      s << "describe CodeGenerator do \n"
+      s << "describe \"#{test_file}\" do\n"
+
+      yml = YAML.parse(File.read("#{PROGRAMS_DIR}/#{test_file}"))
+      yml["tests"].each do |test|
+        s << "describe \"#{test["name"]}\" do\n"
+        s << "it \"" << test["description"] << "\" do\n"
+
+        # Add steps as individual test cases
+        test["steps"].each do |step|
+        end
+
+        s << end_s << end_s
+      end
+
+      #   it "goto with menu name" do
+      s << end_s << end_s
+    end
+  end
+
+  def end_s
+    "end\n"
   end
 end
 
