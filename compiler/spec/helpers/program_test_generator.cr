@@ -1,6 +1,6 @@
 # TODO: add extensive comments {file naming pattern, code generation}
 require "yaml"
-require "../spec_helper.cr"
+# require "../spec_helper.cr"
 
 class ProgramTestGenerator
   EXPECTED_DIR      = "spec/expected"
@@ -116,7 +116,7 @@ class ProgramTestGenerator
             params = %("#{scenario["input"].as_s}")
           end
 
-          s << "resp : String = server.as(TestDriver).input([#{params}]).message\n"
+          s << "resp : String = server.as(TestDriver).input([#{params}])\n"
 
           if scenario.has_key?("assert_output")
             outputs = scenario["assert_output"].as_a

@@ -55,9 +55,9 @@ class Simulator
         response = HTTP::Client.post(reply_data["url"].to_s, body: reply_data["body"].to_json)
 
         @session_cache = Hash(String, String).from_json(response.body)
-        @message = json["Message"]
+        @message = @session_cache["Message"]
 
-        if session_cache["Type"] == "Release"
+        if @session_cache["Type"] == "Release"
           Process.exit(0)
         end
       end
@@ -71,11 +71,12 @@ class Simulator
   def input(value : String) : Simulator
     case @provider
     when SupportedGateway::Wigal
-      return make_request(wigal_reply(wigal_response, value)["url"])
+      return make_request(wigal_reply(@session_cache, value)["url"])
     when SupportedGateway::EmergentTechnology
-      data = emergent_reply(json, value)
+      data = emergent_reply(@session_cache, value)
       return make_request(data["url"].to_s, data["body"].to_json)
     end
+    return self
   end
 
   def input(values : Array(String)) : Simulator
@@ -100,7 +101,7 @@ class Simulator
     data["ServiceCode"] = "714"
 
     # Update the cache with the current session ID.
-    @session_cache[:emergent] = data["SessionId"].to_s
+    @session_key_cache[:emergent] = data["SessionId"].to_s
 
     return {"url" => @url, "body" => data}
   end

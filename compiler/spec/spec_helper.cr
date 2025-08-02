@@ -1,6 +1,7 @@
 require "spec"
 require "./grammar.cr"
 require "../src/compiler"
+require "./helpers/test_driver.cr"
 
 def scan(source : String)
   scanner = Scanner::Scan.new(source)
