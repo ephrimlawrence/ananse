@@ -51,6 +51,8 @@ class ProgramTestGenerator
 
     # Generate spec files
     spec = String.build do |s|
+      s << "describe CodeGenerator do \n"
+
       @files.each do |basename, value|
         if value[:test].nil?
           next
@@ -58,6 +60,7 @@ class ProgramTestGenerator
 
         s << generate_tests(value[:test].as(String), value[:program])
       end
+      s << end_s
     end
 
     dest : String = "#{EXPECTED_DIR}/actions.ts"
@@ -70,20 +73,19 @@ class ProgramTestGenerator
   end
 
   def generate_tests(test_file : String, ts_file : String) : String
+    yml = YAML.parse(File.read("#{PROGRAMS_DIR}/#{test_file}"))
     code = String.build do |s|
-      s << "describe CodeGenerator do \n"
-      s << "describe \"#{test_file}\" do\n"
+      yml["tests"].as_a.each do |test|
+        s << "describe \"#{test["description"]}\" do\n"
 
-      stub = <<-CR
+        stub = <<-CR
         server : Process = nil
         before_all do
           server = TestDriver.new("#{ts_file}")
         end\n
       CR
-      s << stub
+        s << stub
 
-      yml = YAML.parse(File.read("#{PROGRAMS_DIR}/#{test_file}"))
-      yml["tests"].as_a.each do |test|
         s << <<-CR
           describe "#{test["name"]}" do
             it "#{test["description"]}" do\n
@@ -106,19 +108,17 @@ class ProgramTestGenerator
 
           params : String = ""
           begin
-            params = scenario["input"].as_a.join(',')
+            params = scenario["input"].as_a.map { |i| %("#{i}")}.join(',')
           rescue e : TypeCastError
-            params = scenario["input"].as_s
+            params = %("#{scenario["input"].as_s}")
           end
 
-          s << <<-CR
-              resp : String = server.input([#{params}]).message\n"
-            CR
+          s << "resp : String = server.as(TestDriver).input([#{params}]).message\n"
 
           if scenario.has_key?("assert_output")
             outputs = scenario["assert_output"].as_a
             outputs.each do |o|
-              s << "resp.includes?(#{o}).should eq(true)\n"
+              s << %(resp.includes?("#{o}").should eq(true)\n)
             end
             # puts scenario["assert_output"]
           end
@@ -129,8 +129,8 @@ class ProgramTestGenerator
         s << end_s << end_s
       end
 
+      s << end_s
       #   it "goto with menu name" do
-      s << end_s << end_s
     end
 
     code.to_s
