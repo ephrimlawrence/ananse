@@ -41,54 +41,29 @@ class Simulator
       when SupportedGateway::Wigal
         # For Wigal, we make a GET request.
         response = HTTP::Client.get(url || wigal_reply())
-
         data = response.body
-        @session_cache = parse_response(data)
 
-        # Output the display text and check if the session should end.
-        # puts ""
-        # puts display_text(wigal_response["userdata"].to_s)
-        # puts ""
+        @session_cache = parse_response(data)
         @message = @session_cache["userdata"].to_s
 
         if @session_cache["mode"] == "end"
           exit 0
         end
-
-        # Prompt the user for input and continue the session.
-        # print "Response: "
-        # input = STDIN.gets
-        # return init(wigal_reply(wigal_response, input)["url"])
       when SupportedGateway::EmergentTechnology
         # For Emergent Technology, we make a POST request with a JSON body.
         reply_data = emergent_reply(nil, request_body)
         response = HTTP::Client.post(reply_data["url"].to_s, body: reply_data["body"].to_json)
 
-        # Parse the JSON response.
         @session_cache = Hash(String, String).from_json(response.body)
-
-        # puts ""
-        # puts display_text(json["Message"].to_s)
-        # puts ""
         @message = json["Message"]
 
         if session_cache["Type"] == "Release"
           Process.exit(0)
         end
-
-        # Prompt the user for input and continue the session with a new POST body.
-        # print "Response: "
-        # input = STDIN.gets
-        # # TODO: find a way to get this from paramters
-        # reply_data = emergent_reply(json, input)
-
-        # return init(reply_data["url"].to_s, reply_data["body"].to_json)
       end
       return self
     rescue ex
-      # Log any errors that occur during the simulation.
       puts "Simulator error: #{ex.message}"
-      # log(ex)
       Process.exit(1)
     end
   end
@@ -163,11 +138,6 @@ class Simulator
       raise "Response parsing is not implemented for #{@provider}"
     end
   end
-
-  # Formats the display text by replacing `^` with newlines.
-  # private def display_text(text : String?)
-  #   text || "Unable to parse text from response"
-  # end
 
   private def generate_phone : String
     number : String = "024"

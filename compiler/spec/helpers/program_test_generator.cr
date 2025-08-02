@@ -36,36 +36,94 @@ class ProgramTestGenerator
     code_stub = code_stub.gsub("__GATEWAY__", "'wigal'")
     code_stub = code_stub.gsub("__SESSION__", "'memory'")
 
+    # Generate typescript file
     @files.each do |basename, value|
-      # Generate typescript file
       js = generate_js(File.read("#{PROGRAMS_DIR}/#{value[:program]}"))
       code_stub = code_stub.gsub("__BUSINESS_LOGIN__", js)
 
       File.write("#{EXPECTED_DIR}/#{basename}.ts", code_stub)
+
+      if !value[:test].nil?
+        generate_tests(value[:test].as(String), value[:program])
+      end
       # puts value[:program], value[:test]
     end
 
-    # Copy update actions to js
+    # Generate spec files
+    spec = String.build do |s|
+      @files.each do |basename, value|
+        if value[:test].nil?
+          next
+        end
+
+        s << generate_tests(value[:test].as(String), value[:program])
+      end
+    end
+
     dest : String = "#{EXPECTED_DIR}/actions.ts"
     if File.exists?(dest)
       File.delete(dest)
     end
 
     File.copy(ACTIONS_JS, dest)
+    File.write("spec/code_generator_spec.cr", spec.to_s)
   end
 
-  def generate_tests(test_file : String)
-    code = String.builder do |s|
+  def generate_tests(test_file : String, ts_file : String) : String
+    code = String.build do |s|
       s << "describe CodeGenerator do \n"
       s << "describe \"#{test_file}\" do\n"
 
+      stub = <<-CR
+        server : Process = nil
+        before_all do
+          server = TestDriver.new("#{ts_file}")
+        end\n
+      CR
+      s << stub
+
       yml = YAML.parse(File.read("#{PROGRAMS_DIR}/#{test_file}"))
-      yml["tests"].each do |test|
-        s << "describe \"#{test["name"]}\" do\n"
-        s << "it \"" << test["description"] << "\" do\n"
+      yml["tests"].as_a.each do |test|
+        s << <<-CR
+          describe "#{test["name"]}" do
+            it "#{test["description"]}" do\n
+        CR
+        # s << stub
+        # s << "describe \"#{test["name"]}\" do\n"
+
+        # TODO: add before all
+        # s << "it \"" << test["description"] << "\" do\n"
+
+        # TODO:validate scenario
 
         # Add steps as individual test cases
-        test["steps"].each do |step|
+        # puts test["scenario"]
+        test["scenario"].as_a.each_with_index do |item, index|
+          scenario = item.as_h
+          if !scenario.has_key?("input")
+            raise Exception.new("An 'input' is required for each scenario. #{test["name"]} > scenario #{index}")
+          end
+
+          params : String = ""
+          begin
+            params = scenario["input"].as_a.join(',')
+          rescue e : TypeCastError
+            params = scenario["input"].as_s
+          end
+
+          s << <<-CR
+              resp : String = server.input([#{params}]).message\n"
+            CR
+
+          if scenario.has_key?("assert_output")
+            outputs = scenario["assert_output"].as_a
+            outputs.each do |o|
+              s << "resp.includes?(#{o}).should eq(true)\n"
+            end
+            # puts scenario["assert_output"]
+          end
+
+          # s << stub
         end
 
         s << end_s << end_s
@@ -74,6 +132,8 @@ class ProgramTestGenerator
       #   it "goto with menu name" do
       s << end_s << end_s
     end
+
+    code.to_s
   end
 
   def end_s

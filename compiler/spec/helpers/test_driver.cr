@@ -6,22 +6,22 @@ class TestDriver
   TSX_BIN      = "node_modules/.bin/tsx"
 
   getter program_name : String
+
+  # property simulator : Simulator? = nil
   private property server : Process? = nil
-  property simulator : Simulator? = nil
+  private property port : String
 
   def initialize(@program_name)
+    @port = generate_port_number.to_s
+    @server = Process.new(TSX_BIN, ["#{EXPECTED_DIR}/#{program_name}", port])
   end
 
   def finalize
     stop
   end
 
-  def start
-    port = generate_port_number.to_s
-    @server = Process.new(TSX_BIN, ["#{EXPECTED_DIR}/#{program_name}", port])
-    @simulator = Simulator.new(SupportedGateway::Wigal, port)
-    puts port
-  end
+  # def start
+  # end
 
   def stop
     begin
@@ -32,14 +32,14 @@ class TestDriver
     end
   end
 
-  def input(value : String | Array(String))
-    if @simulator.nil?
-      stop
-      start
-    end
+  def input(value : String | Array(String)) : String
+    simulator = Simulator.new(SupportedGateway::Wigal, port)
+    # if simulator.nil?
+    #   stop
+    #   start
+    # end
 
-    @simulator.input(value)
-    return self
+    @simulator.input(value).message
   end
 
   def result : String?
@@ -79,4 +79,4 @@ class TestDriver
   end
 end
 
-puts TestDriver.new("program.ts").start
+puts TestDriver.new("program.ts")
