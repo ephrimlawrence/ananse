@@ -120,7 +120,7 @@ class ProgramTestGenerator
             params = %("#{scenario["input"].as_s}")
           end
 
-          var_name : String = "resp#{Random.new.next_u.to_s}"
+          var_name : String = "resp#{Random.new.rand(UInt16).to_s}"
           s << "#{var_name} : String? = server.as(TestDriver).input([#{params}])\n"
 
           if scenario.has_key?("assert_output")

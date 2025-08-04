@@ -13,7 +13,12 @@ class TestDriver
 
   def initialize(@program_name)
     @port = generate_port_number.to_s
-    @server = Process.new(TSX_BIN, ["#{EXPECTED_DIR}/#{program_name}", port])
+  end
+
+  def start
+    @server = Process.new(TSX_BIN, args: ["#{EXPECTED_DIR}/#{program_name}", port], output: Process::Redirect::Inherit, error: Process::Redirect::Inherit)
+    @server.as(Process).wait
+    self
   end
 
   def finalize
@@ -33,13 +38,22 @@ class TestDriver
   end
 
   def input(value : String | Array(String)) : String?
-    simulator = Simulator.new(SupportedGateway::Wigal, port)
-    # if simulator.nil?
-    #   stop
-    #   start
-    # end
+    begin
+      # @server.as(Process).output.gets_to_end
+      simulator = Simulator.new(SupportedGateway::Wigal, port)
+      # if simulator.nil?
+      #   stop
+      #   start
+      # end
 
-    simulator.input(value).message
+      resp = simulator.input(value).message
+      # @server.as(Process).output.gets_to_end
+      puts resp
+      return resp
+    rescue e : Exception
+      stop
+      return nil
+    end
   end
 
   # def result : String?
@@ -79,4 +93,4 @@ class TestDriver
   end
 end
 
-puts TestDriver.new("program.ts")
+# puts TestDriver.new("program.ts")

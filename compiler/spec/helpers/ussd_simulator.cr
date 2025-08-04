@@ -35,7 +35,7 @@ class Simulator
   end
 
   # Start the USSD session.
-  private def make_request(url : String? = nil, request_body : String? = nil)
+  private def make_request(url : String? = nil, user_inut : String? = nil)
     begin
       case @provider
       when SupportedGateway::Wigal
@@ -51,7 +51,7 @@ class Simulator
         end
       when SupportedGateway::EmergentTechnology
         # For Emergent Technology, we make a POST request with a JSON body.
-        reply_data = emergent_reply(nil, request_body)
+        reply_data = emergent_reply(nil, user_inut)
         response = HTTP::Client.post(reply_data["url"].to_s, body: reply_data["body"].to_json)
 
         @session_cache = Hash(String, String).from_json(response.body)
@@ -71,8 +71,14 @@ class Simulator
   def input(value : String) : Simulator
     case @provider
     when SupportedGateway::Wigal
-      return make_request(wigal_reply(@session_cache, value)["url"])
+      if @session_cache.empty?
+        make_request(wigal_reply(nil, value), value)
+      end
+      return make_request(wigal_reply(@session_cache, value), value)
     when SupportedGateway::EmergentTechnology
+      if @session_cache.empty?
+        emergent_reply(@session_cache, value)
+      end
       data = emergent_reply(@session_cache, value)
       return make_request(data["url"].to_s, data["body"].to_json)
     end
@@ -88,8 +94,10 @@ class Simulator
 
   # Helper method to generate the URL or request body for the next step.
   private def emergent_reply(data : Hash(String, String)? = nil, input : String? = nil) : Hash(String, Hash(String, String) | String)
-    # For Emergent Technology, build a JSON body.
-    data ||= {"Mobile" => "#{@phone}", "Message" => "*714#"}
+    if data.nil? || data.empty?
+      data = {"Mobile" => "#{@phone}", "Message" => "*714#"}
+    end
+
     data["Message"] = input.try(&.chomp) || data["Message"]
 
     # Use the session ID from the cache or generate a new one.
@@ -108,17 +116,31 @@ class Simulator
 
   private def wigal_reply(data : Hash(String, String)? = nil, input : String? = nil) : String
     # For Wigal, build a query string.
+    body : Hash(String, String) = {} of String => String
+
     if data.nil? || data.empty?
-      data = {"network" => "wigal_mtn_gh", "sessionid" => "#{UUID.random.to_s}", "mode" => "start", "msisdn" => "#{@phone}", "username" => "test_user"}
+      body = {"network" => "wigal_mtn_gh", "sessionid" => "#{UUID.random.to_s}", "mode" => "start", "msisdn" => "#{@phone}", "username" => "test_user"}
+    else
+      body = data
     end
 
     # URL-encode the input if it contains a hash symbol.
     input = input.try { |i| i.chomp.gsub("#", "%23") }
-    session_id : String = data["sessionid"].to_s || UUID.random.to_s
+    session_id : String = body["sessionid"].to_s || UUID.random.to_s
 
-    req_url : String = "#{@url}?network=#{data["network"]}&sessionid=#{session_id}&mode=#{data["mode"]}&msisdn=#{data["msisdn"]}&userdata=#{input.to_s}&username=#{data["username"]}&trafficid=#{UUID.random.to_s}"
+    # req_url : String = "#{@url}?network=#{data["network"]}&sessionid=#{session_id}&mode=#{data["mode"]}&msisdn=#{data["msisdn"]}&userdata=#{input.to_s}&username=#{data["username"]}&trafficid=#{UUID.random.to_s}"
     # log(url)
-    req_url
+    params = String.build do |s|
+      s << "network=#{body["network"]}"
+      s << "&sessionid=#{session_id}"
+      s << "&mode=#{body["mode"]}"
+      s << "&msisdn=#{body["msisdn"]}"
+      s << "&userdata=#{input.to_s}"
+      s << "&username=#{body["username"]}"
+      s << "&trafficid=#{UUID.random.to_s}"
+    end
+
+    "#{@url}?#{params.to_s}"
   end
 
   # Parses the response from the Wigal gateway.
