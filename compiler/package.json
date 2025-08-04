@@ -1,0 +1,13 @@
+{
+  "name": "integrated-tests",
+  "license": "ISC",
+  "scripts": {
+    "tsx": "tsx"
+  },
+  "dependencies": {
+    "ananse": "file:../runtime"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.3"
+  }
+}
