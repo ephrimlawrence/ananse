@@ -1,6 +1,8 @@
 # TODO: add extensive comments {file naming pattern, code generation}
+
 require "yaml"
-require "../spec_helper.cr"
+# require "../spec_helper.cr"
+require "../../src/compiler"
 
 class ProgramTestGenerator
   EXPECTED_DIR      = "spec/expected"
@@ -38,15 +40,10 @@ class ProgramTestGenerator
 
     # Generate typescript file
     @files.each do |basename, value|
-      js = generate_js(File.read("#{PROGRAMS_DIR}/#{value[:program]}"))
+      js = compile(File.read("#{PROGRAMS_DIR}/#{value[:program]}"))
       code_stub = code_stub.gsub("__BUSINESS_LOGIN__", js)
 
       File.write("#{EXPECTED_DIR}/#{basename}.ts", code_stub)
-
-      # if !value[:test].nil?
-      #   generate_tests(value[:test].as(String), value[:program])
-      # end
-      # puts value[:program], value[:test]
     end
 
     # Generate spec files
@@ -152,6 +149,13 @@ class ProgramTestGenerator
 
   def end_s
     "end\n"
+  end
+
+  private def compile(source : String)
+    scanner = Scanner::Scan.new(source)
+    ast = Parser.new(scanner.scan_tokens).parse
+    SemanticAnalyzer.new(ast).analyze
+    CodeGenerator.new.generate(AstTransformer.new(ast).transform)
   end
 end
 
