@@ -121,7 +121,12 @@ class ProgramTestGenerator
           end
 
           var_name : String = "resp#{Random.new.rand(UInt16).to_s}"
-          s << "#{var_name} : String? = server.as(TestDriver).input([#{params}])\n"
+          s << "#{var_name} : String? = server.as(TestDriver).input"
+          s << if params.empty?
+            "()\n"
+          else
+            "([#{params}])\n"
+          end
 
           if scenario.has_key?("assert_output")
             outputs = scenario["assert_output"].as_a

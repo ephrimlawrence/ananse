@@ -11,12 +11,13 @@ class TestDriver
   private property server : Process? = nil
   private property port : String
 
-  def initialize(@program_name)
+  def initialize(@program_name, @debug : Bool = false)
     @port = generate_port_number.to_s
   end
 
   def start
-    @server = Process.new(TSX_BIN, args: ["#{EXPECTED_DIR}/#{program_name}", port], output: Process::Redirect::Inherit, error: Process::Redirect::Inherit)
+    show_logs : Process::Redirect = @debug ? Process::Redirect::Inherit : Process::Redirect::Close
+    @server = Process.new(TSX_BIN, args: ["#{EXPECTED_DIR}/#{program_name}", port], output: show_logs, error: show_logs)
 
     sleep Time::Span.new(seconds: 3)
     self
