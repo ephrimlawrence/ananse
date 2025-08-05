@@ -43,9 +43,9 @@ class ProgramTestGenerator
 
       File.write("#{EXPECTED_DIR}/#{basename}.ts", code_stub)
 
-      if !value[:test].nil?
-        generate_tests(value[:test].as(String), value[:program])
-      end
+      # if !value[:test].nil?
+      #   generate_tests(value[:test].as(String), value[:program])
+      # end
       # puts value[:program], value[:test]
     end
 
@@ -60,7 +60,7 @@ class ProgramTestGenerator
         end
 
         s << %(describe "#{value[:test]}" do \n)
-        s << generate_tests(value[:test].as(String), value[:program])
+        s << generate_tests(value[:test].as(String), value[:program].gsub(".ussd", ".ts"))
         s << end_s
       end
       s << end_s
@@ -84,7 +84,7 @@ class ProgramTestGenerator
         stub = <<-CR
           server : TestDriver? = nil
           before_all do
-            server = TestDriver.new("#{ts_file}")
+            server = TestDriver.new("#{ts_file}").start
           end
 
           after_all do
