@@ -68,16 +68,27 @@ class Simulator
     end
   end
 
+  def input : Simulator
+    case @provider
+    when SupportedGateway::Wigal
+      return make_request(wigal_reply(nil, nil), nil)
+    when SupportedGateway::EmergentTechnology
+      data = emergent_reply(nil, nil)
+      return make_request(data["url"].to_s, data["body"].to_json)
+    end
+    return self
+  end
+
   def input(value : String) : Simulator
     case @provider
     when SupportedGateway::Wigal
       if @session_cache.empty?
-        make_request(wigal_reply(nil, value), value)
+        input
       end
       return make_request(wigal_reply(@session_cache, value), value)
     when SupportedGateway::EmergentTechnology
       if @session_cache.empty?
-        emergent_reply(@session_cache, value)
+        input
       end
       data = emergent_reply(@session_cache, value)
       return make_request(data["url"].to_s, data["body"].to_json)
@@ -86,6 +97,10 @@ class Simulator
   end
 
   def input(values : Array(String)) : Simulator
+    if values.empty?
+      return input
+    end
+
     values.each do |v|
       input(v)
     end

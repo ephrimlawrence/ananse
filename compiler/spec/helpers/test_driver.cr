@@ -17,16 +17,14 @@ class TestDriver
 
   def start
     @server = Process.new(TSX_BIN, args: ["#{EXPECTED_DIR}/#{program_name}", port], output: Process::Redirect::Inherit, error: Process::Redirect::Inherit)
-    @server.as(Process).wait
+
+    sleep Time::Span.new(seconds: 3)
     self
   end
 
   def finalize
     stop
   end
-
-  # def start
-  # end
 
   def stop
     begin
@@ -39,30 +37,21 @@ class TestDriver
 
   def input(value : String | Array(String)) : String?
     begin
-      # @server.as(Process).output.gets_to_end
-      simulator = Simulator.new(SupportedGateway::Wigal, port)
-      # if simulator.nil?
-      #   stop
-      #   start
-      # end
+      if @server.nil?
+        start
+      end
 
-      resp = simulator.input(value).message
-      # @server.as(Process).output.gets_to_end
-      puts resp
-      return resp
+      simulator = Simulator.new(SupportedGateway::Wigal, port)
+      return simulator.input(value).message
     rescue e : Exception
       stop
       return nil
     end
   end
 
-  # def result : String?
-  #   if @simulator.nil?
-  #     return nil
-  #   end
-
-  #   @simulator.message
-  # end
+  def input : String?
+    return input([] of String)
+  end
 
   def generate_port_number : UInt16
     port : UInt16 = 3000
