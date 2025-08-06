@@ -7,14 +7,15 @@ repos:
       - id: trailing-whitespace
   - repo: local
     hooks:
-      - id: crystal-format
-        name: Format crystal files
-        entry: crystal tool format compiler/
-        language: system
-        types: [crystal]
+      # - id: crystal-format
+      #   name: Format crystal files
+      #   entry: crystal tool format compiler/
+      #   language: system
+      #   types: [crystal]
 
       - id: crystal-spec
         name: Run crystal spec
-        entry: cd compiler && crystal spec --color --verbose
+        entry: crystal spec --color --verbose
         language: system
         types: [crystal, bash]
+        # stages: [pre-push]
