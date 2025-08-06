@@ -17,4 +17,4 @@ repos:
         name: Run crystal spec
         entry: cd compiler && crystal spec --color --verbose
         language: system
-        types: [crystal]
+        types: [crystal, bash]
