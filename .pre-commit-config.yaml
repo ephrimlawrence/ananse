@@ -7,9 +7,14 @@ repos:
       - id: trailing-whitespace
   - repo: local
     hooks:
-      - id: format-crystal-files
+      - id: crystal-format
         name: Format crystal files
-        files: r'*.cr'
-        entry: .hooks/format-crystal-files.sh
-        language: script
-        pass_filenames: false
+        entry: crystal tool format compiler/
+        language: system
+        types: [crystal]
+
+      - id: crystal-spec
+        name: Run crystal spec
+        entry: cd compiler && crystal spec --color --verbose
+        language: system
+        types: [crystal]
