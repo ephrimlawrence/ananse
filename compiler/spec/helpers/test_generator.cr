@@ -117,7 +117,7 @@ class ProgramTestGenerator
             params = %("#{scenario["input"].as_s}")
           end
 
-          var_name : String = "resp#{Random.new.rand(UInt16).to_s}"
+          var_name : String = "resp#{index}"
           s << "#{var_name} : String? = server.as(TestDriver).input"
           s << if params.empty?
             "()\n"
@@ -131,7 +131,8 @@ class ProgramTestGenerator
               s << %(#{var_name}.nil?.should eq(false)\n)
               s << %(#{var_name}.as(String).includes?("#{o}").should eq(true)\n)
             end
-            # puts scenario["assert_output"]
+
+            s << "\n"
           end
 
           # s << stub
