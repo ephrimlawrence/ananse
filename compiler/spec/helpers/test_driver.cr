@@ -36,13 +36,16 @@ class TestDriver
     end
   end
 
+  def simulator : Simulator
+    if @server.nil?
+      start
+    end
+
+    return Simulator.new(SupportedGateway::Wigal, port)
+  end
+
   def input(value : String | Array(String)) : String?
     begin
-      if @server.nil?
-        start
-      end
-
-      simulator = Simulator.new(SupportedGateway::Wigal, port)
       return simulator.input(value).message
     rescue e : Exception
       stop
@@ -51,7 +54,12 @@ class TestDriver
   end
 
   def input : String?
-    return input([] of String)
+    begin
+      return simulator.input.message
+    rescue e : Exception
+      stop
+      return nil
+    end
   end
 
   def generate_port_number : UInt16

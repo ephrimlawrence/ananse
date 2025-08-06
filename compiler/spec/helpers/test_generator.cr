@@ -122,6 +122,8 @@ class ProgramTestGenerator
           s << "#{var_name} : String? = server.as(TestDriver).input"
           s << if params.empty?
             "()\n"
+          elsif params == "\"\"" # empty quote
+            "()\n"
           else
             "([#{params}])\n"
           end

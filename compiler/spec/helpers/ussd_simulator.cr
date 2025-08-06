@@ -97,10 +97,6 @@ class Simulator
   end
 
   def input(values : Array(String)) : Simulator
-    if values.empty?
-      return input
-    end
-
     values.each do |v|
       input(v)
     end
