@@ -9,6 +9,7 @@
 			"Ananse",
 			"stmts",
 			"Wigal"
-		]
+		],
+		"crystal-lang.main": "compiler/src/compiler.cr"
 	}
 }

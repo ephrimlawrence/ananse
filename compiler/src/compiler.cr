@@ -1,4 +1,5 @@
 # TODO: Write documentation for `Compiler`
+require "file_watcher"
 require "./scanner.cr"
 require "./parser.cr"
 require "./error.cr"
@@ -8,7 +9,6 @@ require "./semantic_analyzer"
 require "./ast_transformer.cr"
 require "option_parser"
 require "option_parser"
-require "file_watcher"
 
 module Compiler
   VERSION = "0.1.0"
