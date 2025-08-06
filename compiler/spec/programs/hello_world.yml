@@ -1,0 +1,8 @@
+tests:
+  - name: Hello world!
+    description: Displays hello world!
+    scenario:
+      - input: ""
+        assert_output:
+          - "Hello World"
+        assert_session: {}

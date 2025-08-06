@@ -1,0 +1,59 @@
+# tests.yaml
+
+# The top-level key is an array of test cases
+tests:
+  - name: Successful Balance Check
+    description: Verifies a successful balance check from the main menu.
+    scenario:
+      # Step 1: User navigates from the main menu
+      - input: ["sdd", "bb"]
+        assert_output:
+          - "Enter your account number:"
+        assert_session: {}
+
+      # Step 2: User provides their account number
+      - input: "12345"
+        assert_output:
+          - "Your balance is: GHS 123.45"
+          - "Last updated: 2025-08-01"
+          - "0. Back"
+        assert_session: # useful only when persist datastore is used
+          account_number: "12345"
+          # Assumes the action sets these variables
+          balance_data.status: true
+          balance_data.amount: "123.45"
+          balance_data.timestamp: "2025-08-01"
+
+  # - name: Failed Balance Check
+  #   description: Tests the flow when the balance fetch fails.
+  #   scenario:
+  #     start_menu: Welcome
+  #     steps:
+  #       - user_input: "1"
+  #         assert_output:
+  #           - "Enter your account number:"
+  #         assert_session: {}
+
+  #       # Step 2: User provides an invalid account number
+  #       - user_input: "99999"
+  #         assert_output:
+  #           - "Could not retrieve balance. Error: Invalid account"
+  #           - "0. Back"
+  #         assert_session:
+  #           account_number: "99999"
+  #           balance_data.status: false
+  #           balance_data.error: "Invalid account"
+
+  # - name: Nested Conditional Logic
+  #   description: Verifies that nested if statements work correctly.
+  #   scenario:
+  #     start_menu: nested_if_test
+  #     steps:
+  #       # We need a way to mock conditions. This is a crucial part of the test runner.
+  #       # This assumes the test runner can control or mock the environment's state.
+  #       - user_input: "mock_pin_valid"
+  #         assert_output:
+  #           - "Welcome, Sammy!"
+  #           # This is the expected output when both `is_pin_valid` and `has_balance` are true.
+  #           - "Your balance is ready."
+  #         assert_session: {}
