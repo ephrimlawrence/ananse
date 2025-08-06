@@ -12,9 +12,9 @@ describe "Displays hello world!" do
   end
   describe "Hello world!" do
     it "Displays hello world!" do
-resp34454 : String? = server.as(TestDriver).input([""])
-resp34454.nil?.should eq(false)
-resp34454.as(String).includes?("Hello World").should eq(true)
+resp27688 : String? = server.as(TestDriver).input([""])
+resp27688.nil?.should eq(false)
+resp27688.as(String).includes?("Hello World").should eq(true)
 end
 end
 end

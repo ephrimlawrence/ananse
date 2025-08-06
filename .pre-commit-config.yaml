@@ -15,7 +15,7 @@ repos:
 
       - id: crystal-spec
         name: Run crystal spec
-        entry: crystal spec --color --verbose
+        entry: shell -c 'cd compiler && crystal spec --color --verbose'
         language: system
-        types: [crystal, bash]
+        types: [shell]
         # stages: [pre-push]
