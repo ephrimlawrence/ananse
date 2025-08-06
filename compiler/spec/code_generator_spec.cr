@@ -16,7 +16,7 @@ describe CodeGenerator do
         it "Displays hello world!" do
           resp0 : String? = server.as(TestDriver).input
           resp0.nil?.should eq(false)
-          resp0.as(String).includes?("Hello World").should eq(true)
+          resp0.as(String).includes?("Hello World!").should eq(true)
         end
       end
     end

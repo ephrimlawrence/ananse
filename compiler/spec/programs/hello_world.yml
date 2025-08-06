@@ -4,5 +4,5 @@ tests:
     scenario:
       - input: ""
         assert_output:
-          - "Hello World"
+          - "Hello World!"
         assert_session: {}
