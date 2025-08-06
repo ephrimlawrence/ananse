@@ -9,7 +9,7 @@ import type { State } from "@src/models";
 import type { FormInput, Null } from "@src/types";
 import type { Request, Response } from "@src/types/request";
 import { SupportedGateway } from "./constants";
-import { menuType } from "./menu.helper";
+import { getMenuActions, menuType } from "./menu.helper";
 
 export async function validateInput(opts: {
 	state: State;
@@ -25,9 +25,9 @@ export async function validateInput(opts: {
 	}
 
 	let resp: { error: string | undefined; valid: boolean } = {
-			valid: true,
-			error: undefined,
-		};
+		valid: true,
+		error: undefined,
+	};
 	let status: ValidationResponse = true;
 
 	if (menu != null) {
@@ -93,15 +93,7 @@ export async function buildUserResponse(opts: {
 	}
 
 	// Add actions to the message
-	let actions: MenuAction[] | undefined = opts.actions;
-
-	if (actions == null) {
-		if (menuType(menu!) === "class") {
-			actions = (await (menu as unknown as BaseMenu).actions()) || [];
-		} else {
-			actions = await (menu as DynamicMenu).getActions();
-		}
-	}
+	const actions: MenuAction[] = await getMenuActions(menu!)
 
 	for await (const action of actions) {
 		if (action.display == null) continue;

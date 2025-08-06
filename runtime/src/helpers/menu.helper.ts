@@ -10,7 +10,12 @@ export function menuType(val: Menu): "class" | "dynamic" {
 
 export async function getMenuActions(menu: Menu): Promise<MenuAction[]> {
 	if (menuType(menu) === "class") {
-		return (await (menu as unknown as BaseMenu).actions()) || [];
+		const _baseMenu = menu as unknown as BaseMenu;
+		// Extra check to verify if 'actions' function was implemented
+		if (typeof _baseMenu.actions === "function") {
+			return (await _baseMenu.actions()) || [];
+		}
+		return [];
 	}
 	return await (menu as DynamicMenu).getActions();
 }
