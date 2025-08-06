@@ -80,13 +80,14 @@ class ProgramTestGenerator
 
         stub = <<-CR
           server : TestDriver? = nil
+
           before_all do
             server = TestDriver.new("#{ts_file}").start
           end
 
           after_all do
             server.as(TestDriver).stop
-          end\n
+          end\n\n
         CR
         s << stub
 

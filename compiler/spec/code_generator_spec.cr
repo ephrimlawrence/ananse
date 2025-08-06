@@ -3,6 +3,7 @@ describe CodeGenerator do
   describe "hello_world.yml" do
     describe "Displays hello world!" do
       server : TestDriver? = nil
+
       before_all do
         server = TestDriver.new("hello_world.ts").start
       end
@@ -10,23 +11,12 @@ describe CodeGenerator do
       after_all do
         server.as(TestDriver).stop
       end
+
       describe "Hello world!" do
         it "Displays hello world!" do
           resp0 : String? = server.as(TestDriver).input([""])
           resp0.nil?.should eq(false)
           resp0.as(String).includes?("Hello World").should eq(true)
-          resp0.nil?.should eq(false)
-          resp0.as(String).includes?("Hello World").should eq(true)
-          resp0.nil?.should eq(false)
-          resp0.as(String).includes?("Hello World").should eq(true)
-
-          resp1 : String? = server.as(TestDriver).input([""])
-          resp1.nil?.should eq(false)
-          resp1.as(String).includes?("Hello World").should eq(true)
-          resp1.nil?.should eq(false)
-          resp1.as(String).includes?("Hello World").should eq(true)
-          resp1.nil?.should eq(false)
-          resp1.as(String).includes?("Hello World").should eq(true)
         end
       end
     end
