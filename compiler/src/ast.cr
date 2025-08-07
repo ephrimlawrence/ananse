@@ -395,6 +395,22 @@ module AST
 end
 
 class TransformedAST
+  alias GroupedStatements = NamedTuple(
+    display: Array(AST::Stmt),
+    option: Array(AST::Stmt),
+    input: Array(AST::Stmt),
+    goto: Array(AST::Stmt),
+    action: Array(AST::Stmt),
+    end: Array(AST::Stmt),
+    other: Array(AST::Stmt),
+    if: Array(AST::Stmt),
+  )
+
+  getter menus : Hash(Token, GroupedStatements) = {} of Token => GroupedStatements
+
+  # property menus : Hash(Token, Hash(Symbol, Array(AST::Stmt))) = {} of Token => Hash(Symbol, Array(AST::Stmt))
+
+  # [{display => stmts.., input => stmts...}]
   property menu_definitions : Array(Hash(String, Array(AST::Stmt))) = [] of Hash(String, Array(AST::Stmt)) # [{display => stmts.., input => stmts...}]
 
   # List of action names (javascript functions)
@@ -403,10 +419,23 @@ class TransformedAST
   # def initialize
   # end
 
-  # def add_menu(name : String)
-  #   ["display", "option", "input", "goto", "action", "end"].each do |type|
-  #   end
-  # end
+  def add_menu(name : Token, values : GroupedStatements)
+    @menus[name] = values
+    return @menus[name]
+  end
+
+  def self.new_group : GroupedStatements
+    return {
+      display: [] of AST::Stmt,
+      option:  [] of AST::Stmt,
+      input:   [] of AST::Stmt,
+      goto:    [] of AST::Stmt,
+      action:  [] of AST::Stmt,
+      end:     [] of AST::Stmt,
+      other:   [] of AST::Stmt,
+      if:      [] of AST::Stmt,
+    }
+  end
 end
 
 # TODO: update ast transfomer to use this

@@ -25,8 +25,9 @@ class AstTransformer < AST::Visitor(Nil)
 
   def visit_menu_stmt(stmt : AST::MenuStatement)
     # Group the menu definition by statement types
-    grouped_stmt : Hash(String, Array(AST::Stmt)) = group_statements(stmt.body)
-    grouped_stmt["menu"] = [stmt.as(AST::Stmt)]
+    grouped_stmt : TransformedAST::GroupedStatements = @transformed_ast.add_menu(stmt.name, group_statements(stmt.body))
+
+    # grouped_stmt["menu"] = [stmt.as(AST::Stmt)]
 
     # puts grouped_stmt
     if grouped_stmt["if"].size > 0
@@ -36,7 +37,7 @@ class AstTransformer < AST::Visitor(Nil)
         if_stmt : AST::IfStatement = item.as(AST::IfStatement)
 
         grouped_then = group_statements(if_stmt.then_branch)
-        grouped_else : Hash(String, Array(AST::Stmt)) = {} of String => Array(AST::Stmt)
+        grouped_else : TransformedAST::GroupedStatements = TransformedAST.new_group
 
         if !if_stmt.else_branch.nil?
           grouped_else = group_statements(if_stmt.else_branch.as(AST::Stmt))
@@ -51,7 +52,7 @@ class AstTransformer < AST::Visitor(Nil)
           else_block : Array(AST::Stmt) = [] of AST::Stmt
           if grouped_else.has_key?(key)
             else_block = grouped_else[key].clone
-            grouped_else[key] = [] of AST::Stmt
+            # grouped_else[key] = [] of AST::Stmt
           end
 
           reconstructed_if = AST::IfStatement.new(
@@ -81,7 +82,7 @@ class AstTransformer < AST::Visitor(Nil)
       end
     end
 
-    @transformed_ast.menu_definitions << grouped_stmt
+    # @transformed_ast.menu_definitions << grouped_stmt
   end
 
   def visit_if_stmt(stmt : AST::IfStatement)
@@ -160,14 +161,16 @@ class AstTransformer < AST::Visitor(Nil)
   end
 
   # Group list of statements account to statement type
-  private def group_statements(block : AST::BlockStatement) : Hash(String, Array(AST::Stmt))
+  private def group_statements(block : AST::BlockStatement) : TransformedAST::GroupedStatements
     # Group the menu definition by statement types
-    grouped_stmt : Hash(String, Array(AST::Stmt)) = {} of String => Array(AST::Stmt)
+    grouped : TransformedAST::GroupedStatements = TransformedAST.new_group
 
-    # set default values
-    ["display", "option", "input", "goto", "action", "end", "menu", "if"].each do |type|
-      grouped_stmt[type] = [] of AST::Stmt
-    end
+    # grouped_stmt : Hash(String, Array(AST::Stmt)) = {} of String => Array(AST::Stmt)
+
+    # # set default values
+    # ["display", "option", "input", "goto", "action", "end", "menu", "if"].each do |type|
+    #   grouped_stmt[type] = [] of AST::Stmt
+    # end
 
     block.statements.each do |stmt|
       # If the statement is a desugared IfStatement, we group by the type of the
@@ -197,15 +200,19 @@ class AstTransformer < AST::Visitor(Nil)
       # For statements that are not IfStatements (e.g., top-level display, input)
       case stmt
       when AST::DisplayStatement
-        grouped_stmt["display"] << stmt
+        grouped[:display] << stmt
       when AST::OptionStatement
-        grouped_stmt["option"] << stmt
+        # grouped_stmt["option"] << stmt
+        grouped[:option] << stmt
       when AST::InputStatement
-        grouped_stmt["input"] << stmt
+        grouped[:input] << stmt
+        # grouped_stmt["input"] << stmt
       when AST::GotoStatement
-        grouped_stmt["goto"] << stmt
+        grouped[:goto] << stmt
+        # grouped_stmt["goto"] << stmt
       when AST::ActionStatement
-        grouped_stmt["action"] << stmt
+        grouped[:action] << stmt
+        # grouped_stmt["action"] << stmt
         execute(stmt)
         # when ForEachStatement
         #   grouped_stmt["for_each"] << stmt
@@ -216,16 +223,17 @@ class AstTransformer < AST::Visitor(Nil)
         # TODO: menu name nested to be tracked as well
         visit_menu_stmt(stmt)
       when AST::IfStatement
-        grouped_stmt["if"] << stmt
+        # grouped_stmt["if"] << stmt
+        grouped[:if] << stmt
       else
         puts "Other Statements #{stmt}"
         # p! stmt
-        grouped_stmt["other"] << stmt
+        grouped[:other] << stmt
       end
       # end
     end
 
-    grouped_stmt
+    grouped
   end
 
   private def execute(stmt : AST::Stmt)
