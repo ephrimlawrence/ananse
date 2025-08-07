@@ -14,6 +14,12 @@ repos:
         language: system
         types: [crystal]
 
+      - id: biome-format
+        name: Format js/ts files
+        entry: biome format --write
+        language: system
+        types: [shell]
+
       - id: crystal-spec
         name: Run crystal spec
         entry: bash -c 'cd compiler && crystal spec --color --verbose'

@@ -18,6 +18,8 @@ Compiler:
       ☐ clean up resources
 
 Runtime:
+  ☐ rename 'actions' api to 'options' (breaking change)
+  ☐ use 'stack' to track menu states, instead of linked list
   ☐ handle missing menu errors gracefully
     ☐ don't terminate the server in production
 
