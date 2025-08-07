@@ -1,6 +1,6 @@
 require "spec"
-require "./grammar.cr"
 require "../src/compiler"
+require "./helpers/grammar.cr"
 require "./helpers/test_driver.cr"
 
 def scan(source : String)
