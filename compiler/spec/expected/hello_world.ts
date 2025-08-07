@@ -9,17 +9,17 @@ const ussd = new Ananse().configure({
 });
 
 import { BaseMenu, MenuRouter } from 'ananse';
-  export class MenuHello4d22e555 extends BaseMenu {
+  export class MenuHello5be2ee4d extends BaseMenu {
   isStart(): Promise<boolean> | boolean {
     return true;
   }async message() {
-let var_cf6635be = '';
-var_cf6635be = "Hello World!";
-return var_cf6635be;}
+let var_75340b0f = '';
+var_75340b0f = "Hello World!";
+return var_75340b0f;}
 async nextMenu() {
 return undefined; }
 }
-MenuRouter.add(MenuHello4d22e555, 'hello');
+MenuRouter.add(MenuHello5be2ee4d, 'hello');
 
 
 const port = process.argv[2];

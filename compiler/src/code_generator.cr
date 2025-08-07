@@ -27,9 +27,10 @@ class CodeGenerator < AST::Visitor(Object)
         s << "import { " << ast.actions.join(", ") << " } from './actions';\n"
       end
 
-      ast.menu_definitions.each do |definition|
+      ast.menus.each do |menu_name, definition|
         menu : AST::MenuStatement = definition["menu"].first.as(AST::MenuStatement)
-        stmts : Hash(String, Array(AST::Stmt)) = definition
+        stmts : TransformedAST::GroupedStatements = definition
+
         s << execute(menu)
         # s << generate_input_function(menu.name.value, definition["input"])
         s << generate_display_function(menu.name.value, definition["display"])

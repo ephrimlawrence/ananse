@@ -404,20 +404,18 @@ class TransformedAST
     end: Array(AST::Stmt),
     other: Array(AST::Stmt),
     if: Array(AST::Stmt),
-  )
+    menu: Array(AST::Stmt) # only 1 item, the menu
+)
 
   getter menus : Hash(Token, GroupedStatements) = {} of Token => GroupedStatements
 
   # property menus : Hash(Token, Hash(Symbol, Array(AST::Stmt))) = {} of Token => Hash(Symbol, Array(AST::Stmt))
 
   # [{display => stmts.., input => stmts...}]
-  property menu_definitions : Array(Hash(String, Array(AST::Stmt))) = [] of Hash(String, Array(AST::Stmt)) # [{display => stmts.., input => stmts...}]
+  # property menu_definitions : Array(Hash(String, Array(AST::Stmt))) = [] of Hash(String, Array(AST::Stmt)) # [{display => stmts.., input => stmts...}]
 
   # List of action names (javascript functions)
   property actions : Array(String) = [] of String
-
-  # def initialize
-  # end
 
   def add_menu(name : Token, values : GroupedStatements)
     @menus[name] = values
@@ -434,22 +432,7 @@ class TransformedAST
       end:     [] of AST::Stmt,
       other:   [] of AST::Stmt,
       if:      [] of AST::Stmt,
+      menu:    [] of AST::Stmt, # only 1 item, the menu
     }
   end
 end
-
-# TODO: update ast transfomer to use this
-# class TransformedMenuStatement
-#   property display_statements : Array(AST::Stmt) # [{display => stmts.., input => stmts...}]
-
-#   # List of action names
-#   property actions : Array(String) = [] of String
-
-#   def initialize
-#   end
-
-#   # def add_menu(name : String)
-#   #   ["display", "option", "input", "goto", "action", "end"].each do |type|
-#   #   end
-#   # end
-# end

@@ -26,10 +26,8 @@ class AstTransformer < AST::Visitor(Nil)
   def visit_menu_stmt(stmt : AST::MenuStatement)
     # Group the menu definition by statement types
     grouped_stmt : TransformedAST::GroupedStatements = @transformed_ast.add_menu(stmt.name, group_statements(stmt.body))
+    grouped_stmt[:menu] << stmt
 
-    # grouped_stmt["menu"] = [stmt.as(AST::Stmt)]
-
-    # puts grouped_stmt
     if grouped_stmt["if"].size > 0
       grouped_stmt["if"].each do |item|
         # execute(if_stmt)
@@ -52,7 +50,6 @@ class AstTransformer < AST::Visitor(Nil)
           else_block : Array(AST::Stmt) = [] of AST::Stmt
           if grouped_else.has_key?(key)
             else_block = grouped_else[key].clone
-            # grouped_else[key] = [] of AST::Stmt
           end
 
           reconstructed_if = AST::IfStatement.new(
@@ -81,8 +78,6 @@ class AstTransformer < AST::Visitor(Nil)
         end
       end
     end
-
-    # @transformed_ast.menu_definitions << grouped_stmt
   end
 
   def visit_if_stmt(stmt : AST::IfStatement)
@@ -168,10 +163,6 @@ class AstTransformer < AST::Visitor(Nil)
     # grouped_stmt : Hash(String, Array(AST::Stmt)) = {} of String => Array(AST::Stmt)
 
     # # set default values
-    # ["display", "option", "input", "goto", "action", "end", "menu", "if"].each do |type|
-    #   grouped_stmt[type] = [] of AST::Stmt
-    # end
-
     block.statements.each do |stmt|
       # If the statement is a desugared IfStatement, we group by the type of the
       # single statement it contains in its 'then_branch'.
@@ -223,7 +214,6 @@ class AstTransformer < AST::Visitor(Nil)
         # TODO: menu name nested to be tracked as well
         visit_menu_stmt(stmt)
       when AST::IfStatement
-        # grouped_stmt["if"] << stmt
         grouped[:if] << stmt
       else
         puts "Other Statements #{stmt}"
