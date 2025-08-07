@@ -102,25 +102,10 @@ class CodeGenerator < AST::Visitor(Object)
     return @environment.get(expr.name)
   end
 
-  # private def is_truthy?(object : ExpressionType) : Bool
-  #   if object == "null"
-  #     return false
-  #   end
-
-  #   if object.is_a?(Bool)
-  #     return object.as(Bool)
-  #   end
-
-  #   return true
-  # end
-
   private def evaluate(expr : AST::Expr) : ExpressionType
     expr.accept(self)
   end
 
-  # end
-
-  # class StatementGenerator < AST::Visitor(Nil)
   def visit_expression_stmt(stmt : AST::ExpressionStmt) : String
     evaluate(stmt.expression)
   end

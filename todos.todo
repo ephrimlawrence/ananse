@@ -17,6 +17,9 @@ Compiler:
         ☐ run against server via simulator
       ☐ clean up resources
 
+  ☐ code gen tests
+    ☐ nested menus
+
 Runtime:
   ☐ rename 'actions' api to 'options' (breaking change)
   ☐ use 'stack' to track menu states, instead of linked list
