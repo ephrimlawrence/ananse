@@ -222,7 +222,7 @@ class Parser
   private def display_statement : AST::DisplayStatement
     location : Location = previous.location
     expr : AST::Expr = expression()
-    consume(TokenType::NEW_LINE, "Expected new line after value.")
+    skip_newline
 
     return AST::DisplayStatement.new(expr, location)
   end

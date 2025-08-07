@@ -1,6 +1,33 @@
 require "./spec_helper.cr"
 
 describe Parser do
+  describe "display grammar" do
+    it "display a string" do
+      stmts = parse(%(display "Hello World!"))
+      stmts[0].is_a?(AST::DisplayStatement).should eq(true)
+      stmt = stmts[0].as(AST::DisplayStatement)
+      stmt.expression.is_a?(AST::Literal).should eq(true)
+    end
+
+    it "display a number" do
+      stmts = parse(%(display 3443))
+      stmt = stmts[0].as(AST::DisplayStatement)
+      stmt.expression.is_a?(AST::Literal).should eq(true)
+    end
+
+    it "display an expression" do
+      stmts = parse(%(display 2+3+4))
+      stmt = stmts[0].as(AST::DisplayStatement)
+      stmt.expression.is_a?(AST::Binary).should eq(true)
+    end
+
+    it "display a variable" do
+      stmts = parse(%(display variable_name))
+      stmt = stmts[0].as(AST::DisplayStatement)
+      stmt.expression.is_a?(AST::Variable).should eq(true)
+    end
+  end
+
   describe "goto grammar" do
     it "goto with menu name" do
       ["cameCaseName", "snake_case_name"].each do |name|
