@@ -73,6 +73,9 @@ class Parser
       return block_statements
     end
 
+    # if check(TokenType::INTERPOLATION_START)
+    #   p! expression()
+    # end
     # if match(TokenType::PRINT)
     #   return print_statement()
     # end
@@ -220,8 +223,10 @@ class Parser
   # display 3
   # ```
   private def display_statement : AST::DisplayStatement
+    # p! previous
     location : Location = previous.location
     expr : AST::Expr = expression()
+    p! expr
     skip_newline
 
     return AST::DisplayStatement.new(expr, location)
@@ -383,9 +388,36 @@ class Parser
       return AST::Literal.new(peek, true)
     end
 
-    if match(TokenType::NUMBER, TokenType::STRING)
+    if match(TokenType::NUMBER)
       return AST::Literal.new(peek, previous.literal)
     end
+
+    if match(TokenType::STRING)
+      if peek.type == TokenType::INTERPOLATION_START
+        results : Array(AST::Expr) = [AST::Literal.new(peek, previous.literal).as(AST::Expr)]
+
+        advance()
+        while !check(TokenType::INTERPOLATION_END) && !is_at_end?
+          results << expression()
+        end
+
+        consume(TokenType::INTERPOLATION_END, "Expect '}}'.")
+
+        # Parse remaining parts of the string
+        results << expression()
+
+        return AST::InterpolatedString.new(results)
+      end
+
+      return AST::Literal.new(peek, previous.literal)
+    end
+
+    # if match(TokenType::INTERPOLATION_START)
+    #   result : AST::Expr = expression()
+    #   consume(TokenType::INTERPOLATION_END, "Expect '}}' to end string interpolation.")
+
+    #   return AST::InterpolatedString.new(result)
+    # end
 
     if match(TokenType::IDENTIFIER)
       return AST::Variable.new(previous())

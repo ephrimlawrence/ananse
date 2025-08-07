@@ -171,6 +171,10 @@ class AstTransformer < AST::Visitor(Nil)
   def visit_action_expr(expr : AST::Action) : Nil
   end
 
+  def visit_interpolation_expr(expr : AST::Expr)
+    puts expr
+  end
+
   # Group list of statements account to statement type
   private def group_statements(block : AST::BlockStatement) : TransformedAST::GroupedStatements
     # Group the menu definition by statement types

@@ -1,6 +1,26 @@
 require "./spec_helper.cr"
 
 describe Parser do
+  describe "strings" do
+    it "raw string" do
+      stmts = parse %(display "Hello World!")
+      stmts[0].is_a?(AST::DisplayStatement).should eq(true)
+      stmt = stmts[0].as(AST::DisplayStatement)
+      stmt.expression.is_a?(AST::Literal).should eq(true)
+    end
+
+    it "interpolated string" do
+      stmts = parse %(display "Your lucky number {{ 23 + 445 }}")
+      p! stmts
+      stmts[0].is_a?(AST::DisplayStatement).should eq(true)
+      stmt = stmts[0].as(AST::DisplayStatement)
+      stmt.expression.is_a?(AST::InterpolatedString).should eq(true)
+      #   tokens = scan(%("Count {{ 1+2 }}"))
+      #   tokens.is_a?(Array(Token)).should eq(true)
+      #   tokens.size.should eq(8)
+    end
+  end
+
   describe "display grammar" do
     it "display a string" do
       stmts = parse(%(display "Hello World!"))

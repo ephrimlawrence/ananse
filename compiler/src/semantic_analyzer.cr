@@ -198,6 +198,10 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   def visit_action_expr(expr : AST::Action) : Nil
   end
 
+  def visit_interpolation_expr(expr : AST::Expr)
+    puts expr
+  end
+
   private def evaluate(stmt : AST::Expr)
     stmt.accept(self)
   end

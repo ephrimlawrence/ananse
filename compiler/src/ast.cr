@@ -9,17 +9,18 @@ module AST
     abstract def visit_binary_expr(expr : Binary) forall R
     # abstract def visit_call_expr(expr : Call) : R
     # abstract def visit_get_expr(expr : Get) : R
-    abstract def visit_grouping_expr(expr : Grouping) : R
-    abstract def visit_literal_expr(expr : Literal) : R
+    abstract def visit_grouping_expr(expr : Grouping) forall R
+    abstract def visit_literal_expr(expr : Literal) forall R
     # abstract def visit_logical_expr(expr : Logical) : R
     # abstract def visit_set_expr(expr : Set) : R
     # abstract def visit_super_expr(expr : Super) : R
     # abstract def visit_this_expr(expr : This) : R
-    abstract def visit_unary_expr(expr : Unary) : R
-    abstract def visit_variable_expr(expr : Variable) : R
-    abstract def visit_option_expr(expr : Option) : R
-    abstract def visit_action_expr(expr : Action) : R
-    abstract def visit_goto_expr(expr : Goto) : R
+    abstract def visit_unary_expr(expr : Unary) forall R
+    abstract def visit_variable_expr(expr : Variable) forall R
+    abstract def visit_option_expr(expr : Option) forall R
+    abstract def visit_action_expr(expr : Action) forall R
+    abstract def visit_goto_expr(expr : Goto) forall R
+    abstract def visit_interpolation_expr(expr : Expr) forall R
 
     #
     # Statement visitors
@@ -326,6 +327,21 @@ module AST
     end
   end
 
+  class InterpolatedString < Expr
+    property expression : Array(Expr) = [] of Expr
+
+    def initialize(@expression)
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_interpolation_expr(self)
+    end
+
+    def clone
+      InterpolatedString.new(@expression)
+    end
+  end
+
   class Grouping < Expr
     property expression : Expr
 
@@ -422,11 +438,6 @@ class TransformedAST
 )
 
   getter menus : Hash(Token, GroupedStatements) = {} of Token => GroupedStatements
-
-  # property menus : Hash(Token, Hash(Symbol, Array(AST::Stmt))) = {} of Token => Hash(Symbol, Array(AST::Stmt))
-
-  # [{display => stmts.., input => stmts...}]
-  # property menu_definitions : Array(Hash(String, Array(AST::Stmt))) = [] of Hash(String, Array(AST::Stmt)) # [{display => stmts.., input => stmts...}]
 
   # List of action names (javascript functions)
   property actions : Array(String) = [] of String

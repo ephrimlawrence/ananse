@@ -382,6 +382,11 @@ class CodeGenerator < AST::Visitor(Object)
     return "\"#{expr.name.value}\""
   end
 
+  def visit_interpolation_expr(expr : AST::Expr) : String
+    puts expr
+    return "working"
+  end
+
   # TODO: remove this
   # FIXME: rename to log?
   def visit_print_stmt(stmt : AST::Print) : String
