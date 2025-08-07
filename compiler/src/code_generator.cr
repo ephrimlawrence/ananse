@@ -20,11 +20,11 @@ class CodeGenerator < AST::Visitor(Object)
   def generate(ast : TransformedAST) : String?
     typescript = String.build do |s|
       # Add Ananse imports
-      s << "import { " << ["BaseMenu", "MenuRouter"].join(", ") << " } from 'ananse';\n"
+      s << "import { " << ["BaseMenu", "MenuRouter", "Request", "Response"].join(", ") << " } from 'ananse';\n"
 
       # Add action names as import
       if !ast.actions.empty?
-        s << "import { " << ast.actions.join(", ") << " } from './actions';\n"
+        s << "import { " << ast.actions.uniq.join(", ") << " } from './actions';\n"
       end
 
       ast.menus.each do |menu_name, definition|
@@ -157,7 +157,7 @@ class CodeGenerator < AST::Visitor(Object)
     class_name = "Menu_#{Util.generate_identifier_name(stmt.name.value)}".camelcase
 
     # Track menu name and class name
-    @menu_class_names[stmt.name.value] = class_name
+    @menu_class_names[stmt.runtime_name] = class_name
 
     code = "export class #{class_name} extends BaseMenu {"
     if !stmt.start.nil?

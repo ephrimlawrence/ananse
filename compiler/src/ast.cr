@@ -148,6 +148,17 @@ module AST
       !@start.nil?
     end
 
+    # Returns runtime name that is used for this menu in the generated TS code
+    #
+    # Runtime name is the concatenation of this menu's name and its parent(s) names
+    def runtime_name : String
+      if @parent.nil?
+        return @name.value
+      end
+
+      return "#{@parent.as(MenuStatement).runtime_name}.#{@name.value}"
+    end
+
     def clone
       MenuStatement.new(@name, @body, @start)
     end
