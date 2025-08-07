@@ -5,6 +5,22 @@ require "./spec_helper.cr"
 # The parser tests handles the structure of the generates tokens, which is easier
 # than verify the generated tokens in every test
 describe Scanner do
+  describe "strings" do
+    it "raw string" do
+      tokens = scan(%("Hello World!"))
+      puts tokens
+      # tokens.is_a?(Array(Token)).should eq(true)
+      # tokens.size.should eq(3)
+    end
+
+    it "interpolated string" do
+      tokens = scan(%("Count {{ 1+2 }} hjh jkkjkj {{ 7788787 }}"))
+      puts tokens
+      # tokens.is_a?(Array(Token)).should eq(true)
+      # tokens.size.should eq(3)
+    end
+  end
+
   describe "display grammar" do
     it "display a string" do
       tokens = scan(%(display "Hello World!"))

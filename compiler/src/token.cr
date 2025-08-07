@@ -27,6 +27,8 @@ enum TokenType
   NUMBER
   STRING        # For the content of "..." or '...'
   REGEX_LITERAL # For the content of /.../
+  INTERPOLATION_START
+  INTERPOLATION_END
 
   # Operators and Symbols
   LEFT_PAREN    # (

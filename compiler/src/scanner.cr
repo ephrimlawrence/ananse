@@ -2,17 +2,24 @@ require "./token.cr"
 require "./error.cr"
 
 module Scanner
+  enum State
+    INTERPOLATION
+    STRING
+  end
+
   class Scan
-    property source : String
-    property line : Int32
-    property column : Int32
-    property tokens : Array(Token) = [] of Token
+    private property source : String
+    private property line : Int32
+    private property column : Int32
+    private property tokens : Array(Token) = [] of Token
 
     # current position in input (points to current char)
-    property start : Int32
+    private property start : Int32
 
     # current reading position in input (after current char)
-    property current : Int32
+    private property current : Int32
+
+    private property state : State? = nil
 
     # current char under examination
     # property char : Char
@@ -73,9 +80,28 @@ module Scanner
       when ')'
         add_token TokenType::RIGHT_PAREN
       when '{'
-        add_token(TokenType::LEFT_BRACE)
+        add_token(match('{') ? TokenType::INTERPOLATION_START : TokenType::LEFT_BRACE)
+        # add_token(TokenType::LEFT_BRACE)
       when '}'
-        add_token(TokenType::RIGHT_BRACE)
+        if @state == State::INTERPOLATION
+          if match('}')
+            add_token(TokenType::INTERPOLATION_END)
+            @state = State::STRING
+
+            # continue reading remaining string
+            @start = @current
+            p! "before peek", peek
+            read_string
+          else
+            raise CompilerError.new(get_location, "Expected '}' to end string interpolation")
+          end
+        else
+          add_token(TokenType::RIGHT_BRACE)
+        end
+        # add_token(match('}') ? TokenType::INTERPOLATION_END : TokenType::RIGHT_BRACE)
+        # @state = State::STRING
+        # read_string
+        # add_token(TokenType::RIGHT_BRACE)
       when ','
         add_token(TokenType::COMMA)
       when '.'
@@ -167,7 +193,52 @@ module Scanner
     end
 
     private def read_string
+      p! "now in rea string", peek
+      p! @state
+      # has_interpolation : Bool = false
+
       while peek != '"' && !is_at_end?
+        if peek == '\n'
+          @line += 1
+        end
+
+        if peek == '{' && peek_next == '{'
+          @state = State::INTERPOLATION
+          break
+        end
+
+        advance
+      end
+
+      # p! @source[@current-1]
+      # p! "here we go", peek
+      # p! @tokens
+      # p! is_at_end?, peek
+      if is_at_end?
+        raise CompilerError.new(get_location, "Unterminated string.")
+      end
+
+      # Skip closing '"'
+      if @state != State::INTERPOLATION
+        advance
+      end
+
+      # Trim the surrounding quotes.
+      value : String = @source[@start + 1...@current - 1]
+      add_token(TokenType::STRING, value)
+
+      if peek == "{" && state == State::INTERPOLATION
+        # Hack: Go back a step before current '{' char, this makes scan_token detects the start of the interpolation
+        @current = @current - 1
+      end
+      # if has_interpolation
+      #   read_interpolation
+      # end
+      # read_string # continue reading se
+    end
+
+    private def read_interpolation
+      while peek != '}' && peek_next != '}' && !is_at_end?
         if peek == '\n'
           @line += 1
         end
@@ -183,7 +254,7 @@ module Scanner
 
       # Trim the surrounding quotes.
       value : String = @source[@start + 1...@current - 1]
-      add_token(TokenType::STRING, value)
+      add_token(TokenType::INTERPOLATION, value)
     end
 
     private def add_token(type : TokenType)
