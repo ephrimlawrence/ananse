@@ -26,3 +26,4 @@ repos:
         language: system
         types: [crystal]
         stages: [pre-push]
+        pass_filenames: false
