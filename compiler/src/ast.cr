@@ -124,12 +124,15 @@ module AST
   end
 
   class MenuStatement < Stmt
-    # TODO: track if it a start menu
-    property start : Token?
-    property name : Token
-    property body : BlockStatement
+    getter start : Token?
+    getter name : Token
+    getter body : BlockStatement
 
-    def initialize(@name, @body, @start)
+    # Parent menu, if this menu is nested in another menu.
+    # NB: Value is filled in the AST transformation phase
+    property parent : MenuStatement? = nil
+
+    def initialize(@name, @body, @start, @parent = nil)
       @location = if @start.nil?
                     name.location
                   else

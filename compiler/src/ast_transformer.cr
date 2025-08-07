@@ -87,8 +87,6 @@ class AstTransformer < AST::Visitor(Nil)
     if !stmt.else_branch.nil?
       execute(stmt.else_branch.as(AST::Stmt))
     end
-
-    # TODO: pop stack
   end
 
   def visit_block_stmt(block : AST::BlockStatement)

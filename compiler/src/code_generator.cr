@@ -33,19 +33,18 @@ class CodeGenerator < AST::Visitor(Object)
 
         s << execute(menu)
         # s << generate_input_function(menu.name.value, definition["input"])
-        s << generate_display_function(menu.name.value, definition["display"])
+        s << generate_display_function(menu.name.value, definition[:display])
 
-        if !definition["option"].empty?
-          s << generate_options_code(definition["option"])
+        if !definition[:option].empty?
+          s << generate_options_code(definition[:option])
         end
 
-        if !definition["action"].empty? || !definition["input"].empty?
+        if !definition[:action].empty? || !definition["input"].empty?
           # TODO: add  as param and merge to generated code ?
           s << generate_action_function(action_stmts: definition["action"], input_stmts: definition["input"])
         end
 
         s << generate_goto_function(menu.name.value, definition["goto"])
-        # message() code generation
         s << "}\n"
       end
 

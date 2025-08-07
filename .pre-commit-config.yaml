@@ -16,9 +16,9 @@ repos:
 
       - id: biome-format
         name: Format js/ts files
-        entry: bash -c 'biome format --write'
+        entry: biome format --write
         language: system
-        types: [shell]
+        types: [bash]
 
       - id: crystal-spec
         name: Run crystal spec
