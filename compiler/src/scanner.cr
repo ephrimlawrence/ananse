@@ -220,26 +220,6 @@ module Scanner
       end
     end
 
-    private def read_interpolation
-      while peek != '}' && peek_next != '}' && !is_at_end?
-        if peek == '\n'
-          @line += 1
-        end
-        advance
-      end
-
-      if is_at_end?
-        raise CompilerError.new(get_location, "Unterminated string.")
-      end
-
-      # The closing ".
-      advance
-
-      # Trim the surrounding quotes.
-      value : String = @source[@start + 1...@current - 1]
-      add_token(TokenType::INTERPOLATION, value)
-    end
-
     private def add_token(type : TokenType)
       add_token(type, nil)
     end

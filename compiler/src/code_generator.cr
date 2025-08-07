@@ -58,14 +58,17 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_literal_expr(expr : AST::Literal) : String
-    value = expr.value
-    case value
-    when String
-      "\"#{value}\""
+    # value = expr.value
+    # puts expr.token
+    case expr.token.type
+    when TokenType::STRING
+      puts "here we go"
+      expr.token.value.to_s
+      # "\"#{value}\""
     when Nil
       "null"
     else
-      value.to_s
+      expr.value.to_s
     end
   end
 
@@ -382,9 +385,14 @@ class CodeGenerator < AST::Visitor(Object)
     return "\"#{expr.name.value}\""
   end
 
-  def visit_interpolation_expr(expr : AST::Expr) : String
-    puts expr
-    return "working"
+  def visit_interpolation_expr(str : AST::InterpolatedString) : String
+    output = String.build do |s|
+      str.expression.each do |expr|
+        s << evaluate(expr)
+      end
+    end
+
+    return output.to_s
   end
 
   # TODO: remove this

@@ -20,7 +20,7 @@ module AST
     abstract def visit_option_expr(expr : Option) forall R
     abstract def visit_action_expr(expr : Action) forall R
     abstract def visit_goto_expr(expr : Goto) forall R
-    abstract def visit_interpolation_expr(expr : Expr) forall R
+    abstract def visit_interpolation_expr(str : InterpolatedString) forall R
 
     #
     # Statement visitors

@@ -171,8 +171,7 @@ class AstTransformer < AST::Visitor(Nil)
   def visit_action_expr(expr : AST::Action) : Nil
   end
 
-  def visit_interpolation_expr(expr : AST::Expr)
-    puts expr
+  def visit_interpolation_expr(str : AST::InterpolatedString)
   end
 
   # Group list of statements account to statement type

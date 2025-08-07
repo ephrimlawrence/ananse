@@ -394,7 +394,7 @@ class Parser
 
     if match(TokenType::STRING)
       if peek.type == TokenType::INTERPOLATION_START
-        results : Array(AST::Expr) = [AST::Literal.new(peek, previous.literal).as(AST::Expr)]
+        results : Array(AST::Expr) = [AST::Literal.new(peek, previous.value).as(AST::Expr)]
 
         advance()
         while !check(TokenType::INTERPOLATION_END) && !is_at_end?
@@ -409,15 +409,8 @@ class Parser
         return AST::InterpolatedString.new(results)
       end
 
-      return AST::Literal.new(peek, previous.literal)
+      return AST::Literal.new(peek, previous.value)
     end
-
-    # if match(TokenType::INTERPOLATION_START)
-    #   result : AST::Expr = expression()
-    #   consume(TokenType::INTERPOLATION_END, "Expect '}}' to end string interpolation.")
-
-    #   return AST::InterpolatedString.new(result)
-    # end
 
     if match(TokenType::IDENTIFIER)
       return AST::Variable.new(previous())
