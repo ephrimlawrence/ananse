@@ -8,16 +8,14 @@ describe Scanner do
   describe "strings" do
     it "raw string" do
       tokens = scan(%("Hello World!"))
-      puts tokens
-      # tokens.is_a?(Array(Token)).should eq(true)
-      # tokens.size.should eq(3)
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(2)
     end
 
     it "interpolated string" do
-      tokens = scan(%("Count {{ 1+2 }} hjh jkkjkj {{ 7788787 }}"))
-      puts tokens
-      # tokens.is_a?(Array(Token)).should eq(true)
-      # tokens.size.should eq(3)
+      tokens = scan(%("Count {{ 1+2 }}"))
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(8)
     end
   end
 

@@ -90,7 +90,6 @@ module Scanner
 
             # continue reading remaining string
             @start = @current
-            p! "before peek", peek
             read_string
           else
             raise CompilerError.new(get_location, "Expected '}' to end string interpolation")
@@ -98,10 +97,6 @@ module Scanner
         else
           add_token(TokenType::RIGHT_BRACE)
         end
-        # add_token(match('}') ? TokenType::INTERPOLATION_END : TokenType::RIGHT_BRACE)
-        # @state = State::STRING
-        # read_string
-        # add_token(TokenType::RIGHT_BRACE)
       when ','
         add_token(TokenType::COMMA)
       when '.'
@@ -193,10 +188,6 @@ module Scanner
     end
 
     private def read_string
-      p! "now in rea string", peek
-      p! @state
-      # has_interpolation : Bool = false
-
       while peek != '"' && !is_at_end?
         if peek == '\n'
           @line += 1
@@ -210,10 +201,6 @@ module Scanner
         advance
       end
 
-      # p! @source[@current-1]
-      # p! "here we go", peek
-      # p! @tokens
-      # p! is_at_end?, peek
       if is_at_end?
         raise CompilerError.new(get_location, "Unterminated string.")
       end
@@ -231,10 +218,6 @@ module Scanner
         # Hack: Go back a step before current '{' char, this makes scan_token detects the start of the interpolation
         @current = @current - 1
       end
-      # if has_interpolation
-      #   read_interpolation
-      # end
-      # read_string # continue reading se
     end
 
     private def read_interpolation
