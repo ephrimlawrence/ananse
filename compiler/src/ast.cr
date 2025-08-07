@@ -328,9 +328,9 @@ module AST
   end
 
   class InterpolatedString < Expr
-    property expression : Array(Expr) = [] of Expr
+    property expressions : Array(Expr) = [] of Expr
 
-    def initialize(@expression)
+    def initialize(@expressions)
     end
 
     def accept(visitor : Visitor(R)) forall R
@@ -338,7 +338,7 @@ module AST
     end
 
     def clone
-      InterpolatedString.new(@expression)
+      InterpolatedString.new(@expressions)
     end
   end
 

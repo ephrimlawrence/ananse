@@ -223,10 +223,8 @@ class Parser
   # display 3
   # ```
   private def display_statement : AST::DisplayStatement
-    # p! previous
     location : Location = previous.location
     expr : AST::Expr = expression()
-    p! expr
     skip_newline
 
     return AST::DisplayStatement.new(expr, location)
@@ -389,14 +387,16 @@ class Parser
     end
 
     if match(TokenType::NUMBER)
-      return AST::Literal.new(peek, previous.literal)
+      return AST::Literal.new(previous, previous.literal)
     end
 
     if match(TokenType::STRING)
-      if peek.type == TokenType::INTERPOLATION_START
-        results : Array(AST::Expr) = [AST::Literal.new(peek, previous.value).as(AST::Expr)]
+      str_literal = AST::Literal.new(previous, previous.value).as(AST::Expr)
 
-        advance()
+      if match(TokenType::INTERPOLATION_START)
+        results : Array(AST::Expr) = [str_literal]
+
+        # advance()
         while !check(TokenType::INTERPOLATION_END) && !is_at_end?
           results << expression()
         end
@@ -409,7 +409,7 @@ class Parser
         return AST::InterpolatedString.new(results)
       end
 
-      return AST::Literal.new(peek, previous.value)
+      return str_literal
     end
 
     if match(TokenType::IDENTIFIER)

@@ -62,9 +62,7 @@ class CodeGenerator < AST::Visitor(Object)
     # puts expr.token
     case expr.token.type
     when TokenType::STRING
-      puts "here we go"
-      expr.token.value.to_s
-      # "\"#{value}\""
+      expr.token.value.dump_unquoted
     when Nil
       "null"
     else
@@ -386,10 +384,23 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_interpolation_expr(str : AST::InterpolatedString) : String
+    last_idx : Int32 = str.expressions.size - 1
+
+    if last_idx == -1
+      return ""
+    end
+
     output = String.build do |s|
-      str.expression.each do |expr|
-        s << evaluate(expr)
+      s << '`'
+      str.expressions.each_with_index do |expr, i|
+        s << "${" << evaluate(expr) << '}'
+
+        # if i != last_idx
+        #   s << "+"
+        # end
       end
+
+      s << '`'
     end
 
     return output.to_s
