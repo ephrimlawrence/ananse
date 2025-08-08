@@ -69,6 +69,12 @@ class Parser
       return AST::GotoStatement.new(parse_goto(shorthand: false))
     end
 
+    if match(TokenType::END)
+      val : Token = previous
+      skip_newline
+      return AST::EndStatement.new(val)
+    end
+
     if match(TokenType::LEFT_BRACE)
       return block_statements
     end

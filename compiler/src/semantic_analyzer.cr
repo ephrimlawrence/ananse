@@ -169,6 +169,9 @@ class SemanticAnalyzer < AST::Visitor(Nil)
     # Check input variable validity
   end
 
+  def visit_end_stmt(stmt : AST::EndStatement)
+  end
+
   def visit_option_stmt(stmt : AST::OptionStatement)
     # Check options group validity
     stmt.group.each { |opt| opt.accept(self) }

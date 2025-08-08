@@ -150,6 +150,9 @@ class AstTransformer < AST::Visitor(Nil)
     stmt.group.each { |opt| opt.accept(self) }
   end
 
+  def visit_end_stmt(stmt : AST::EndStatement)
+  end
+
   def visit_literal_expr(expr : AST::Literal) : Nil
   end
 
@@ -202,6 +205,8 @@ class AstTransformer < AST::Visitor(Nil)
         visit_menu_stmt(stmt)
       when AST::IfStatement
         grouped[:if] << stmt
+      when AST::EndStatement
+        grouped[:end] << stmt
       else
         grouped[:other] << stmt
       end

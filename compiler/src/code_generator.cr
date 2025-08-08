@@ -39,9 +39,13 @@ class CodeGenerator < AST::Visitor(Object)
           s << generate_options_code(definition[:option])
         end
 
-        if !definition[:action].empty? || !definition["input"].empty?
+        if !definition[:action].empty? || !definition[:input].empty?
           # TODO: add  as param and merge to generated code ?
           s << generate_action_function(action_stmts: definition["action"], input_stmts: definition["input"])
+        end
+
+        if !definition["end"].empty?
+          s << generate_end_function(definition["end"])
         end
 
         s << generate_goto_function(menu.name.value, definition["goto"])
@@ -170,6 +174,42 @@ class CodeGenerator < AST::Visitor(Object)
       block.statements.each do |stmt|
         s << execute(stmt)
       end
+    end
+
+    return code.to_s
+  end
+
+  def visit_end_stmt(stmt : AST::EndStatement) : String
+    "return true;"
+  end
+
+  def generate_end_function(end_stmts : Array(AST::Stmt)) : String
+    stmts : Array(AST::Stmt) = end_stmts.sort_by { |stmt| stmt.location.line }
+
+    code = String.build do |s|
+      s << "async end() #{opening_brace}"
+
+      if stmts.empty?
+        s << "return false;#{closing_brace}"
+        break
+        # return s.to_s
+      end
+
+      str : String = ""
+      stmts.each do |stmt|
+        str += execute(stmt)
+        str += @newline
+      end
+
+      # The runtime 'end()' API requires boolean return value.
+      # However, in some instances, the generated snippet doesn't end with a 'return',
+      # eg. when 'end' is in an if statement.
+      # We fixup this by appending 'return false' to the code
+      if /return (true|false);$/.match(str).nil?
+        str += "return false;"
+      end
+
+      s << str << closing_brace
     end
 
     return code.to_s

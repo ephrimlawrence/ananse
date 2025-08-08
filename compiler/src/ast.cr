@@ -36,6 +36,7 @@ module AST
     abstract def visit_menu_stmt(stmt : MenuStatement) forall R
     abstract def visit_option_stmt(stmt : OptionStatement) forall R
     abstract def visit_action_stmt(stmt : ActionStatement) forall R
+    abstract def visit_end_stmt(stmt : EndStatement) forall R
 
     # TODO: remove this
     abstract def visit_variable_stmt(stmt : VariableStmt) forall R
@@ -270,6 +271,22 @@ module AST
 
     def clone
       ActionStatement.new(@expression)
+    end
+  end
+
+  class EndStatement < Stmt
+    property token : Token
+
+    def initialize(@token)
+      @location = @token.location
+    end
+
+    def accept(visitor : Visitor(R)) forall R
+      visitor.visit_end_stmt(self)
+    end
+
+    def clone
+      EndStatement.new(@token)
     end
   end
 

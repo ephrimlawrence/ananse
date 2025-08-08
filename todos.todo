@@ -1,7 +1,10 @@
 Compiler:
   ☐ statements implementation
-    ☐ string interpolation
+    ✔ string interpolation @done(25-08-08 07:16)
     ☐ end
+    ☐ variable definition
+      ☐ constants
+    ☐ js variables (later)
 
   ☐ semantic analysis
     ☐ action variable resolution
