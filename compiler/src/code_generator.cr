@@ -67,6 +67,8 @@ class CodeGenerator < AST::Visitor(Object)
         value += '"'
       elsif value == "\""
         value += '"'
+      elsif value == " " # empty space, caused by multiple interpolation
+        value = %(" ")
       end
       value
     when Nil
@@ -397,16 +399,13 @@ class CodeGenerator < AST::Visitor(Object)
     end
 
     output = String.build do |s|
-      s << '`'
       str.expressions.each_with_index do |expr, i|
-        s << "${" << evaluate(expr) << '}'
+        s << evaluate(expr)
 
-        # if i != last_idx
-        #   s << "+"
-        # end
+        if i != last_idx
+          s << '+'
+        end
       end
-
-      s << '`'
     end
 
     return output.to_s
