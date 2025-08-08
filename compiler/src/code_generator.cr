@@ -58,11 +58,17 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_literal_expr(expr : AST::Literal) : String
-    # value = expr.value
+    value : String = expr.value.to_s
     # puts expr.token
     case expr.token.type
     when TokenType::STRING
-      expr.token.value.dump_unquoted
+      # Fixup unbalanced quotes caused by strings with interpolation
+      if value.starts_with?('"') && !value.ends_with?('"')
+        value += '"'
+      elsif value == "\""
+        value += '"'
+      end
+      value
     when Nil
       "null"
     else
