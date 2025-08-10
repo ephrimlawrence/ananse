@@ -1,7 +1,7 @@
 Compiler:
   ☐ statements implementation
     ✔ string interpolation @done(25-08-08 07:16)
-    ☐ end
+    ✔ end @done(25-08-08 08:42)
     ☐ variable definition
       ☐ constants
     ☐ js variables (later)
