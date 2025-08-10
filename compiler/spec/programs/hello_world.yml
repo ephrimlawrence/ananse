@@ -1,6 +1,6 @@
 name: Hello world!
 tests:
-  - description: Displays hello world!
+  - it: Displays hello world!
     input: ""
     output:
       - "Hello World!"

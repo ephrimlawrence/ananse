@@ -126,9 +126,11 @@ class ProgramTestGenerator
 
           s << "\n"
         end
+
+        s << end_s
       end
 
-      s << end_s
+      # s << end_s
     end
 
     code.to_s
