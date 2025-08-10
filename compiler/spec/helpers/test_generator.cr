@@ -13,6 +13,7 @@ class ProgramTestGenerator
   # Track list of programs and test files.  {file_name: []}
   private property files : Hash(String, NamedTuple(program: String, test: String?)) = {} of String => NamedTuple(program: String, test: String?)
 
+  # Scans spec/programs/ for test & program files
   def initialize
     data : Hash(String, Array(String)) = Dir.children(PROGRAMS_DIR).group_by { |f| File.basename(f, suffix: File.extname(f)) }
 
@@ -33,17 +34,19 @@ class ProgramTestGenerator
   end
 
   def run
-    code_stub : String = File.read(PROGRAM_STUB_FILE)
+    ts_server : String = File.read(PROGRAM_STUB_FILE)
     # TODO: generate code for gateway/session combinations
-    code_stub = code_stub.gsub("__GATEWAY__", "'wigal'")
-    code_stub = code_stub.gsub("__SESSION__", "'memory'")
+    ts_server = ts_server.gsub("__GATEWAY__", "'wigal'")
+    ts_server = ts_server.gsub("__SESSION__", "'memory'")
 
     # Generate typescript file
     @files.each do |basename, value|
-      js = compile(File.read("#{PROGRAMS_DIR}/#{value[:program]}"))
-      code_stub = code_stub.gsub("__BUSINESS_LOGIN__", js)
+      new_server : String = ts_server
 
-      File.write("#{EXPECTED_DIR}/#{basename}.ts", code_stub)
+      js = compile(File.read("#{PROGRAMS_DIR}/#{value[:program]}"))
+      new_server = new_server.gsub("__BUSINESS_LOGIN__", js)
+
+      File.write("#{EXPECTED_DIR}/#{basename}.ts", new_server)
     end
 
     # Generate spec files
@@ -159,7 +162,7 @@ class ProgramTestGenerator
     scanner = Scanner::Scan.new(source)
     ast = Parser.new(scanner.scan_tokens).parse
     SemanticAnalyzer.new(ast).analyze
-    CodeGenerator.new.generate(AstTransformer.new(ast).transform)
+    return CodeGenerator.new.generate(AstTransformer.new(ast).transform)
   end
 end
 

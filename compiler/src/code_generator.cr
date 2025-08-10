@@ -17,10 +17,12 @@ class CodeGenerator < AST::Visitor(Object)
 
   alias ExpressionType = String | Int32 | Float64 | Bool | AST::Expr | Nil
 
+  private getter runtime_imports = ["BaseMenu", "MenuRouter", "Request", "Response", "MenuAction"]
+
   def generate(ast : TransformedAST) : String?
     typescript = String.build do |s|
       # Add Ananse imports
-      s << "import { " << ["BaseMenu", "MenuRouter", "Request", "Response"].join(", ") << " } from 'ananse';\n"
+      s << "import { " << @runtime_imports.join(", ") << " } from 'ananse';\n"
 
       # Add action names as import
       if !ast.actions.empty?
