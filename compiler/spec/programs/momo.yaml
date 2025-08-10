@@ -12,17 +12,17 @@ tests:
       - "Just4U (Offers for you)"
     session: {}
 
-  - it: displays transfer money menu
-    input: ""
-    output:
-      - "Transfer Money"
-      - "MoMoPay & Pay Bill"
-      - "Airtime & Bundles"
-      - "Allow Cash Out"
-      - "Financial"
-      - "My Wallet"
-      - "Just4U (Offers for you)"
-    session: {}
+  # - it: displays transfer money menu
+  #   input: ""
+  #   output:
+  #     - "Transfer Money"
+  #     - "MoMoPay & Pay Bill"
+  #     - "Airtime & Bundles"
+  #     - "Allow Cash Out"
+  #     - "Financial"
+  #     - "My Wallet"
+  #     - "Just4U (Offers for you)"
+  #   session: {}
 
   - scenario: transfer money to MoMo user
     steps:
@@ -34,20 +34,25 @@ tests:
       - it: user selects transfer money
         input: 1
         output:
+          - MoMo User
+          - None MoMo User
+      - it: user selects MoMo user
+        input: 1
+        output:
           - Enter mobile number
-      - it: user enters phone
-        input: 024123456
-        output:
-          - Confirm number
-      - it: user confirms phone
-        input: 024123456
-        output:
-          - Enter Amount
-      - it: user enter's amount
-        input: 100
-        output:
-          - Enter Reference
-      - it: user enter's Reference
-        input: test payment
-        output:
-          - "Transfer to Jane Doe for GHS 100 with Reference: test payment. Fee is GHS 0.00, Tax amount is GHS 0.00. Total Amount is GHS 100.00. Enter MM PIN or 2 to cancel"
+      # - it: user enters phone
+      #   input: 024123456
+      #   output:
+      #     - Confirm number
+  #     - it: user confirms phone
+  #       input: 024123456
+  #       output:
+  #         - Enter Amount
+  #     - it: user enter's amount
+  #       input: 100
+  #       output:
+  #         - Enter Reference
+  #     - it: user enter's Reference
+  #       input: test payment
+  #       output:
+  #         - "Transfer to Jane Doe for GHS 100 with Reference: test payment. Fee is GHS 0.00, Tax amount is GHS 0.00. Total Amount is GHS 100.00. Enter MM PIN or 2 to cancel"

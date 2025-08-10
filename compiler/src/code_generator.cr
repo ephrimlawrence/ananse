@@ -157,6 +157,7 @@ class CodeGenerator < AST::Visitor(Object)
     class_name = "Menu_#{Util.generate_identifier_name(stmt.name.value)}".camelcase
 
     # Track menu name and class name
+    # TODO: move this to ast transfer
     @menu_class_names[stmt.runtime_name] = class_name
 
     code = "export class #{class_name} extends BaseMenu {"
@@ -430,6 +431,7 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_goto_expr(expr : AST::Goto) : String
+    # TODO: lookup runtime id
     return "\"#{expr.name.value}\""
   end
 

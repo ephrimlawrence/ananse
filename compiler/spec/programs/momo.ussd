@@ -19,11 +19,9 @@ menu money_transfer {
   option 6 "Bank Account"
 
   menu momo_user {
-
-    menu enter_mobile {
-      display "Enter mobile number"
-      input mobile_number
-    }
+    display "Enter mobile number"
+    input mobile_number
+    goto confirm_mobile
 
     menu confirm_mobile {
       display "Confirm number"
