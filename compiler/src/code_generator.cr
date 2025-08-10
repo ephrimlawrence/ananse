@@ -383,7 +383,7 @@ class CodeGenerator < AST::Visitor(Object)
       s << "{" << "choice: #{expr.target.value},"
       s << "display: #{expr.label.value},"
       if !expr.next_menu.nil?
-        s << "next_menu: '#{expr.next_menu.as(AST::Goto).name.literal}',"
+        s << "next_menu: '#{expr.next_menu.as(AST::Goto).name.value}',"
       end
       if !expr.action.nil?
         s << "next_menu: async(req, res) => {"
