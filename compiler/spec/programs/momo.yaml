@@ -1,0 +1,14 @@
+tests:
+  - name: Mobile Money App
+    description: Demo mobile money USSD app
+    scenario:
+      - input: ""
+        assert_output:
+          - "Transfer Money"
+          - "MoMoPay & Pay Bill"
+          - "Airtime & Bundles"
+          - "Allow Cash Out"
+          - "Financial"
+          - "My Wallet"
+          - "Just4U (Offers for you)"
+        assert_session: {}

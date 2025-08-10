@@ -1,0 +1,11 @@
+// Demo MTN mobile money ussd program
+
+start menu main {
+  option 1 "Transfer Money"
+  option 2 "MoMoPay & Pay Bill"
+  option 3 "Airtime & Bundles"
+  option 4 "Allow Cash Out"
+  option 5 "Financial"
+  option 6 "My Wallet"
+  option 7 "Just4U (Offers for you)"
+}

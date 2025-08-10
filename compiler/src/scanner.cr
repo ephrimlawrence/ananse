@@ -134,9 +134,10 @@ module Scanner
         # TODO: pass regex
         if match '/' # comment start with //
           # A comment goes until the end of the line.
-          while peek != '\n' && !is_at_end?
+          while !match('\n') && !is_at_end?
             advance
           end
+          match('\n') # skip newline after comment
         else
           add_token TokenType::SLASH
         end
