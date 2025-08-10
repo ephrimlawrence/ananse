@@ -15,6 +15,7 @@ class Simulator
   private property url : String
   private property session_key_cache : Hash(Symbol, String) = {:emergent => ""}
   private property session_cache : Hash(String, String) = {} of String => String
+  property debug : Bool = false
 
   getter provider : SupportedGateway
   getter port : String
@@ -23,7 +24,7 @@ class Simulator
   # @debug : Bool = false
 
   # Initializes the simulator by parsing arguments from the command line.
-  def initialize(@provider, @port, phone_number : String? = nil)
+  def initialize(@provider, @port, phone_number : String? = nil, @debug = false)
     @url = "http://localhost:#{@port}"
 
     # Generate phone number for the session
@@ -35,7 +36,7 @@ class Simulator
   end
 
   # Start the USSD session.
-  private def make_request(url : String? = nil, user_inut : String? = nil)
+  private def make_request(url : String? = nil, user_input : String? = nil)
     begin
       case @provider
       when SupportedGateway::Wigal
@@ -46,12 +47,16 @@ class Simulator
         @session_cache = parse_response(data)
         @message = @session_cache["userdata"].to_s
 
+        if @debug
+          p! user_input, @message
+        end
+
         if @session_cache["mode"] == "end"
           exit 0
         end
       when SupportedGateway::EmergentTechnology
         # For Emergent Technology, we make a POST request with a JSON body.
-        reply_data = emergent_reply(nil, user_inut)
+        reply_data = emergent_reply(nil, user_input)
         response = HTTP::Client.post(reply_data["url"].to_s, body: reply_data["body"].to_json)
 
         @session_cache = Hash(String, String).from_json(response.body)
@@ -63,6 +68,7 @@ class Simulator
       end
       return self
     rescue ex
+      raise ex
       puts "Simulator error: #{ex.message}"
       Process.exit(1)
     end
@@ -82,9 +88,9 @@ class Simulator
   def input(value : String) : Simulator
     case @provider
     when SupportedGateway::Wigal
-      if @session_cache.empty?
-        input
-      end
+      # if @session_cache.empty?
+      #   input
+      # end
       return make_request(wigal_reply(@session_cache, value), value)
     when SupportedGateway::EmergentTechnology
       if @session_cache.empty?
@@ -97,8 +103,13 @@ class Simulator
   end
 
   def input(values : Array(String)) : Simulator
-    values.each do |v|
-      input(v)
+    values.each_with_index do |value, index|
+      # If the first item is empty, simple make a request to get initial menu
+      if index == 0 && value.empty?
+        input()
+      else
+        input(value)
+      end
     end
     return self
   end

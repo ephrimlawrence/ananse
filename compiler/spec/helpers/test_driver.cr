@@ -41,7 +41,7 @@ class TestDriver
       start
     end
 
-    return Simulator.new(SupportedGateway::Wigal, port)
+    return Simulator.new(provider: SupportedGateway::Wigal, port: port, debug: @debug)
   end
 
   def input(value : String | Array(String)) : String?

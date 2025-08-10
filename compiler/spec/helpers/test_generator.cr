@@ -103,17 +103,21 @@ class ProgramTestGenerator
           # steps = test["steps"].as_a
           previous_steps : Array(String) = [] of String
 
+          s << %(\n describe "#{test["scenario"].as_s}" do\n)
+
           test["steps"].as_a.each_with_index do |step, step_index|
             result = generate_it(
               test: step.as_h,
               index: step_index,
-              label_prefix: test["scenario"].as_s,
               previous_steps: previous_steps,
             )
 
             previous_steps = result[:inputs]
+
             s << result[:code]
           end
+
+          s << end_s
         end
         # s << %(it "#{test["it"]}" do\n)
 
@@ -159,7 +163,7 @@ class ProgramTestGenerator
     code.to_s
   end
 
-  private def generate_it(test : Hash, index : Int32, label_prefix : String? = nil, previous_steps : Array(String) = [] of String) : NamedTuple(inputs: Array(String), code: String)
+  private def generate_it(test : Hash, index : Int32, previous_steps : Array(String) = [] of String) : NamedTuple(inputs: Array(String), code: String)
     # yml = YAML.parse(File.read("#{PROGRAMS_DIR}/#{test_file}"))
 
     if !test.has_key?("it")
@@ -186,13 +190,7 @@ class ProgramTestGenerator
     end
 
     code = String.build do |s|
-      if label_prefix.nil?
-        s << %(it "#{label}" do\n)
-      else
-        s << %(it "#{label_prefix} : #{label}" do\n)
-      end
-
-      # scenario = test.as_h
+      s << %(it "#{label}" do\n)
 
       if !test.has_key?("input")
         raise Exception.new("An 'input' is required for each scenario. #{label} > scenario #{index}")

@@ -31,7 +31,7 @@ tests:
         output:
           - "Transfer Money"
           - "MoMoPay & Pay Bill"
-      - it: user selection transfer money
+      - it: user selects transfer money
         input: 1
         output:
           - Enter mobile number
