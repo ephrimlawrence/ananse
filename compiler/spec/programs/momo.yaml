@@ -1,6 +1,6 @@
 name: Mobile Money App
 tests:
-  - description: Verify main menu
+  - it: displays main menu
     input: ""
     output:
       - "Transfer Money"
@@ -10,4 +10,15 @@ tests:
       - "Financial"
       - "My Wallet"
       - "Just4U (Offers for you)"
+    session: {}
+
+  - it: displays transfer menu
+    input: [1]
+    output:
+      - "MoMo User"
+      - "None MoMo User"
+      - "Send with Care"
+      - "Favourite"
+      - "Other Networks"
+      - "Bank Account"
     session: {}

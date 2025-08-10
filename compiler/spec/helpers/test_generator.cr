@@ -92,7 +92,7 @@ class ProgramTestGenerator
         CR
 
       yml["tests"].as_a.each_with_index do |test, index|
-        s << %(it "#{test["description"]}" do\n)
+        s << %(it "#{test["it"]}" do\n)
 
         scenario = test.as_h
 
