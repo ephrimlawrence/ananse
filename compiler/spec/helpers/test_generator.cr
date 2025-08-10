@@ -90,26 +90,12 @@ class ProgramTestGenerator
             server.as(TestDriver).stop
           end\n\n
         CR
-      # s << stub
 
       yml["tests"].as_a.each_with_index do |test, index|
         s << %(it "#{test["description"]}" do\n)
 
         scenario = test.as_h
-        # s << <<-CR
-        #     it "#{scenario["description"]}" do\n
-        # CR
-        # s << stub
-        # s << "describe \"#{test["name"]}\" do\n"
 
-        # TODO: add before all
-        # s << "it \"" << test["description"] << "\" do\n"
-
-        # TODO:validate scenario
-
-        # Add steps as individual test cases
-        # puts test["scenario"]
-        # test["scenario"].as_a.each_with_index do |item, index|
         if !scenario.has_key?("input")
           raise Exception.new("An 'input' is required for each scenario. #{test["name"]} > scenario #{index}")
         end
@@ -140,8 +126,6 @@ class ProgramTestGenerator
 
           s << "\n"
         end
-
-        # s << stub
       end
 
       s << end_s
