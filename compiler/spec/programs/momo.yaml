@@ -12,7 +12,7 @@ tests:
       - "Just4U (Offers for you)"
     session: {}
 
-  - it: displays transfer menu
+  - it: displays money transfer menu
     input: [1]
     output:
       - "MoMo User"

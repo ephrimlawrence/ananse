@@ -11,10 +11,33 @@ start menu main {
 }
 
 menu money_transfer {
-  option 1 "MoMo User"
+  option 1 "MoMo User" -> momo_user
   option 2 "None MoMo User"
   option 3 "Send with Care"
   option 4 "Favourite"
   option 5 "Other Networks"
   option 6 "Bank Account"
+
+  menu momo_user {
+
+    menu enter_mobile {
+      display "Enter mobile number"
+      input mobile_number
+    }
+
+    menu confirm_mobile {
+      display "Confirm number"
+      input mobile_number_confirm
+
+      //if (mobile_number != mobile_number_confirm) {
+      //  goto
+      //}
+
+      // -- amount
+      // -- reference
+      // msg => Transfer to Jane Doe for GHS {{ amount }} with Reference: {{ reference }}. Fee is GHS 0.00, Tax amount is GHS 0.00. Total Amount is GHS 1.00. enter MM PIN or 2 to cancel
+      // send money (call action)
+    }
+  }
+
 }
