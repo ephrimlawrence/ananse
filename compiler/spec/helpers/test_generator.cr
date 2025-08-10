@@ -59,7 +59,6 @@ class ProgramTestGenerator
           next
         end
 
-        s << %(describe "#{value[:test]}" do \n)
         s << generate_tests(value[:test].as(String), value[:program].gsub(".ussd", ".ts"))
         s << end_s
       end
@@ -78,10 +77,9 @@ class ProgramTestGenerator
   def generate_tests(test_file : String, ts_file : String) : String
     yml = YAML.parse(File.read("#{PROGRAMS_DIR}/#{test_file}"))
     code = String.build do |s|
-      yml["tests"].as_a.each do |test|
-        s << "describe \"#{test["description"]}\" do\n"
+      s << %(describe "#{test_file}: #{yml["name"]}" do\n)
 
-        stub = <<-CR
+      s << <<-CR
           server : TestDriver? = nil
 
           before_all do
@@ -92,12 +90,15 @@ class ProgramTestGenerator
             server.as(TestDriver).stop
           end\n\n
         CR
-        s << stub
+      # s << stub
 
-        s << <<-CR
-          describe "#{test["name"]}" do
-            it "#{test["description"]}" do\n
-        CR
+      yml["tests"].as_a.each_with_index do |test, index|
+        s << %(it "#{test["description"]}" do\n)
+
+        scenario = test.as_h
+        # s << <<-CR
+        #     it "#{scenario["description"]}" do\n
+        # CR
         # s << stub
         # s << "describe \"#{test["name"]}\" do\n"
 
@@ -108,47 +109,42 @@ class ProgramTestGenerator
 
         # Add steps as individual test cases
         # puts test["scenario"]
-        test["scenario"].as_a.each_with_index do |item, index|
-          scenario = item.as_h
-          if !scenario.has_key?("input")
-            raise Exception.new("An 'input' is required for each scenario. #{test["name"]} > scenario #{index}")
-          end
-
-          params : String = ""
-          begin
-            params = scenario["input"].as_a.map { |i| %("#{i}") }.join(',')
-          rescue e : TypeCastError
-            params = %("#{scenario["input"].as_s}")
-          end
-
-          var_name : String = "resp#{index}"
-          s << "#{var_name} : String? = server.as(TestDriver).input"
-          s << if params.empty?
-            "()\n"
-          elsif params == "\"\"" # empty quote
-            "()\n"
-          else
-            "([#{params}])\n"
-          end
-
-          if scenario.has_key?("assert_output")
-            outputs = scenario["assert_output"].as_a
-            outputs.each do |o|
-              s << %(#{var_name}.nil?.should eq(false)\n)
-              s << %(#{var_name}.as(String).includes?("#{o}").should eq(true)\n)
-            end
-
-            s << "\n"
-          end
-
-          # s << stub
+        # test["scenario"].as_a.each_with_index do |item, index|
+        if !scenario.has_key?("input")
+          raise Exception.new("An 'input' is required for each scenario. #{test["name"]} > scenario #{index}")
         end
 
-        s << end_s << end_s
+        params : String = ""
+        begin
+          params = scenario["input"].as_a.map { |i| %("#{i}") }.join(',')
+        rescue e : TypeCastError
+          params = %("#{scenario["input"].as_s}")
+        end
+
+        var_name : String = "resp#{index}"
+        s << "#{var_name} : String? = server.as(TestDriver).input"
+        s << if params.empty?
+          "()\n"
+        elsif params == "\"\"" # empty quote
+          "()\n"
+        else
+          "([#{params}])\n"
+        end
+
+        if scenario.has_key?("output")
+          outputs = scenario["output"].as_a
+          outputs.each do |o|
+            s << %(#{var_name}.nil?.should eq(false)\n)
+            s << %(#{var_name}.as(String).includes?("#{o}").should eq(true)\n)
+          end
+
+          s << "\n"
+        end
+
+        # s << stub
       end
 
       s << end_s
-      #   it "goto with menu name" do
     end
 
     code.to_s
