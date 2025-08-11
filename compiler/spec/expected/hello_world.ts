@@ -8,18 +8,18 @@ const ussd = new Ananse().configure({
 	session: 'memory',
 });
 
-import { BaseMenu, MenuRouter } from 'ananse';
-  export class MenuHello5be2ee4d extends BaseMenu {
+import { BaseMenu, MenuRouter, Request, Response, MenuAction } from 'ananse';
+  export class MenuHellofe136594 extends BaseMenu {
   isStart(): Promise<boolean> | boolean {
     return true;
   }async message() {
-let var_75340b0f = '';
-var_75340b0f = "Hello World!";
-return var_75340b0f;}
+let var_06a3a09d = '';
+var_06a3a09d = "Hello World!";
+return var_06a3a09d;}
 async nextMenu() {
 return undefined; }
 }
-MenuRouter.add(MenuHello5be2ee4d, 'hello');
+MenuRouter.add(MenuHellofe136594, 'hello');
 
 
 const port = process.argv[2];

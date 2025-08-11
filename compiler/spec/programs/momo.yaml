@@ -40,10 +40,10 @@ tests:
         input: 1
         output:
           - Enter mobile number
-      # - it: user enters phone
-      #   input: 024123456
-      #   output:
-      #     - Confirm number
+      - it: confirms phone
+        input: "024123456"
+        output:
+          - Confirm number
   #     - it: user confirms phone
   #       input: 024123456
   #       output:

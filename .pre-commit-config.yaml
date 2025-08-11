@@ -15,10 +15,10 @@ repos:
         types: [crystal]
 
       - id: biome-format
-        name: Format js/ts files
-        entry: biome format --write
+        name: Format JS and TS files with Biome
+        entry: biome format **/*.ts
         language: system
-        types: [bash]
+        types: [javascript, ts]
 
       - id: crystal-spec
         name: Run crystal spec

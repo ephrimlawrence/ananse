@@ -434,7 +434,7 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_goto_expr(expr : AST::Goto) : String
-    @ast.symbol_table.lookup_goto_target(expr.name).runtime_id
+    %("#{@ast.symbol_table.lookup_goto_target(expr.name).runtime_id}")
   end
 
   def visit_interpolation_expr(str : AST::InterpolatedString) : String
