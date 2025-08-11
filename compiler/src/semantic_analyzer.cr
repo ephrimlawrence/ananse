@@ -1,5 +1,6 @@
 require "./ast.cr"
 require "./environment.cr"
+require "./resolver"
 
 class SemanticAnalyzer < AST::Visitor(Nil)
   getter symbol_table : SymbolTable = SymbolTable.new
@@ -15,18 +16,19 @@ class SemanticAnalyzer < AST::Visitor(Nil)
 
   def analyze : Bool
     @symbol_table.populate_menu_table(@statements)
-    pp @symbol_table.menu_map
-    # @statements.each do |stmt|
-    #   if (stmt.is_a?(AST::MenuStatement))
-    #     @menus_pending_resolution.unshift(@menu_env.define(stmt.name))
-    #   end
 
-    #   stmt.accept(self)
-    # end
+    # pp @symbol_table.menu_map
+    @statements.each do |stmt|
+      #   if (stmt.is_a?(AST::MenuStatement))
+      #     @menus_pending_resolution.unshift(@menu_env.define(stmt.name))
+      #   end
 
-    # if !@is_start_menu_defined
-    #   raise CompilerError.new("No start menu defined")
-    # end
+      stmt.accept(self)
+    end
+
+    if !@is_start_menu_defined
+      raise CompilerError.new("No start menu defined")
+    end
 
     # # Report unused menu definitions
     # errors : Array(String) = @menu_env.gather_errors
@@ -55,7 +57,7 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   def visit_menu_stmt(stmt : AST::MenuStatement)
     # TODO: implement reference to nested menus
 
-    env : MenuEnvironment = @menus_pending_resolution.first?.as(MenuEnvironment)
+    # env : MenuEnvironment = @menus_pending_resolution.first?.as(MenuEnvironment)
 
     if @is_start_menu_defined && stmt.start?
       raise CompilerError.new("Start menu is already defined", stmt.name)
@@ -64,7 +66,7 @@ class SemanticAnalyzer < AST::Visitor(Nil)
     if stmt.start?
       # The start menu is marked as referenced
       # since it is the first menu called in the runtime by default
-      @menu_env.referenced(stmt.name)
+      # @menu_env.referenced(stmt.name)
       @is_start_menu_defined = true
     end
 
@@ -105,16 +107,16 @@ class SemanticAnalyzer < AST::Visitor(Nil)
       end
 
       # Sub menu
-      if s.is_a?(AST::MenuStatement)
-        # Push new menu to the stack
-        @menus_pending_resolution.unshift(env.define(s.name))
-      end
+      # if s.is_a?(AST::MenuStatement)
+      #   # Push new menu to the stack
+      #   @menus_pending_resolution.unshift(env.define(s.name))
+      # end
 
       execute(s)
     end
 
     # Pop resolved menu from the stack
-    @menus_pending_resolution.shift
+    # @menus_pending_resolution.shift
   end
 
   def visit_if_stmt(stmt : AST::IfStatement)
@@ -154,7 +156,9 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   end
 
   def visit_goto_expr(expr : AST::Goto) : Nil
-    @menus_pending_resolution.first?.as(MenuEnvironment).referenced(expr.name)
+    @symbol_table.lookup_goto_target(expr.name)
+    # menu_name : String = expr.name
+    # @menus_pending_resolution.first?.as(MenuEnvironment).referenced(expr.name)
   end
 
   def visit_action_stmt(stmt : AST::ActionStatement)

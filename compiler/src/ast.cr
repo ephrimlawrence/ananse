@@ -394,7 +394,7 @@ module AST
 
     # Runtime id of the associated menu. Filled in at AST transformation phase
     #
-    property runtime_id : String? = nil
+    # property runtime_id : String? = nil
 
     def initialize(@name)
     end
