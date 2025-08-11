@@ -71,7 +71,7 @@ class Parser
 
     if match(TokenType::END)
       val : Token = previous
-      skip_newline
+      skip_newlines
       return AST::EndStatement.new(val)
     end
 
@@ -126,14 +126,14 @@ class Parser
   private def block_statements : AST::BlockStatement
     location : Location = previous.location
     statements : Array(AST::Stmt) = [] of AST::Stmt
-    skip_newline # Skip newline after '{'
+    skip_newlines # Skip newline after '{'
 
     while !check(TokenType::RIGHT_BRACE) && !is_at_end?
       statements << statement()
     end
 
     consume(TokenType::RIGHT_BRACE, "Expected '}' after menu definition")
-    skip_newline
+    skip_newlines
     return AST::BlockStatement.new(statements, location)
   end
 
@@ -165,7 +165,7 @@ class Parser
       nil
     end
 
-    skip_newline
+    skip_newlines
 
     # TODO: peek next, and group options
     option = AST::Option.new(target, label, next_menu, opt_action)
@@ -213,7 +213,7 @@ class Parser
       variable_name = consume(TokenType::IDENTIFIER, "Expected variable name after 'as'")
     end
 
-    skip_newline
+    skip_newlines
 
     return AST::Action.new(func_name, params, variable_name)
   end
@@ -231,7 +231,7 @@ class Parser
   private def display_statement : AST::DisplayStatement
     location : Location = previous.location
     expr : AST::Expr = expression()
-    skip_newline
+    skip_newlines
 
     return AST::DisplayStatement.new(expr, location)
   end
@@ -246,6 +246,7 @@ class Parser
   private def input_statement : AST::InputStatement
     name : Token = consume(TokenType::IDENTIFIER, "Expect variable name.")
     consume(TokenType::NEW_LINE, "Expected new line after variable.")
+    skip_newlines
     return AST::InputStatement.new(name)
   end
 
@@ -507,8 +508,8 @@ class Parser
     previous
   end
 
-  private def skip_newline
-    if check(TokenType::NEW_LINE)
+  private def skip_newlines
+    while check(TokenType::NEW_LINE)
       advance
     end
   end

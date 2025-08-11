@@ -16,7 +16,7 @@ repos:
 
       - id: biome-format
         name: Format JS and TS files with Biome
-        entry: biome format **/*.ts
+        entry: biome format --write --files-ignore-unknown=true --no-errors-on-unmatched
         language: system
         types: [javascript, ts]
 

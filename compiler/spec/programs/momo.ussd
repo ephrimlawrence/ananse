@@ -27,9 +27,28 @@ menu money_transfer {
       display "Confirm number"
       input mobile_number_confirm
 
+      goto money_transfer.momo_user.confirm_mobile.amount
+
       //if (mobile_number != mobile_number_confirm) {
       //  goto
       //}
+
+      menu amount {
+        display "Enter Amount"
+        input amount
+        goto money_transfer.momo_user.confirm_mobile.amount.reference
+
+        menu reference {
+          display "Enter Reference"
+          input reference
+
+          // TODO: send money
+          // goto money_transfer.momo_user.confirm_mobile.amount.reference
+
+
+        }
+
+      }
 
       // -- amount
       // -- reference
