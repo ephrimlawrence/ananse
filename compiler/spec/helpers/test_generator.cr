@@ -232,8 +232,9 @@ class ProgramTestGenerator
   private def compile(source : String)
     scanner = Scanner::Scan.new(source)
     ast = Parser.new(scanner.scan_tokens).parse
-    SemanticAnalyzer.new(ast).analyze
-    return CodeGenerator.new.generate(AstTransformer.new(ast).transform)
+    analyzer = SemanticAnalyzer.new(ast)
+    analyzer.analyze
+    return CodeGenerator.new(AstTransformer.new(ast, analyzer.symbol_table).transform).generate
   end
 end
 
