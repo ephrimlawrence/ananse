@@ -16,9 +16,9 @@ repos:
 
       - id: biome-format
         name: Format JS and TS files with Biome
-        entry: bme format --write --files-ignore-unknown=true --no-errors-on-unmatched
+        entry: biome format --write --files-ignore-unknown=true --no-errors-on-unmatched
         language: system
-        types: [javascript, ts]
+        types: [ts]
 
       - id: crystal-spec
         name: Run crystal spec

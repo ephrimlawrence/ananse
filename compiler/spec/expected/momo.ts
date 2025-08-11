@@ -4,109 +4,194 @@
 import { Ananse } from "ananse";
 
 const ussd = new Ananse().configure({
-	gateway: 'wigal',
-	session: 'memory',
+	gateway: "wigal",
+	session: "memory",
 });
 
-import { BaseMenu, MenuRouter, Request, Response, MenuAction } from 'ananse';
-  export class MenuMain7a6776f4 extends BaseMenu {
-  isStart(): Promise<boolean> | boolean {
-    return true;
-  }async message() {
-return undefined; }
-async actions() {
-const actions_list: MenuAction[] = [];
-actions_list.push({choice: '1',display: "Transfer Money",next_menu: 'money_transfer',});
-actions_list.push({choice: '2',display: "MoMoPay & Pay Bill",});
-actions_list.push({choice: '3',display: "Airtime & Bundles",});
-actions_list.push({choice: '4',display: "Allow Cash Out",});
-actions_list.push({choice: '5',display: "Financial",});
-actions_list.push({choice: '6',display: "My Wallet",});
-actions_list.push({choice: '7',display: "Just4U (Offers for you)",});
-return actions_list;}
-async nextMenu() {
-return undefined; }
+import { BaseMenu, MenuRouter, Request, Response, MenuAction } from "ananse";
+export class MenuMain7a6776f4 extends BaseMenu {
+	isStart(): Promise<boolean> | boolean {
+		return true;
+	}
+	async message() {
+		return undefined;
+	}
+	async actions() {
+		const actions_list: MenuAction[] = [];
+		actions_list.push({
+			choice: "1",
+			display: "Transfer Money",
+			next_menu: "money_transfer",
+		});
+		actions_list.push({ choice: "2", display: "MoMoPay & Pay Bill" });
+		actions_list.push({ choice: "3", display: "Airtime & Bundles" });
+		actions_list.push({ choice: "4", display: "Allow Cash Out" });
+		actions_list.push({ choice: "5", display: "Financial" });
+		actions_list.push({ choice: "6", display: "My Wallet" });
+		actions_list.push({ choice: "7", display: "Just4U (Offers for you)" });
+		return actions_list;
+	}
+	async nextMenu() {
+		return undefined;
+	}
 }
-export class MenuSend94a0a187 extends BaseMenu {async message() {
-let var_a477d895 = '';
-var_a477d895 = "Transfer to Jane Doe for GHS "+await this.request.session.get("amount")+" with Reference: "+await this.request.session.get("reference")+". Fee is GHS 0.00, Tax amount is GHS 0.00. Total Amount is GHS 1.00. Enter MM PIN or 2 to cancel";
-return var_a477d895;}
-async end() {
-return true;
+export class MenuSend94a0a187 extends BaseMenu {
+	async message() {
+		let var_a477d895 = "";
+		var_a477d895 =
+			"Transfer to Jane Doe for GHS " +
+			(await this.request.session.get("amount")) +
+			" with Reference: " +
+			(await this.request.session.get("reference")) +
+			". Fee is GHS 0.00, Tax amount is GHS 0.00. Total Amount is GHS 1.00. Enter MM PIN or 2 to cancel";
+		return var_a477d895;
+	}
+	async end() {
+		return true;
+	}
+	async nextMenu() {
+		return undefined;
+	}
 }
-async nextMenu() {
-return undefined; }
+export class MenuReference64f2c983 extends BaseMenu {
+	async message() {
+		let var_b8c25d73 = "";
+		var_b8c25d73 = "Enter Reference";
+		return var_b8c25d73;
+	}
+	async actions() {
+		return [
+			{
+				choice: /.*/,
+				display: undefined,
+				handler: async (req: Request) => {
+					await this.request.session.set("reference", this.request.input!);
+				},
+			},
+		];
+	}
+	async nextMenu() {
+		let var_8a586e00 =
+			"money_transfer.momo_user.confirm_mobile.amount.reference.send";
+		var_8a586e00 =
+			"money_transfer.momo_user.confirm_mobile.amount.reference.send";
+		return var_8a586e00;
+	}
 }
-export class MenuReference64f2c983 extends BaseMenu {async message() {
-let var_b8c25d73 = '';
-var_b8c25d73 = "Enter Reference";
-return var_b8c25d73;}
-async actions() {
-return [{ choice: /.*/, display: undefined, handler: async (req: Request) => {await this.request.session.set("reference", this.request.input!);
-}}];}
-async nextMenu() {
-let var_8a586e00 = "money_transfer.momo_user.confirm_mobile.amount.reference.send";
-var_8a586e00 = "money_transfer.momo_user.confirm_mobile.amount.reference.send";
-return var_8a586e00;}
+export class MenuAmount5b59f01a extends BaseMenu {
+	async message() {
+		let var_8bb9ab81 = "";
+		var_8bb9ab81 = "Enter Amount";
+		return var_8bb9ab81;
+	}
+	async actions() {
+		return [
+			{
+				choice: /.*/,
+				display: undefined,
+				handler: async (req: Request) => {
+					await this.request.session.set("amount", this.request.input!);
+				},
+			},
+		];
+	}
+	async nextMenu() {
+		let var_52624086 =
+			"money_transfer.momo_user.confirm_mobile.amount.reference";
+		var_52624086 = "money_transfer.momo_user.confirm_mobile.amount.reference";
+		return var_52624086;
+	}
 }
-export class MenuAmount5b59f01a extends BaseMenu {async message() {
-let var_8bb9ab81 = '';
-var_8bb9ab81 = "Enter Amount";
-return var_8bb9ab81;}
-async actions() {
-return [{ choice: /.*/, display: undefined, handler: async (req: Request) => {await this.request.session.set("amount", this.request.input!);
-}}];}
-async nextMenu() {
-let var_52624086 = "money_transfer.momo_user.confirm_mobile.amount.reference";
-var_52624086 = "money_transfer.momo_user.confirm_mobile.amount.reference";
-return var_52624086;}
+export class MenuConfirmMobile370cbb1a extends BaseMenu {
+	async message() {
+		let var_661bb15d = "";
+		var_661bb15d = "Confirm number";
+		return var_661bb15d;
+	}
+	async actions() {
+		return [
+			{
+				choice: /.*/,
+				display: undefined,
+				handler: async (req: Request) => {
+					await this.request.session.set(
+						"mobile_number_confirm",
+						this.request.input!,
+					);
+				},
+			},
+		];
+	}
+	async nextMenu() {
+		let var_4f32956a = "money_transfer.momo_user.confirm_mobile.amount";
+		var_4f32956a = "money_transfer.momo_user.confirm_mobile.amount";
+		return var_4f32956a;
+	}
 }
-export class MenuConfirmMobile370cbb1a extends BaseMenu {async message() {
-let var_661bb15d = '';
-var_661bb15d = "Confirm number";
-return var_661bb15d;}
-async actions() {
-return [{ choice: /.*/, display: undefined, handler: async (req: Request) => {await this.request.session.set("mobile_number_confirm", this.request.input!);
-}}];}
-async nextMenu() {
-let var_4f32956a = "money_transfer.momo_user.confirm_mobile.amount";
-var_4f32956a = "money_transfer.momo_user.confirm_mobile.amount";
-return var_4f32956a;}
+export class MenuMomoUsera265ce33 extends BaseMenu {
+	async message() {
+		let var_3b64ae95 = "";
+		var_3b64ae95 = "Enter mobile number";
+		return var_3b64ae95;
+	}
+	async actions() {
+		return [
+			{
+				choice: /.*/,
+				display: undefined,
+				handler: async (req: Request) => {
+					await this.request.session.set("mobile_number", this.request.input!);
+				},
+			},
+		];
+	}
+	async nextMenu() {
+		let var_812dea12 = "money_transfer.momo_user.confirm_mobile";
+		var_812dea12 = "money_transfer.momo_user.confirm_mobile";
+		return var_812dea12;
+	}
 }
-export class MenuMomoUsera265ce33 extends BaseMenu {async message() {
-let var_3b64ae95 = '';
-var_3b64ae95 = "Enter mobile number";
-return var_3b64ae95;}
-async actions() {
-return [{ choice: /.*/, display: undefined, handler: async (req: Request) => {await this.request.session.set("mobile_number", this.request.input!);
-}}];}
-async nextMenu() {
-let var_812dea12 = "money_transfer.momo_user.confirm_mobile";
-var_812dea12 = "money_transfer.momo_user.confirm_mobile";
-return var_812dea12;}
+export class MenuMoneyTransfer3c13fc54 extends BaseMenu {
+	async message() {
+		return undefined;
+	}
+	async actions() {
+		const actions_list: MenuAction[] = [];
+		actions_list.push({
+			choice: "1",
+			display: "MoMo User",
+			next_menu: "money_transfer.momo_user",
+		});
+		actions_list.push({ choice: "2", display: "None MoMo User" });
+		actions_list.push({ choice: "3", display: "Send with Care" });
+		actions_list.push({ choice: "4", display: "Favourite" });
+		actions_list.push({ choice: "5", display: "Other Networks" });
+		actions_list.push({ choice: "6", display: "Bank Account" });
+		return actions_list;
+	}
+	async nextMenu() {
+		return undefined;
+	}
 }
-export class MenuMoneyTransfer3c13fc54 extends BaseMenu {async message() {
-return undefined; }
-async actions() {
-const actions_list: MenuAction[] = [];
-actions_list.push({choice: '1',display: "MoMo User",next_menu: 'money_transfer.momo_user',});
-actions_list.push({choice: '2',display: "None MoMo User",});
-actions_list.push({choice: '3',display: "Send with Care",});
-actions_list.push({choice: '4',display: "Favourite",});
-actions_list.push({choice: '5',display: "Other Networks",});
-actions_list.push({choice: '6',display: "Bank Account",});
-return actions_list;}
-async nextMenu() {
-return undefined; }
-}
-MenuRouter.add(MenuMain7a6776f4, 'main');
-MenuRouter.add(MenuSend94a0a187, 'money_transfer.momo_user.confirm_mobile.amount.reference.send');
-MenuRouter.add(MenuReference64f2c983, 'money_transfer.momo_user.confirm_mobile.amount.reference');
-MenuRouter.add(MenuAmount5b59f01a, 'money_transfer.momo_user.confirm_mobile.amount');
-MenuRouter.add(MenuConfirmMobile370cbb1a, 'money_transfer.momo_user.confirm_mobile');
-MenuRouter.add(MenuMomoUsera265ce33, 'money_transfer.momo_user');
-MenuRouter.add(MenuMoneyTransfer3c13fc54, 'money_transfer');
-
+MenuRouter.add(MenuMain7a6776f4, "main");
+MenuRouter.add(
+	MenuSend94a0a187,
+	"money_transfer.momo_user.confirm_mobile.amount.reference.send",
+);
+MenuRouter.add(
+	MenuReference64f2c983,
+	"money_transfer.momo_user.confirm_mobile.amount.reference",
+);
+MenuRouter.add(
+	MenuAmount5b59f01a,
+	"money_transfer.momo_user.confirm_mobile.amount",
+);
+MenuRouter.add(
+	MenuConfirmMobile370cbb1a,
+	"money_transfer.momo_user.confirm_mobile",
+);
+MenuRouter.add(MenuMomoUsera265ce33, "money_transfer.momo_user");
+MenuRouter.add(MenuMoneyTransfer3c13fc54, "money_transfer");
 
 const port = process.argv[2];
 if (port == null) {
