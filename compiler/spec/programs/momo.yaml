@@ -44,15 +44,15 @@ tests:
         input: "024123456"
         output:
           - Confirm number
-  #     - it: user confirms phone
-  #       input: 024123456
-  #       output:
-  #         - Enter Amount
-  #     - it: user enter's amount
-  #       input: 100
-  #       output:
-  #         - Enter Reference
-  #     - it: user enter's Reference
-  #       input: test payment
-  #       output:
-  #         - "Transfer to Jane Doe for GHS 100 with Reference: test payment. Fee is GHS 0.00, Tax amount is GHS 0.00. Total Amount is GHS 100.00. Enter MM PIN or 2 to cancel"
+      - it: user confirms phone
+        input: "024123456"
+        output:
+          - Enter Amount
+      - it: user enter's amount
+        input: 100
+        output:
+          - Enter Reference
+      - it: user enter's reference and finalize payment
+        input: test payment
+        output:
+          - "Transfer to Jane Doe for GHS 100 with Reference: test payment. Fee is GHS 0.00, Tax amount is GHS 0.00. Total Amount is GHS 100.00. Enter MM PIN or 2 to cancel"

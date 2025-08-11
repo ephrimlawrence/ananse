@@ -74,9 +74,13 @@ class CodeGenerator < AST::Visitor(Object)
       # Fixup unbalanced quotes caused by strings with interpolation
       if value.starts_with?('"') && !value.ends_with?('"')
         value += '"'
+      elsif !value.starts_with?('"') && value.ends_with?('"')
+        value = '"' + value
+      elsif !value.starts_with?('"') && !value.ends_with?('"')
+        value = %("#{value}")
       elsif value == "\""
         value += '"'
-      elsif value == " " # empty space, caused by multiple interpolation
+      elsif value == " " # empty space, caused by multiple continuous interpolation
         value = %(" ")
       end
       value
@@ -117,7 +121,8 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_variable_expr(expr : AST::Variable) : Object
-    return @environment.get(expr.name)
+    %(await this.request.session.get("#{expr.name.value}"))
+    # return @environment.get(expr.name)
   end
 
   private def evaluate(expr : AST::Expr) : ExpressionType
@@ -447,7 +452,6 @@ class CodeGenerator < AST::Visitor(Object)
     output = String.build do |s|
       str.expressions.each_with_index do |expr, i|
         s << evaluate(expr)
-
         if i != last_idx
           s << '+'
         end

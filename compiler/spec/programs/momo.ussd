@@ -41,19 +41,16 @@ menu money_transfer {
         menu reference {
           display "Enter Reference"
           input reference
+          goto money_transfer.momo_user.confirm_mobile.amount.reference.send
 
-          // TODO: send money
-          // goto money_transfer.momo_user.confirm_mobile.amount.reference
-
-
+          // TODO: implement action call
+          menu send {
+            display "Transfer to Jane Doe for GHS {{ amount }} with Reference: {{ reference }}. Fee is GHS 0.00, Tax amount is GHS 0.00. Total Amount is GHS 1.00. enter MM PIN or 2 to cancel"
+            end
+          }
         }
 
       }
-
-      // -- amount
-      // -- reference
-      // msg => Transfer to Jane Doe for GHS {{ amount }} with Reference: {{ reference }}. Fee is GHS 0.00, Tax amount is GHS 0.00. Total Amount is GHS 1.00. enter MM PIN or 2 to cancel
-      // send money (call action)
     }
   }
 
