@@ -33,8 +33,8 @@ module Compiler
       analyzer : SemanticAnalyzer = SemanticAnalyzer.new(program)
       analyzer.analyze
 
-      transformed_ast = AstTransformer.new(program).transform
-      code = CodeGenerator.new.generate(transformed_ast)
+      transformed_ast = AstTransformer.new(program, analyzer.symbol_table).transform
+      code = CodeGenerator.new(transformed_ast).generate
 
       # Save generated code to output file
       output_file = "#{File.dirname(path)}/#{File.basename(path, suffix: File.extname(path))}.ts"

@@ -11,7 +11,7 @@ start menu main {
 }
 
 menu money_transfer {
-  option 1 "MoMo User" -> momo_user
+  option 1 "MoMo User" -> money_transfer.momo_user
   option 2 "None MoMo User"
   option 3 "Send with Care"
   option 4 "Favourite"
@@ -21,7 +21,7 @@ menu money_transfer {
   menu momo_user {
     display "Enter mobile number"
     input mobile_number
-    goto confirm_mobile
+    goto money_transfer.momo_user.confirm_mobile
 
     menu confirm_mobile {
       display "Confirm number"

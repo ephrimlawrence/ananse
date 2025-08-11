@@ -19,17 +19,20 @@ class CodeGenerator < AST::Visitor(Object)
 
   private getter runtime_imports = ["BaseMenu", "MenuRouter", "Request", "Response", "MenuAction"]
 
-  def generate(ast : TransformedAST) : String?
+  def initialize(@ast : TransformedAST)
+  end
+
+  def generate : String
     typescript = String.build do |s|
       # Add Ananse imports
       s << "import { " << @runtime_imports.join(", ") << " } from 'ananse';\n"
 
       # Add action names as import
-      if !ast.actions.empty?
-        s << "import { " << ast.actions.uniq.join(", ") << " } from './actions';\n"
+      if !@ast.actions.empty?
+        s << "import { " << @ast.actions.uniq.join(", ") << " } from './actions';\n"
       end
 
-      ast.menus.each do |menu_name, definition|
+      @ast.menus.each do |menu_name, definition|
         menu : AST::MenuStatement = definition["menu"].first.as(AST::MenuStatement)
         stmts : TransformedAST::GroupedStatements = definition
 
@@ -431,8 +434,7 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_goto_expr(expr : AST::Goto) : String
-    # TODO: lookup runtime id
-    return "\"#{expr.name.value}\""
+    @ast.symbol_table.lookup_goto_target(expr.name).runtime_id
   end
 
   def visit_interpolation_expr(str : AST::InterpolatedString) : String

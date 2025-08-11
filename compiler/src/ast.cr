@@ -459,6 +459,7 @@ class TransformedAST
 )
 
   getter menus : Hash(Token, GroupedStatements) = {} of Token => GroupedStatements
+  property symbol_table : SymbolTable = SymbolTable.new
 
   # List of action names (javascript functions)
   property actions : Array(String) = [] of String

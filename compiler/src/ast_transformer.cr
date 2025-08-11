@@ -4,6 +4,7 @@ require "./environment.cr"
 class AstTransformer < AST::Visitor(Nil)
   getter statements : Array(AST::Stmt) = [] of AST::Stmt
   getter transformed_ast : TransformedAST = TransformedAST.new
+  getter symbol_table : SymbolTable
 
   # Tracks current menu(s) currently being evaluation
   #
@@ -13,10 +14,16 @@ class AstTransformer < AST::Visitor(Nil)
   # Item is popped off the stack after evaluation
   private getter menu_stack : Array(AST::MenuStatement) = [] of AST::MenuStatement
 
-  private property menu_env : MenuEnvironment = MenuEnvironment.new
+  # private property menu_env : MenuEnvironment = MenuEnvironment.new
+
+  # Stack
   private property if_stmts : Array(Array(AST::IfStatement)) = [] of Array(AST::IfStatement)
 
-  def initialize(@statements)
+  # Tracks menu and class names
+  property unresolved_goto : Hash(String, String) = {} of String => String
+
+  def initialize(@statements, @symbol_table)
+    @transformed_ast.symbol_table = @symbol_table
   end
 
   def transform
@@ -96,6 +103,8 @@ class AstTransformer < AST::Visitor(Nil)
 
     # Remove menu from the stack
     @menu_stack.shift
+
+    # TODO: resolve gotos
   end
 
   def visit_if_stmt(stmt : AST::IfStatement)
@@ -124,9 +133,11 @@ class AstTransformer < AST::Visitor(Nil)
   end
 
   def visit_goto_stmt(stmt : AST::GotoStatement)
+    evaluate(stmt.menu)
   end
 
   def visit_goto_expr(expr : AST::Goto) : Nil
+    # @unresolved_goto << expr
   end
 
   def visit_action_stmt(stmt : AST::ActionStatement)
@@ -217,5 +228,9 @@ class AstTransformer < AST::Visitor(Nil)
 
   private def execute(stmt : AST::Stmt)
     stmt.accept(self)
+  end
+
+  private def evaluate(expr : AST::Expr)
+    expr.accept(self)
   end
 end

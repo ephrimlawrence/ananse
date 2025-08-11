@@ -6,10 +6,11 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   getter symbol_table : SymbolTable = SymbolTable.new
 
   property statements : Array(AST::Stmt) = [] of AST::Stmt
-  property menu_env : MenuEnvironment = MenuEnvironment.new
+  # property menu_env : MenuEnvironment = MenuEnvironment.new
   property is_start_menu_defined : Bool = false
   property is_evaluating_if_stmt : Bool = false
-  property menus_pending_resolution : Array(MenuEnvironment) = [] of MenuEnvironment
+
+  # property menus_pending_resolution : Array(MenuEnvironment) = [] of MenuEnvironment
 
   def initialize(@statements)
   end
