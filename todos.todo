@@ -15,18 +15,20 @@ Compiler:
     ☐ action variable resolution
     ☐ input variable resolution
 
-  ☐ program testing
-    ☐ all actions must be in one file
-    ☐ tests code generation
-      ☐ save code to tempfile in tmp/
-      ☐ select random unused port
-        ☐ start ananse server
-      ☐ read test cases from yaml file
-        ☐ run against server via simulator
-      ☐ clean up resources
+  ✔ program testing @done(25-08-11 21:59)
+    ✔ all actions must be in one file @done(25-08-11 21:59)
+    ✔ tests code generation @done(25-08-11 21:59)
+      ✔ save code to tempfile in tmp/ @done(25-08-11 21:59)
+      ✔ select random unused port @done(25-08-11 21:59)
+        ✔ start ananse server @done(25-08-11 21:59)
+      ✔ read test cases from yaml file @done(25-08-11 21:59)
+        ✔ run against server via simulator @done(25-08-11 21:59)
+      ✔ clean up resources @done(25-08-11 21:59)
 
-  ☐ code gen tests
-    ☐ nested menus
+  ☐ simulator
+    ☐ broken test if user input contains white space
+  ✔ code gen tests @done(25-08-11 21:58)
+    ✔ nested menus @done(25-08-11 21:58)
 
 Runtime:
   ☐ rename 'actions' api to 'options' (breaking change)

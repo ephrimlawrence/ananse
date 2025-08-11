@@ -9,7 +9,7 @@ const ussd = new Ananse().configure({
 });
 
 import { BaseMenu, MenuRouter, Request, Response, MenuAction } from 'ananse';
-  export class MenuMaine4edc298 extends BaseMenu {
+  export class MenuMain7a6776f4 extends BaseMenu {
   isStart(): Promise<boolean> | boolean {
     return true;
   }async message() {
@@ -27,29 +27,65 @@ return actions_list;}
 async nextMenu() {
 return undefined; }
 }
-export class MenuConfirmMobilec3c551e0 extends BaseMenu {async message() {
-let var_60ecd922 = '';
-var_60ecd922 = "Confirm number";
-return var_60ecd922;}
+export class MenuSend94a0a187 extends BaseMenu {async message() {
+let var_a477d895 = '';
+var_a477d895 = "Transfer to Jane Doe for GHS "+await this.request.session.get("amount")+" with Reference: "+await this.request.session.get("reference")+". Fee is GHS 0.00, Tax amount is GHS 0.00. Total Amount is GHS 1.00. Enter MM PIN or 2 to cancel";
+return var_a477d895;}
+async end() {
+return true;
+}
+async nextMenu() {
+return undefined; }
+}
+export class MenuReference64f2c983 extends BaseMenu {async message() {
+let var_b8c25d73 = '';
+var_b8c25d73 = "Enter Reference";
+return var_b8c25d73;}
+async actions() {
+return [{ choice: /.*/, display: undefined, handler: async (req: Request) => {await this.request.session.set("reference", this.request.input!);
+}}];}
+async nextMenu() {
+let var_8a586e00 = "money_transfer.momo_user.confirm_mobile.amount.reference.send";
+var_8a586e00 = "money_transfer.momo_user.confirm_mobile.amount.reference.send";
+return var_8a586e00;}
+}
+export class MenuAmount5b59f01a extends BaseMenu {async message() {
+let var_8bb9ab81 = '';
+var_8bb9ab81 = "Enter Amount";
+return var_8bb9ab81;}
+async actions() {
+return [{ choice: /.*/, display: undefined, handler: async (req: Request) => {await this.request.session.set("amount", this.request.input!);
+}}];}
+async nextMenu() {
+let var_52624086 = "money_transfer.momo_user.confirm_mobile.amount.reference";
+var_52624086 = "money_transfer.momo_user.confirm_mobile.amount.reference";
+return var_52624086;}
+}
+export class MenuConfirmMobile370cbb1a extends BaseMenu {async message() {
+let var_661bb15d = '';
+var_661bb15d = "Confirm number";
+return var_661bb15d;}
 async actions() {
 return [{ choice: /.*/, display: undefined, handler: async (req: Request) => {await this.request.session.set("mobile_number_confirm", this.request.input!);
 }}];}
 async nextMenu() {
-return undefined; }
+let var_4f32956a = "money_transfer.momo_user.confirm_mobile.amount";
+var_4f32956a = "money_transfer.momo_user.confirm_mobile.amount";
+return var_4f32956a;}
 }
-export class MenuMomoUser03de55c5 extends BaseMenu {async message() {
-let var_e14f4075 = '';
-var_e14f4075 = "Enter mobile number";
-return var_e14f4075;}
+export class MenuMomoUsera265ce33 extends BaseMenu {async message() {
+let var_3b64ae95 = '';
+var_3b64ae95 = "Enter mobile number";
+return var_3b64ae95;}
 async actions() {
 return [{ choice: /.*/, display: undefined, handler: async (req: Request) => {await this.request.session.set("mobile_number", this.request.input!);
 }}];}
 async nextMenu() {
-let var_6eb183f3 = "money_transfer.momo_user.confirm_mobile";
-var_6eb183f3 = "money_transfer.momo_user.confirm_mobile";
-return var_6eb183f3;}
+let var_812dea12 = "money_transfer.momo_user.confirm_mobile";
+var_812dea12 = "money_transfer.momo_user.confirm_mobile";
+return var_812dea12;}
 }
-export class MenuMoneyTransfer6450e536 extends BaseMenu {async message() {
+export class MenuMoneyTransfer3c13fc54 extends BaseMenu {async message() {
 return undefined; }
 async actions() {
 const actions_list: MenuAction[] = [];
@@ -63,10 +99,13 @@ return actions_list;}
 async nextMenu() {
 return undefined; }
 }
-MenuRouter.add(MenuMaine4edc298, 'main');
-MenuRouter.add(MenuConfirmMobilec3c551e0, 'money_transfer.momo_user.confirm_mobile');
-MenuRouter.add(MenuMomoUser03de55c5, 'money_transfer.momo_user');
-MenuRouter.add(MenuMoneyTransfer6450e536, 'money_transfer');
+MenuRouter.add(MenuMain7a6776f4, 'main');
+MenuRouter.add(MenuSend94a0a187, 'money_transfer.momo_user.confirm_mobile.amount.reference.send');
+MenuRouter.add(MenuReference64f2c983, 'money_transfer.momo_user.confirm_mobile.amount.reference');
+MenuRouter.add(MenuAmount5b59f01a, 'money_transfer.momo_user.confirm_mobile.amount');
+MenuRouter.add(MenuConfirmMobile370cbb1a, 'money_transfer.momo_user.confirm_mobile');
+MenuRouter.add(MenuMomoUsera265ce33, 'money_transfer.momo_user');
+MenuRouter.add(MenuMoneyTransfer3c13fc54, 'money_transfer');
 
 
 const port = process.argv[2];

@@ -45,7 +45,7 @@ menu money_transfer {
 
           // TODO: implement action call
           menu send {
-            display "Transfer to Jane Doe for GHS {{ amount }} with Reference: {{ reference }}. Fee is GHS 0.00, Tax amount is GHS 0.00. Total Amount is GHS 1.00. enter MM PIN or 2 to cancel"
+            display "Transfer to Jane Doe for GHS {{ amount }} with Reference: {{ reference }}. Fee is GHS 0.00, Tax amount is GHS 0.00. Total Amount is GHS 1.00. Enter MM PIN or 2 to cancel"
             end
           }
         }

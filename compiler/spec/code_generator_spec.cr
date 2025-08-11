@@ -71,6 +71,21 @@ describe CodeGenerator do
         resp3.nil?.should eq(false)
         resp3.as(String).includes?("Confirm number").should eq(true)
       end
+      it "user confirms phone" do
+        resp4 : String? = server.as(TestDriver).input(["", "1", "1", "024123456", "024123456"])
+        resp4.nil?.should eq(false)
+        resp4.as(String).includes?("Enter Amount").should eq(true)
+      end
+      it "user enter's amount" do
+        resp5 : String? = server.as(TestDriver).input(["", "1", "1", "024123456", "024123456", "100"])
+        resp5.nil?.should eq(false)
+        resp5.as(String).includes?("Enter Reference").should eq(true)
+      end
+      it "user enter's reference and finalize payment" do
+        resp6 : String? = server.as(TestDriver).input(["", "1", "1", "024123456", "024123456", "100", "test"])
+        resp6.nil?.should eq(false)
+        resp6.as(String).includes?("Transfer to Jane Doe for GHS 100 with Reference: test. Fee is GHS 0.00, Tax amount is GHS 0.00. Total Amount is GHS 1.00. Enter MM PIN or 2 to cancel").should eq(true)
+      end
     end
   end
 end

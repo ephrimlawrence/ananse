@@ -53,6 +53,6 @@ tests:
         output:
           - Enter Reference
       - it: user enter's reference and finalize payment
-        input: test payment
+        input: test
         output:
-          - "Transfer to Jane Doe for GHS 100 with Reference: test payment. Fee is GHS 0.00, Tax amount is GHS 0.00. Total Amount is GHS 100.00. Enter MM PIN or 2 to cancel"
+          - "Transfer to Jane Doe for GHS 100 with Reference: test. Fee is GHS 0.00, Tax amount is GHS 0.00. Total Amount is GHS 1.00. Enter MM PIN or 2 to cancel"
