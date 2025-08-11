@@ -158,7 +158,7 @@ class CodeGenerator < AST::Visitor(Object)
 
     # Track menu name and class name
     # TODO: move this to ast transfer
-    @menu_class_names[stmt.runtime_name] = class_name
+    @menu_class_names[stmt.runtime_id] = class_name
 
     code = "export class #{class_name} extends BaseMenu {"
     if !stmt.start.nil?

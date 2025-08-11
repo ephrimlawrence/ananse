@@ -153,12 +153,12 @@ module AST
     # Returns runtime name that is used for this menu in the generated TS code
     #
     # Runtime name is the concatenation of this menu's name and its parent(s) names
-    def runtime_name : String
+    def runtime_id : String
       if @parent.nil?
         return @name.value
       end
 
-      return "#{@parent.as(MenuStatement).runtime_name}.#{@name.value}"
+      return "#{@parent.as(MenuStatement).runtime_id}.#{@name.value}"
     end
 
     def clone
@@ -391,6 +391,10 @@ module AST
 
   class Goto < Expr
     property name : Token
+
+    # Runtime id of the associated menu. Filled in at AST transformation phase
+    #
+    property runtime_id : String? = nil
 
     def initialize(@name)
     end

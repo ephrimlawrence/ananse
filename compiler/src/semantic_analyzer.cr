@@ -2,6 +2,8 @@ require "./ast.cr"
 require "./environment.cr"
 
 class SemanticAnalyzer < AST::Visitor(Nil)
+  getter symbol_table : SymbolTable = SymbolTable.new
+
   property statements : Array(AST::Stmt) = [] of AST::Stmt
   property menu_env : MenuEnvironment = MenuEnvironment.new
   property is_start_menu_defined : Bool = false
@@ -12,23 +14,25 @@ class SemanticAnalyzer < AST::Visitor(Nil)
   end
 
   def analyze : Bool
-    @statements.each do |stmt|
-      if (stmt.is_a?(AST::MenuStatement))
-        @menus_pending_resolution.unshift(@menu_env.define(stmt.name))
-      end
+    @symbol_table.populate_menu_table(@statements)
+    pp @symbol_table.menu_map
+    # @statements.each do |stmt|
+    #   if (stmt.is_a?(AST::MenuStatement))
+    #     @menus_pending_resolution.unshift(@menu_env.define(stmt.name))
+    #   end
 
-      stmt.accept(self)
-    end
+    #   stmt.accept(self)
+    # end
 
-    if !@is_start_menu_defined
-      raise CompilerError.new("No start menu defined")
-    end
+    # if !@is_start_menu_defined
+    #   raise CompilerError.new("No start menu defined")
+    # end
 
-    # Report unused menu definitions
-    errors : Array(String) = @menu_env.gather_errors
-    if !errors.empty?
-      raise CompilerError.new(errors.join("\n"))
-    end
+    # # Report unused menu definitions
+    # errors : Array(String) = @menu_env.gather_errors
+    # if !errors.empty?
+    #   raise CompilerError.new(errors.join("\n"))
+    # end
     # pp errors
     # pp @menu_env
 
