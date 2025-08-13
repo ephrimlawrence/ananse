@@ -207,9 +207,10 @@ class ProgramTestGenerator
       end
 
       if test.has_key?("output")
+        s << %(#{var_name}.nil?.should eq(false)\n)
+
         outputs = test["output"].as_a
         outputs.each do |o|
-          s << %(#{var_name}.nil?.should eq(false)\n)
           s << %(#{var_name}.as(String).includes?("#{o}").should eq(true)\n)
         end
 

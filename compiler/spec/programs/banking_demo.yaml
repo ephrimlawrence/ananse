@@ -8,6 +8,6 @@ tests:
       - "2. Exit"
     session: {}
   - it: choose check balance
-    input: 1
+    input: ["", 1]
     output:
       - "Please enter your 4-digit PIN:"
