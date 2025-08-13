@@ -1,0 +1,35 @@
+start menu Welcome {
+  display "Welcome to USSD Banking. Please select an option:"
+  option "1" "1. Check Balance" -> PinCheck
+  option "2" "2. Exit" -> Exit
+}
+
+// Menu for user input (PIN authentication)
+menu PinCheck {
+  display "Please enter your 4-digit PIN:"
+  input user_pin
+
+  @checkPin(pin: user_pin) as is_valid
+
+  if (is_valid) {
+    goto BalanceMenu
+  } else {
+    display "Invalid PIN. Please try again."
+    goto Welcome
+  }
+}
+
+// Menu to display the balance
+menu BalanceMenu {
+  @fetchBalance() as balance
+
+  display "Your current balance is: GHS {{balance}}"
+
+  option "0" "Back" -> Welcome
+  option "99" "End Session" -> Exit
+}
+
+menu Exit {
+  display "Thank you for using our service"
+  end
+}

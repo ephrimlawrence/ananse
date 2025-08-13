@@ -1,0 +1,13 @@
+name: Demo banking USSD app
+tests:
+  - it: displays main menu
+    input: ""
+    output:
+      - "Welcome to USSD Banking. Please select an option:"
+      - "1. Check Balance"
+      - "2. Exit"
+    session: {}
+  - it: choose check balance
+    input: 1
+    output:
+      - "Please enter your 4-digit PIN:"

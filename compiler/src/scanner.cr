@@ -129,7 +129,6 @@ module Scanner
           @column = 0
           # advance()
         end
-        # TODO: add '{{'  '}}' for string interpol?
       when '/'
         # TODO: pass regex
         if match '/' # comment start with //

@@ -289,17 +289,17 @@ class CodeGenerator < AST::Visitor(Object)
         return s.to_s
       end
 
-      item = stmts.find { |s| s.is_a?(AST::GotoStatement) }
-      if item.nil?
-        raise Exception.new("No goto statement found in '#{menu}' menu")
-      end
-      item = item.as(AST::GotoStatement)
+      # item = stmts.find { |s| s.is_a?(AST::GotoStatement) }
+      # if item.nil?
+      #   raise Exception.new("No goto statement found in '#{menu}' menu")
+      # end
+      # item = item.as(AST::GotoStatement)
 
       variable_name = Util.generate_identifier_name
-      s << "let #{variable_name} = #{execute(item)};\n"
+      s << "let #{variable_name} = '';\n"
       stmts.each do |stmt|
         if stmt.is_a?(AST::GotoStatement)
-          s << "#{variable_name} = #{execute(item)};\n"
+          s << "#{variable_name} = #{execute(stmt)};\n"
         else
           s << execute(stmt)
         end

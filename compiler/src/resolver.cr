@@ -22,7 +22,12 @@ class SymbolTable
     # Construct the full, unique name for this menu
     canonical_name : String = parent_name.empty? ? menu.name.value : "#{parent_name}.#{menu.name.value}"
 
-    # Add it to the symbol table
+    if @menu_map.has_key?(canonical_name)
+      token : Token = @menu_map[canonical_name].name
+
+      raise CompilerError.new("Duplicate menu definitions! Menu '#{canonical_name}' is already defined on #{token.location.to_s}", menu.name)
+    end
+
     @menu_map[canonical_name] = menu
 
     # Recurse for all child menus
