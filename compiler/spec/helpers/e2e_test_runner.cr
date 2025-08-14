@@ -52,50 +52,39 @@ class E2eTestRunner
     end
 
     # Generate spec files
-    # spec = String.build do |s|
-    puts "CodeGenerator"
-
-    @files.each do |basename, value|
-      if value[:test].nil?
-        next
-      end
-
-      # s <<
-      generate_tests(value[:test].as(String), value[:program].gsub(".ussd", ".ts"))
-      # s << end_s
-    end
-    # s << end_s
-    # end
-
     dest : String = "#{OUTPUT_DIR}/actions.ts"
     if File.exists?(dest)
       File.delete(dest)
     end
 
     File.copy(ACTIONS_JS, dest)
-    # File.write("spec/code_generator_spec.cr", spec.to_s)
+
+    puts "CodeGenerator"
+
+    # p! @files
+    @files.each do |basename, value|
+      p! basename, value
+      # if value[:test].nil?
+      #   next
+      # end
+
+      # s <<
+      generate_tests(value[:test].as(String), value[:program].gsub(".ussd", ".ts"))
+    end
+    puts "last file"
+
+    p! @files
   end
 
   def generate_tests(test_file : String, ts_file : String)
     yml = YAML.parse(File.read("#{PROGRAMS_DIR}/#{test_file}"))
-    # code = String.build do |s|
-    puts "\t#{test_file}: #{yml["name"]}"
+    puts "  #{test_file}: #{yml["name"]}"
 
     # TODO: accept debug from cli
-    # s << <<-CR
-    #     server : TestDriver? = nil
-
-    #     before_all do
-    #       server = TestDriver.new("#{ts_file}").start
-    #     end
-
-    #     after_all do
-    #       server.as(TestDriver).stop
-    #     end\n\n
-    #   CR
 
     yml["tests"].as_a.each_with_index do |t, index|
       test = t.as_h
+
       if test.has_key?("it")
         generate_it(test: test, index: index, ts_file: ts_file)
       elsif test.has_key?("scenario")
@@ -118,21 +107,12 @@ class E2eTestRunner
           )
 
           previous_steps = result[:inputs]
-
-          # s << result[:code]
         end
-
-        # s << end_s
       end
     end
-    # end
-
-    # code.to_s
   end
 
   private def generate_it(test : Hash, index : Int32, ts_file : String, previous_steps : Array(String) = [] of String) : NamedTuple(inputs: Array(String))
-    # yml = YAML.parse(File.read("#{PROGRAMS_DIR}/#{test_file}"))
-
     if !test.has_key?("it")
       raise Exception.new("Error at test block #{index}. A '- it' is required for a test block.")
     end
@@ -158,9 +138,6 @@ class E2eTestRunner
 
       params = tmp
     end
-
-    # code = String.build do |s|
-    # s << %(it "#{label}" do\n)
 
     if !test.has_key?("input")
       raise Exception.new("An 'input' is required for each scenario. #{label} > scenario #{index}")
@@ -193,35 +170,7 @@ class E2eTestRunner
       driver.stop
     end
 
-    # var_name : String = "resp#{index}"
-    # s << "#{var_name} : String? = server.as(TestDriver).input"
-    # s << if params.empty?
-    #   "()\n"
-    # elsif params == "\"\"" # empty quote
-    #   "()\n"
-    # else
-    #   "([#{params.map { |i| %("#{i}") }.join(',')}])\n"
-    # end
-
-    # if test.has_key?("output")
-    #   s << %(#{var_name}.nil?.should eq(false)\n)
-
-    #   outputs = test["output"].as_a
-    #   outputs.each do |o|
-    #     s << %(#{var_name}.as(String).includes?("#{o}").should eq(true)\n)
-    #   end
-
-    #   s << "\n"
-    # end
-
-    # s << end_s
-    # end
-
     {inputs: params}
-  end
-
-  private def end_s
-    "end\n"
   end
 
   private def compile(source : String)
