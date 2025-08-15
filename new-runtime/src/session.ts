@@ -1,16 +1,18 @@
 import { GatewayData, SessionMode } from "./types";
 
 export class Session {
-	#nextMenu: string | undefined = undefined;
+	// #nextMenu: string | undefined = undefined;
+	#menuStack: string[] = [];
 
 	constructor(private readonly gatewayData: GatewayData) {}
 
 	__setNextMenu(value: string) {
-		this.#nextMenu = value;
+		this.#menuStack.unshift(value);
+		// this.#nextMenu = value;
 	}
 
-	__getNextMenu() {
-		return this.#nextMenu;
+	getNextMenu() {
+		return this.#menuStack[0];
 	}
 
 	mode(): SessionMode {
@@ -23,5 +25,15 @@ export class Session {
 
 	sessionId(): string {
 		return this.gatewayData.sessionId;
+	}
+
+	toJson() {
+		return {
+			mode: this.mode,
+			phone: this.phone,
+			sessionId: this.sessionId,
+			gatewayData: this.gatewayData,
+			menuStack: this.#menuStack,
+		};
 	}
 }

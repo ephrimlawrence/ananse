@@ -163,3 +163,8 @@ function handleMenu(request) {
 			return "Session cannot be retrieved";
 	}
 }
+
+
+export function requestHandler(req, resp){
+  // get session
+}
