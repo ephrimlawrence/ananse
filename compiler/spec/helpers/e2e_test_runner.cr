@@ -4,6 +4,7 @@ require "yaml"
 require "./test_driver.cr"
 # require "../spec_helper.cr"
 require "../../src/compiler"
+require "option_parser"
 
 class E2eTestRunner
   # EXPECTED_DIR      = "spec/expected"
@@ -36,6 +37,7 @@ class E2eTestRunner
     end
   end
 
+  # Run tests for all programs in spec/programs directory
   def run
     ts_server : String = File.read(PROGRAM_STUB_FILE)
     # TODO: generate code for gateway/session combinations
@@ -68,11 +70,38 @@ class E2eTestRunner
       end
 
       @spacing = 2
-      generate_tests(value[:test].as(String), value[:program].gsub(".ussd", ".ts"))
+      execute_tests(value[:test].as(String), value[:program].gsub(".ussd", ".ts"))
     end
   end
 
-  def generate_tests(test_file : String, ts_file : String)
+  # Run test for only 1 program
+  def run(program_name : String)
+    ts_server : String = File.read(PROGRAM_STUB_FILE)
+    # TODO: generate code for gateway/session combinations
+    ts_server = ts_server.gsub("__GATEWAY__", "'wigal'")
+    ts_server = ts_server.gsub("__SESSION__", "'memory'")
+
+    # Generate typescript file
+    js = compile(File.read("#{PROGRAMS_DIR}/#{program_name}.ussd"))
+    ts_server = ts_server.gsub("__BUSINESS_LOGIN__", js)
+
+    File.write("#{OUTPUT_DIR}/#{program_name}.ts", ts_server)
+
+    # Generate spec files
+    dest : String = "#{OUTPUT_DIR}/actions.ts"
+    # if File.exists?(dest)
+    #   File.delete(dest)
+    # end
+
+    File.copy(ACTIONS_JS, dest)
+
+    log "CodeGenerator"
+
+    @spacing = 2
+    execute_tests("#{program_name}.yaml", "#{program_name}.ts")
+  end
+
+  def execute_tests(test_file : String, ts_file : String)
     yml = YAML.parse(File.read("#{PROGRAMS_DIR}/#{test_file}"))
 
     log "#{test_file}: #{yml["name"]}"
@@ -83,7 +112,7 @@ class E2eTestRunner
       test = t.as_h
 
       if test.has_key?("it")
-        if generate_it(test: test, index: index, ts_file: ts_file)[:ok]
+        if run_test(test: test, index: index, ts_file: ts_file)[:ok]
           passed test["it"].as_s
         else
           error test["it"].as_s
@@ -103,7 +132,7 @@ class E2eTestRunner
             raise Exception.new(error "Error at test block #{step_index}. A '- it' is required for a test block.")
           end
 
-          result = generate_it(
+          result = run_test(
             test: test,
             index: step_index,
             previous_steps: previous_steps,
@@ -123,7 +152,7 @@ class E2eTestRunner
     end
   end
 
-  private def generate_it(test : Hash, index : Int32, ts_file : String, previous_steps : Array(String) = [] of String) : NamedTuple(inputs: Array(String), ok: Bool)
+  private def run_test(test : Hash, index : Int32, ts_file : String, previous_steps : Array(String) = [] of String) : NamedTuple(inputs: Array(String), ok: Bool)
     label : String = test["it"].as_s
     params : Array(String) = [] of String
 
@@ -209,4 +238,24 @@ class E2eTestRunner
   end
 end
 
-E2eTestRunner.new.run
+OptionParser.parse do |parser|
+  path_msg = "Run e2e test for a program"
+
+  parser.banner = "E2e tests runner"
+
+  parser.on "-n NAME", "--NAME=NAME", path_msg do |program_name|
+    E2eTestRunner.new.run(program_name)
+    exit
+  end
+
+  parser.on "-h", "--help", "Show help" do
+    puts parser
+    exit
+  end
+
+  parser.invalid_option do |flag|
+    STDERR.puts "ERROR: #{flag} is not a valid option."
+    STDERR.puts parser
+    exit(1)
+  end
+end

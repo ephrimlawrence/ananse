@@ -6,3 +6,4 @@
 compiler
 tmp
 node_modules
+src/spec/expected
