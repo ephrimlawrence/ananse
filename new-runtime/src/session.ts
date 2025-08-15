@@ -5,11 +5,11 @@ export class Session {
 
 	constructor(private readonly gatewayData: GatewayData) {}
 
-	setNextMenu(value: string) {
+	__setNextMenu(value: string) {
 		this.#nextMenu = value;
 	}
 
-	getNextMenu() {
+	__getNextMenu() {
 		return this.#nextMenu;
 	}
 
