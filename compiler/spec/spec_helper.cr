@@ -1,7 +1,7 @@
 require "spec"
 require "../src/compiler"
-require "./helpers/grammar.cr"
-require "./helpers/test_driver.cr"
+require "./helpers/grammar"
+require "./helpers/e2e_test_runner"
 
 def scan(source : String)
   scanner = Scanner::Scan.new(source)
@@ -39,3 +39,5 @@ def generate_js(source : String)
   analyze(ast)
   CodeGenerator.new.generate(transform_ast(ast))
 end
+
+E2eTestRunner.new.run

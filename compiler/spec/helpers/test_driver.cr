@@ -2,8 +2,8 @@ require "socket"
 require "./ussd_simulator"
 
 class TestDriver
-  EXPECTED_DIR = "spec/expected"
-  TSX_BIN      = "node_modules/.bin/tsx"
+  TEMP_DIR = "spec/tmp"
+  TSX_BIN  = "node_modules/.bin/tsx"
 
   getter program_name : String
 
@@ -17,7 +17,7 @@ class TestDriver
 
   def start
     show_logs : Process::Redirect = @debug ? Process::Redirect::Inherit : Process::Redirect::Close
-    @server = Process.new(TSX_BIN, args: ["#{EXPECTED_DIR}/#{program_name}", port], output: show_logs, error: show_logs)
+    @server = Process.new(TSX_BIN, args: ["#{TEMP_DIR}/#{program_name}", port], output: show_logs, error: show_logs)
 
     sleep Time::Span.new(seconds: 3)
     self

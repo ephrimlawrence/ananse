@@ -16,7 +16,10 @@ class E2eTestRunner
   private property files : Hash(String, NamedTuple(program: String, test: String?)) = {} of String => NamedTuple(program: String, test: String?)
   private property spacing : Int32 = 0
 
-  def initialize
+  # Enable logging of simulator responses
+  property debug_mode : Bool = false
+
+  def initialize(@debug_mode = false)
     data : Hash(String, Array(String)) = Dir.children(PROGRAMS_DIR).group_by { |f| File.basename(f, suffix: File.extname(f)) }
 
     # Scans spec/programs/ for test & program files
@@ -101,7 +104,6 @@ class E2eTestRunner
 
     log "#{test_file}: #{yml["name"]}"
 
-    # TODO: accept debug from cli
     @spacing = 4
     yml["tests"].as_a.each_with_index do |t, index|
       test = t.as_h
@@ -172,9 +174,8 @@ class E2eTestRunner
       raise Exception.new(error "An 'input' is required for each scenario. #{label} > scenario #{index}")
     end
 
-    # TODO: read debug from cli
     ok : Bool = true
-    driver : TestDriver = TestDriver.new(ts_file)
+    driver : TestDriver = TestDriver.new(ts_file, @debug_mode)
 
     begin
       resp : String? = driver.start.input(params)
@@ -235,11 +236,16 @@ end
 
 OptionParser.parse do |parser|
   path_msg = "Run e2e test for a program"
+  debug_mode : Bool = false
 
   parser.banner = "E2e tests runner"
 
-  parser.on "-n NAME", "--NAME=NAME", path_msg do |program_name|
-    E2eTestRunner.new.run(program_name)
+  parser.on "-d", "--debug", "Logs simulator responses to console" do
+    debug_mode = true
+  end
+
+  parser.on "-n NAME", "--name=NAME", path_msg do |program_name|
+    E2eTestRunner.new(debug_mode).run(program_name)
     exit
   end
 
