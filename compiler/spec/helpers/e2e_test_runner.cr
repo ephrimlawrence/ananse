@@ -68,7 +68,6 @@ class E2eTestRunner
       #   next
       # end
 
-      # s <<
       generate_tests(value[:test].as(String), value[:program].gsub(".ussd", ".ts"))
     end
     puts "last file"

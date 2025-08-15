@@ -51,9 +51,10 @@ class Simulator
           p! user_input, @message
         end
 
-        if @session_cache["mode"] == "end"
-          exit 0
-        end
+        # TODO: exit only when called from cli
+        # if @session_cache["mode"] == "end"
+        #   exit 0
+        # end
       when SupportedGateway::EmergentTechnology
         # For Emergent Technology, we make a POST request with a JSON body.
         reply_data = emergent_reply(nil, user_input)
@@ -62,9 +63,10 @@ class Simulator
         @session_cache = Hash(String, String).from_json(response.body)
         @message = @session_cache["Message"]
 
-        if @session_cache["Type"] == "Release"
-          Process.exit(0)
-        end
+        # TODO: exit only when called from cli
+        # if @session_cache["Type"] == "Release"
+        #   Process.exit(0)
+        # end
       end
       return self
     rescue ex
