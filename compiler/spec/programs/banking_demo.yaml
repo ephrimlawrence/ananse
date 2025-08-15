@@ -11,3 +11,11 @@ tests:
     input: ["", 1]
     output:
       - "Please enter your 4-digit PIN:"
+  - it: enter wrong pin
+    input: ["", 1, "1234567"]
+    output:
+      - "Invalid PIN. Please try again."
+  - it: enter correct pin
+    input: ["", 1, "1234"]
+    output:
+      - "Your current balance is: GHS 100."
