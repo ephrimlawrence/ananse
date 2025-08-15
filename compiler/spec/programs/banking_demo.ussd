@@ -14,22 +14,23 @@ menu PinCheck {
   if (is_valid) {
     goto BalanceMenu
   } else {
-    goto PinCheckError
+    goto PinCheck.Error
+  }
+
+  menu Error {
+    display "Invalid PIN. Please try again."
+    input user_pin
+
+    @checkPin(pin: user_pin) as is_valid
+
+    if (is_valid) {
+      goto BalanceMenu
+    } else {
+      goto PinCheck.Error
+    }
   }
 }
 
-menu PinCheckError {
-  display "Invalid PIN. Please try again."
-  input user_pin
-
-  @checkPin(pin: user_pin) as is_valid
-
-  if (is_valid) {
-    goto BalanceMenu
-  } else {
-    goto PinCheckError
-  }
-}
 
 // Menu to display the balance
 menu BalanceMenu {
