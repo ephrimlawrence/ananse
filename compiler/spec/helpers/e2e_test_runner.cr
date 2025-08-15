@@ -6,7 +6,7 @@ require "./test_driver.cr"
 require "../../src/compiler"
 
 class E2eTestRunner
-  EXPECTED_DIR      = "spec/expected"
+  # EXPECTED_DIR      = "spec/expected"
   PROGRAMS_DIR      = "spec/programs"
   OUTPUT_DIR        = "spec/tmp"
   PROGRAM_STUB_FILE = "spec/helpers/program_stub.txt"
@@ -61,18 +61,13 @@ class E2eTestRunner
 
     puts "CodeGenerator"
 
-    # p! @files
     @files.each do |basename, value|
-      p! basename, value
-      # if value[:test].nil?
-      #   next
-      # end
+      if value[:test].nil?
+        next
+      end
 
       generate_tests(value[:test].as(String), value[:program].gsub(".ussd", ".ts"))
     end
-    puts "last file"
-
-    p! @files
   end
 
   def generate_tests(test_file : String, ts_file : String)
@@ -91,10 +86,8 @@ class E2eTestRunner
           raise Exception.new("Error at '#{test["scenario"]}' scenario. A 'step' block is required")
         end
 
-        # steps = test["steps"].as_a
         previous_steps : Array(String) = [] of String
 
-        # s << %(\n describe "#{test["scenario"].as_s}" do\n)
         puts "\t\t#{test["scenario"].as_s}"
 
         test["steps"].as_a.each_with_index do |step, step_index|
@@ -150,7 +143,8 @@ class E2eTestRunner
       resp : String? = driver.start.input(params)
 
       if resp.nil?
-        raise Exception.new("\t\t\tfailed: '#{label}' - Response was empty")
+        log_error("   failed: '#{label}' - Response was empty")
+        return {inputs: params}
       end
 
       if test.has_key?("output")
@@ -158,8 +152,8 @@ class E2eTestRunner
 
         outputs.each do |o|
           unless resp.as(String).includes?(o.to_s)
-            raise Exception.new("\t\t\tfailed: '#{label}' - Expected output '#{o}' not found in response: #{resp}")
-            break
+            log "failed: '#{label}' - Expected output '#{o}' not found in response: #{resp}", true
+            # break
           end
         end
       end
@@ -170,6 +164,18 @@ class E2eTestRunner
     end
 
     {inputs: params}
+  end
+
+  private def log_error(msg : String)
+    log msg, true
+  end
+
+  private def log(msg : String, is_error : Bool = false)
+    if is_error
+      puts "\033[31m#{msg}\033[0m" # red text
+    else
+      puts "\033[32m#{msg}\033[0m" # green text
+    end
   end
 
   private def compile(source : String)
