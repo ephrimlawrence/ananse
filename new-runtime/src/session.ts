@@ -39,7 +39,7 @@ export class Session {
 		return this.gatewayData.userData;
 	}
 
-	toJson() {
+	toJSON() {
 		return {
 			mode: this.#mode,
 			phone: this.phone(),

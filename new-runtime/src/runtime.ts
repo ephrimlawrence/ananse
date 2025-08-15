@@ -25,9 +25,6 @@ export class Runtime {
 		return this.#cache;
 	}
 
-	// async input(){
-	//   return this.#session.userData;
-	// }
 	async getError(menuName: string) {
 		return await this.#cache.get<string>(
 			this.#session.sessionId(),
@@ -41,6 +38,14 @@ export class Runtime {
 			`__${menuName}__error`,
 			msg,
 		);
+	}
+
+	async setValue(key: string, value: any) {
+		return await this.#cache.set(this.#session.sessionId(), key, value);
+	}
+
+	async getValue(key: string) {
+		return await this.#cache.get(this.#session.sessionId(), key);
 	}
 
 	async clearError(menuName: string) {
@@ -108,13 +113,14 @@ export class Runtime {
 			this.#response,
 			this.#session,
 			message,
+			this.#menuStack[0],
 		);
 	}
 
 	toJSON() {
 		return {
 			menuStack: this.#menuStack,
-			session: this.#session.toJson(),
+			session: this.#session.toJSON(),
 		};
 	}
 }

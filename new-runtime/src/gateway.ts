@@ -24,12 +24,13 @@ export class WigalGateway {
 		res: Response,
 		session: Session,
 		message: string,
+		nextMenu?: string,
 	): Response {
 		res.writeHead(200, { "Content-Type": "text/plain" });
 
-		let msg = `${req.query?.network}|${session.mode()}|${session.mode}|`;
-		msg += `${session?.sessionId}|${message?.replace(/\n/g, "^") ?? ""}|`;
-		msg += `${req.query?.username}|${req.query?.trafficid}|${session.__getNextMenu() || ""}`;
+		let msg = `${req.query?.network}|${session.mode()}|${session.phone()}|`;
+		msg += `${session?.sessionId()}|${message?.replace(/\n/g, "^") ?? ""}|`;
+		msg += `${req.query?.username}|${req.query?.trafficid}|${nextMenu || ""}`;
 
 		return res.end(msg);
 		// return;

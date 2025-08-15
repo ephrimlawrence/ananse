@@ -61,14 +61,15 @@ async function menu_name_function(
 		return errorMessage;
 	}
 
-	let message: string = "";
-	let endSession: boolean = false;
+	// let endSession: boolean = false;
 
 	if (type === "get") {
+		let message: string = "";
 		// process display text
 
+		// NOTE: input, end, goto, option (goto & actions) are not executed in get request
 		// process input
-		request.session.set("variable_name", runtime.session().userData());
+		// request.session.set("variable_name", runtime.session().userData());
 
 		// if options are defined
 		// process options
@@ -99,7 +100,7 @@ async function menu_name_function(
 
 	if (type === "post") {
 		// if input is defined
-		session.set("variable", input);
+		runtime.setValue("variable-name", input);
 		const ___variable = input;
 
 		// if options are defined
@@ -122,7 +123,7 @@ async function menu_name_function(
 
 		if (!foundMatch) {
 			// re-render option
-			return menu_name_function(runtime, request, session, "get");
+			return menu_name_function(runtime, "get");
 		}
 
 		// Repeat this for all options defined by the user
@@ -134,7 +135,7 @@ async function menu_name_function(
 			// canNavigate
 			const actionResult = await actionName({ args });
 			// for variable
-			session.set("variable_name", actionResult);
+			await runtime.setValue("variable_name", actionResult);
 
 			if (actionResult) {
 				runtime.removeCurrentMenu(); // remove current menu from the stack
@@ -144,7 +145,7 @@ async function menu_name_function(
 				await runtime.saveState();
 
 				// for goto is set
-				return next_menu_name(runtime, request, session, "get");
+				return next_menu_name(runtime, "get");
 			}
 		}
 
