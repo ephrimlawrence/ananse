@@ -14,14 +14,15 @@ class E2eTestRunner
 
   # Track list of programs and test files.  {file_name: []}
   private property files : Hash(String, NamedTuple(program: String, test: String?)) = {} of String => NamedTuple(program: String, test: String?)
+  private property spacing : Int32 = 0
 
-  # Scans spec/programs/ for test & program files
   def initialize
     data : Hash(String, Array(String)) = Dir.children(PROGRAMS_DIR).group_by { |f| File.basename(f, suffix: File.extname(f)) }
 
+    # Scans spec/programs/ for test & program files
     data.each do |key, names|
       if key == "js" || key == "actions"
-        # Skip js, action director/files
+        # Skip js, action directory/files
         next
       end
 
@@ -59,61 +60,73 @@ class E2eTestRunner
 
     File.copy(ACTIONS_JS, dest)
 
-    puts "CodeGenerator"
+    log "CodeGenerator"
 
     @files.each do |basename, value|
       if value[:test].nil?
         next
       end
 
+      @spacing = 2
       generate_tests(value[:test].as(String), value[:program].gsub(".ussd", ".ts"))
     end
   end
 
   def generate_tests(test_file : String, ts_file : String)
     yml = YAML.parse(File.read("#{PROGRAMS_DIR}/#{test_file}"))
-    puts "  #{test_file}: #{yml["name"]}"
+
+    log "#{test_file}: #{yml["name"]}"
 
     # TODO: accept debug from cli
-
+    @spacing = 4
     yml["tests"].as_a.each_with_index do |t, index|
       test = t.as_h
 
       if test.has_key?("it")
-        generate_it(test: test, index: index, ts_file: ts_file)
+        if generate_it(test: test, index: index, ts_file: ts_file)[:ok]
+          passed test["it"].as_s
+        else
+          error test["it"].as_s
+        end
       elsif test.has_key?("scenario")
         if !test.has_key?("steps")
           raise Exception.new("Error at '#{test["scenario"]}' scenario. A 'step' block is required")
         end
 
         previous_steps : Array(String) = [] of String
-
-        puts "\t\t#{test["scenario"].as_s}"
+        log test["scenario"].as_s
+        @spacing = 6
 
         test["steps"].as_a.each_with_index do |step, step_index|
+          test = step.as_h
+          if !test.has_key?("it")
+            raise Exception.new(error "Error at test block #{step_index}. A '- it' is required for a test block.")
+          end
+
           result = generate_it(
-            test: step.as_h,
+            test: test,
             index: step_index,
             previous_steps: previous_steps,
             ts_file: ts_file
           )
 
           previous_steps = result[:inputs]
+          label : String = test["it"].as_s
+
+          if result[:ok]
+            passed label
+          else
+            error label
+          end
         end
       end
     end
   end
 
-  private def generate_it(test : Hash, index : Int32, ts_file : String, previous_steps : Array(String) = [] of String) : NamedTuple(inputs: Array(String))
-    if !test.has_key?("it")
-      raise Exception.new("Error at test block #{index}. A '- it' is required for a test block.")
-    end
-
+  private def generate_it(test : Hash, index : Int32, ts_file : String, previous_steps : Array(String) = [] of String) : NamedTuple(inputs: Array(String), ok: Bool)
     label : String = test["it"].as_s
-    # TODO: color label based on success/error
-    puts "\t\t#{label}"
-
     params : Array(String) = [] of String
+
     begin
       params = test["input"].as_a.map { |i| i.to_s }
     rescue e : TypeCastError
@@ -132,19 +145,19 @@ class E2eTestRunner
     end
 
     if !test.has_key?("input")
-      raise Exception.new("An 'input' is required for each scenario. #{label} > scenario #{index}")
+      raise Exception.new(error "An 'input' is required for each scenario. #{label} > scenario #{index}")
     end
 
     # TODO: read debug from cli
-    ok : Bool = false
+    ok : Bool = true
     driver : TestDriver = TestDriver.new(ts_file)
 
     begin
       resp : String? = driver.start.input(params)
 
       if resp.nil?
-        log_error("   failed: '#{label}' - Response was empty")
-        return {inputs: params}
+        error("'#{label}' - Response was empty")
+        return {inputs: params, ok: false}
       end
 
       if test.has_key?("output")
@@ -152,29 +165,38 @@ class E2eTestRunner
 
         outputs.each do |o|
           unless resp.as(String).includes?(o.to_s)
-            log "failed: '#{label}' - Expected output '#{o}' not found in response: #{resp}", true
-            # break
+            error "'#{label}' - Expected output '#{o}' not found in response: #{resp}"
+            ok = false
           end
         end
       end
     rescue exception
+      ok = false
       p! exception
     ensure
       driver.stop
     end
 
-    {inputs: params}
+    {inputs: params, ok: ok}
   end
 
-  private def log_error(msg : String)
-    log msg, true
+  private def error(msg : String)
+    log msg: msg, error: true
   end
 
-  private def log(msg : String, is_error : Bool = false)
-    if is_error
-      puts "\033[31m#{msg}\033[0m" # red text
+  private def passed(msg : String)
+    log msg: msg, error: false, success: true
+  end
+
+  private def log(msg : String, error : Bool = false, success : Bool = false)
+    margin : String = " "*@spacing
+
+    if error
+      puts "#{margin}\033[31m#{msg}\033[0m" # red text
+    elsif success
+      puts "#{margin}\033[32m#{msg}\033[0m" # green text
     else
-      puts "\033[32m#{msg}\033[0m" # green text
+      puts "#{margin}#{msg}"
     end
   end
 
