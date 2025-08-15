@@ -27,7 +27,7 @@ export class WigalGateway {
 	): Response {
 		res.writeHead(200, { "Content-Type": "text/plain" });
 
-		let msg = `${req.query?.network}|${session.mode}|${session.mode}|`;
+		let msg = `${req.query?.network}|${session.mode()}|${session.mode}|`;
 		msg += `${session?.sessionId}|${message?.replace(/\n/g, "^") ?? ""}|`;
 		msg += `${req.query?.username}|${req.query?.trafficid}|${session.__getNextMenu() || ""}`;
 

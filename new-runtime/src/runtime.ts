@@ -10,6 +10,7 @@ export class Runtime {
 	#cache: BaseSessionCache;
 	#request: Request;
 	#response: Response;
+	#menuStack: string[] = [];
 
 	// TODO: add config singleton insance
 	request() {
@@ -24,6 +25,62 @@ export class Runtime {
 		return this.#cache;
 	}
 
+	// async input(){
+	//   return this.#session.userData;
+	// }
+	async getError(menuName: string) {
+		return await this.#cache.get<string>(
+			this.#session.sessionId(),
+			`${menuName}__error`,
+		);
+	}
+
+	async setError(menuName: string, msg: string) {
+		return await this.#cache.set(
+			this.#session.sessionId(),
+			`__${menuName}__error`,
+			msg,
+		);
+	}
+
+	async clearError(menuName: string) {
+		return await this.#cache.remove(
+			this.#session.sessionId(),
+			`__${menuName}__error`,
+		);
+	}
+
+	getCurrentMenu() {
+		return this.#menuStack[0];
+	}
+
+	async removeCurrentMenu() {
+		this.#menuStack.shift();
+	}
+
+	async setNextMenu(name: string) {
+		this.#menuStack.unshift(name);
+
+		return await this.#cache.set(
+			this.#session.sessionId(),
+			`__next_menu`,
+			name,
+		);
+	}
+
+	async saveState() {
+		await this.#cache.set(
+			this.#session.sessionId(),
+			"__session_state",
+			this.toJSON(),
+		);
+	}
+
+	async endSession() {
+		this.#session.end();
+	}
+
+	// TODO: add load session
 	async processRequest(req: Request, resp: Response) {
 		this.#request = req;
 		this.#response = resp;
@@ -43,5 +100,21 @@ export class Runtime {
 		//   response: resp
 		// };
 		return this;
+	}
+
+	respond(message: string) {
+		this.#gateway.responseHandler(
+			this.#request,
+			this.#response,
+			this.#session,
+			message,
+		);
+	}
+
+	toJSON() {
+		return {
+			menuStack: this.#menuStack,
+			session: this.#session.toJson(),
+		};
 	}
 }
