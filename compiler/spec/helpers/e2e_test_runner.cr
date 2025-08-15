@@ -7,7 +7,6 @@ require "../../src/compiler"
 require "option_parser"
 
 class E2eTestRunner
-  # EXPECTED_DIR      = "spec/expected"
   PROGRAMS_DIR      = "spec/programs"
   OUTPUT_DIR        = "spec/tmp"
   PROGRAM_STUB_FILE = "spec/helpers/program_stub.txt"
@@ -89,10 +88,6 @@ class E2eTestRunner
 
     # Generate spec files
     dest : String = "#{OUTPUT_DIR}/actions.ts"
-    # if File.exists?(dest)
-    #   File.delete(dest)
-    # end
-
     File.copy(ACTIONS_JS, dest)
 
     log "CodeGenerator"
