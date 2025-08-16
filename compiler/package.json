@@ -5,7 +5,7 @@
     "tsx": "tsx"
   },
   "dependencies": {
-    "ananse": "file:../runtime"
+    "ananse": "file:../new-runtime"
   },
   "devDependencies": {
     "tsx": "^4.20.3"

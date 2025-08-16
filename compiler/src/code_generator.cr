@@ -31,6 +31,7 @@ class CodeGenerator < AST::Visitor(Object)
   def generate : String
     # Add Ananse imports
     @ts << "import { " << @runtime_imports.join(", ") << " } from 'ananse';\n"
+
     # Add action names as import
     if !@ast.actions.empty?
       @ts << "import { " << @ast.actions.uniq.join(", ") << " } from './actions';\n"
@@ -43,8 +44,8 @@ class CodeGenerator < AST::Visitor(Object)
       s << "const currentMenu: string | undefined = runtime.getCurrentMenu();\n"
       s << "switch (currentMenu) {\n"
 
-      @ast.menus.each do |menu_name, definition|
-        menu : AST::MenuStatement = definition["menu"].first.as(AST::MenuStatement)
+      @ast.menu_statements.each do |stmt|
+        menu : AST::MenuStatement = stmt.as(AST::MenuStatement)
         # stmts : TransformedAST::GroupedStatements = definition
 
         @menu_context << "get"
@@ -287,6 +288,11 @@ class CodeGenerator < AST::Visitor(Object)
     code = String::Builder.new("")
 
     block.statements.each do |stmt|
+      if stmt.is_a?(AST::MenuStatement)
+        # Nested menus has already been flattened in transform
+        next
+      end
+
       code << execute(stmt)
     end
 
@@ -591,7 +597,10 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_goto_stmt(stmt : AST::GotoStatement) : String
-    return evaluate(stmt.menu)
+    if in_post_context?
+      return evaluate(stmt.menu)
+    end
+    return ""
   end
 
   def visit_goto_expr(expr : AST::Goto) : String

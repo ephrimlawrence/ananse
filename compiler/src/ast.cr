@@ -460,6 +460,7 @@ class TransformedAST
 
   getter menus : Hash(Token, GroupedStatements) = {} of Token => GroupedStatements
   property symbol_table : SymbolTable = SymbolTable.new
+  property menu_statements : Array(AST::Stmt) = [] of AST::Stmt
 
   # List of action names (javascript functions)
   property actions : Array(String) = [] of String

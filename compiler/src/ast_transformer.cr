@@ -34,11 +34,14 @@ class AstTransformer < AST::Visitor(Nil)
     # TODO: 1. check menu with 'false' values and return errors
     # errors.empty?
     # puts @if_stmts.size
-
+    # @transformed_ast.menu_statements = @statements
     @transformed_ast
+    # @statements
   end
 
   def visit_menu_stmt(stmt : AST::MenuStatement)
+    @transformed_ast.menu_statements << stmt
+
     # Push menu onto the stack.
     # If the stack is not empty, then the first item is the parent of this menu.
     if !@menu_stack.empty?
@@ -47,57 +50,57 @@ class AstTransformer < AST::Visitor(Nil)
     @menu_stack.unshift(stmt)
 
     # Group the menu definition by statement types
-    grouped_stmt : TransformedAST::GroupedStatements = @transformed_ast.add_menu(stmt.name, group_statements(stmt.body))
-    grouped_stmt[:menu] << stmt
+    # grouped_stmt : TransformedAST::GroupedStatements = @transformed_ast.add_menu(stmt.name, group_statements(stmt.body))
+    # grouped_stmt[:menu] << stmt
 
-    # Group if statements by sub-sub statements
-    grouped_stmt[:if].each do |item|
-      # TODO: add value back to tree
-      if_stmt : AST::IfStatement = item.as(AST::IfStatement)
+    # # Group if statements by sub-sub statements
+    # grouped_stmt[:if].each do |item|
+    #   # TODO: add value back to tree
+    #   if_stmt : AST::IfStatement = item.as(AST::IfStatement)
 
-      grouped_then = group_statements(if_stmt.then_branch)
-      grouped_else : TransformedAST::GroupedStatements = TransformedAST.new_group
+    #   grouped_then = group_statements(if_stmt.then_branch)
+    #   grouped_else : TransformedAST::GroupedStatements = TransformedAST.new_group
 
-      if !if_stmt.else_branch.nil?
-        grouped_else = group_statements(if_stmt.else_branch.as(AST::Stmt))
-      end
+    #   if !if_stmt.else_branch.nil?
+    #     grouped_else = group_statements(if_stmt.else_branch.as(AST::Stmt))
+    #   end
 
-      # Reconstruct the if statement for each group
-      grouped_then.each do |key, value|
-        if value.size == 0
-          next
-        end
+    #   # Reconstruct the if statement for each group
+    #   grouped_then.each do |key, value|
+    #     if value.size == 0
+    #       next
+    #     end
 
-        else_block : Array(AST::Stmt) = [] of AST::Stmt
-        if grouped_else.has_key?(key)
-          else_block = grouped_else[key].clone
-        end
+    #     else_block : Array(AST::Stmt) = [] of AST::Stmt
+    #     if grouped_else.has_key?(key)
+    #       else_block = grouped_else[key].clone
+    #     end
 
-        reconstructed_if = AST::IfStatement.new(
-          if_stmt.condition,
-          AST::BlockStatement.new(value, value.first.location),
-          AST::BlockStatement.new(else_block, else_block.empty? ? Location.new(0, 0) : else_block.first.location),
-          if_stmt.location
-        )
-        grouped_stmt[key] << reconstructed_if
-      end
+    #     reconstructed_if = AST::IfStatement.new(
+    #       if_stmt.condition,
+    #       AST::BlockStatement.new(value, value.first.location),
+    #       AST::BlockStatement.new(else_block, else_block.empty? ? Location.new(0, 0) : else_block.first.location),
+    #       if_stmt.location
+    #     )
+    #     grouped_stmt[key] << reconstructed_if
+    #   end
 
-      # Re-create if-condition for statements in the else branch without corresponding
-      # statements in then branch
-      grouped_else.each do |key, value|
-        if value.size == 0
-          next
-        end
+    #   # Re-create if-condition for statements in the else branch without corresponding
+    #   # statements in then branch
+    #   grouped_else.each do |key, value|
+    #     if value.size == 0
+    #       next
+    #     end
 
-        reconstructed_if = AST::IfStatement.new(
-          if_stmt.condition,
-          AST::BlockStatement.new([] of AST::Stmt, if_stmt.location),
-          AST::BlockStatement.new(value, if_stmt.location),
-          if_stmt.location
-        )
-        grouped_stmt[key] << reconstructed_if
-      end
-    end
+    #     reconstructed_if = AST::IfStatement.new(
+    #       if_stmt.condition,
+    #       AST::BlockStatement.new([] of AST::Stmt, if_stmt.location),
+    #       AST::BlockStatement.new(value, if_stmt.location),
+    #       if_stmt.location
+    #     )
+    #     grouped_stmt[key] << reconstructed_if
+    #   end
+    # end
 
     execute(stmt.body)
 
@@ -210,10 +213,10 @@ class AstTransformer < AST::Visitor(Nil)
         #   grouped_stmt["for_each"] << stmt
         # when EndStatement
         #   grouped_stmt["end"] << stmt
-      when AST::MenuStatement
-        # TODO: think about how to handle nested menu code generation
-        # TODO: menu name nested to be tracked as well
-        visit_menu_stmt(stmt)
+        # when AST::MenuStatement
+        #   # TODO: think about how to handle nested menu code generation
+        #   # TODO: menu name nested to be tracked as well
+        #   visit_menu_stmt(stmt)
       when AST::IfStatement
         grouped[:if] << stmt
       when AST::EndStatement
