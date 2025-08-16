@@ -11,7 +11,7 @@ describe Parser do
 
     it "interpolated string" do
       stmts = parse %(display "Your lucky number {{ 23 + 445 }}")
-      p! stmts
+      # p! stmts
       stmts[0].is_a?(AST::DisplayStatement).should eq(true)
       stmt = stmts[0].as(AST::DisplayStatement)
       stmt.expression.is_a?(AST::InterpolatedString).should eq(true)

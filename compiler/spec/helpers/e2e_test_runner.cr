@@ -199,9 +199,9 @@ class E2eTestRunner
     rescue exception
       ok = false
       p! exception
-    #   driver.stop
-    # ensure
-    #   driver.stop
+      #   driver.stop
+      # ensure
+      #   driver.stop
     end
 
     {inputs: params, ok: ok}

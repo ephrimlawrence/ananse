@@ -23,7 +23,7 @@ describe SemanticAnalyzer do
       end
 
       # test 2: in a nested menu
-      expect_raises(CompilerError, /Menu 'child_menu' is already defined/) do
+      expect_raises(CompilerError, /Duplicate menu definitions! Menu 'enter_age.child_menu' is already defined/) do
         code = <<-USSD
             #{base}
             menu enter_age {
@@ -53,7 +53,7 @@ describe SemanticAnalyzer do
         }
       USSD
 
-      expect_raises(CompilerError, "Reference to 'enter_age' menu but it is not defined") do
+      expect_raises(CompilerError, /Menu 'enter_age' is referenced but not defined/) do
         analyze(source)
       end
 
@@ -62,16 +62,16 @@ describe SemanticAnalyzer do
         #{source}
         menu enter_age {
           display "Enter Age"
-          goto child_menu
+          goto enter_age.child_menu
 
           menu child_menu {
             display "Hi"
-            goto child_menu2
+            goto enter_age.child_menu2
           }
 
           menu child_menu2 {
             display "Hi"
-            goto child_menu3
+            goto enter_age.child_menu2.child_menu3
 
             menu child_menu3 {
               display "Hi again"
@@ -81,7 +81,7 @@ describe SemanticAnalyzer do
         }
       USSD
 
-      expect_raises(CompilerError, /Reference to 'child_menu4' menu/) do
+      expect_raises(CompilerError, /Menu 'child_menu4' is referenced but not defined/) do
         analyze(source)
       end
 
