@@ -664,6 +664,7 @@ class CodeGenerator < AST::Visitor(Object)
     if in_get_context?
       str = "message += #{evaluate(stmt.expression)};\n"
       str += %(message += "\\n";)
+      return str
     end
 
     return ""
