@@ -11,12 +11,14 @@ export function listen(
 		const host = req.headers.host ?? "localhost";
 		// const url = req.url ? new URL(req.url, `http://${host}`) : new URL("/", `http://${host}`);
 		const url = new URL(req.url!, `http://${host}`);
-    const request: Req = {
-      query: Object.fromEntries(Array.from(url.searchParams.entries())) as Record<string, string>,
-      body: null,
-    };
+		const request: Req = {
+			query: Object.fromEntries(
+				Array.from(url.searchParams.entries()),
+			) as Record<string, string>,
+			body: null,
+		};
 
-    if (
+		if (
 			req.method === "POST" ||
 			req.method === "PUT" ||
 			req.method === "PATCH"
@@ -35,7 +37,7 @@ export function listen(
 						// 	headers: req.headers as Record<string, string>,
 						// 	body: JSON.parse(data),
 						// });
-            request.body= JSON.parse(data);
+						request.body = JSON.parse(data);
 					}
 					// TODO: parse other content types
 					requestHandler(request, res);
