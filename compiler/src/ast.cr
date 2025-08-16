@@ -158,7 +158,7 @@ module AST
         return @name.value
       end
 
-      return "#{@parent.as(MenuStatement).runtime_id}.#{@name.value}"
+      return "#{@parent.as(MenuStatement).runtime_id}_#{@name.value}"
     end
 
     def clone
