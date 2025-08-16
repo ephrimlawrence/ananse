@@ -36,8 +36,10 @@ class CodeGenerator < AST::Visitor(Object)
       @ts << "import { " << @ast.actions.uniq.join(", ") << " } from './actions';\n"
     end
 
-    typescript = String.build do |s|
-
+    menu_handler_func = String.build do |s|
+      s << "function menuHandler(runtime: Runtime) {\n"
+      s << "const currentMenu: string | undefined = runtime.getCurrentMenu();\n"
+      s << "switch (currentMenu) {\n"
 
       @ast.menus.each do |menu_name, definition|
         menu : AST::MenuStatement = definition["menu"].first.as(AST::MenuStatement)
@@ -46,7 +48,13 @@ class CodeGenerator < AST::Visitor(Object)
         @menu_context << "get"
         @menu_context << "post"
 
-        execute(menu)
+        runtime_id = menu.runtime_id
+        s << %(case "#{runtime_id}_[GET]":\n)
+        s << %(return #{runtime_id}(runtime, "get");\n)
+        s << %(case "#{runtime_id}_[POST]":\n)
+        s << %(return #{runtime_id}(runtime, "post");\n)
+
+        @ts << execute(menu)
         # s << execute(menu)
         # s << generate_input_function(menu.name.value, definition["input"])
         # s << generate_display_function(menu.name.value, definition[:display])
@@ -66,14 +74,38 @@ class CodeGenerator < AST::Visitor(Object)
 
         # s << generate_goto_function(menu.name.value, definition["goto"])
         # s << "}\n"
+
+        # Add menus to router
+        # @menu_class_names.each do |name, class_name|
+        #   s << "MenuRouter.add(#{class_name}, '#{name}');\n"
+        # end
+
+        if menu.start?
+          s << "default:\n"
+          s << "if (runtime.session().mode() === SessionMode.start) {\n"
+          s << %(runtime.setNextMenu("#{runtime_id}_[POST]");)
+          s << %(return #{runtime_id}(runtime, "get");)
+          s << "}\n" # close if
+        end
       end
 
-      # Add menus to router
-      @menu_class_names.each do |name, class_name|
-        s << "MenuRouter.add(#{class_name}, '#{name}');\n"
-      end
+      s << "runtime.endSession();"
+      s << %(runtime.respond("Session cannot be retrieved");)
+
+      # TODO: add start menu logic
+      s << "}\n" # close witch
+      s << "}\n" # close function
     end
 
+    @ts << menu_handler_func.to_s
+
+    @ts << <<-JS
+      export async function requestHandler(req: Request, resp: Response) {
+        const runtime = await new Runtime(req, resp);
+        await runtime.loadState();
+        menuHandler(runtime);
+      }
+    JS
     return @ts.to_s
   end
 
@@ -179,14 +211,14 @@ class CodeGenerator < AST::Visitor(Object)
     function = String.build do |s|
       if @menu_context.size == 2
         # just visited ast, generate initial code stubs
-        @ts << "async function " << runtime_id << '('
-        @ts << %(runtime: Runtime, type: "get" | "post") << "){"
+        s << "async function " << runtime_id << '('
+        s << %(runtime: Runtime, type: "get" | "post") << "){"
 
         s << "const menuName = \"" << runtime_id << "\";"
 
         # Error message logic
         s << <<-JS
-        const errorMessage: string | undefined = await runtime.getError(#{runtime_id});
+        const errorMessage: string | undefined = await runtime.getError(menuName);
         if (errorMessage != null) {
           // Add menu name back to stack
           if (runtime.getCurrentMenu() !== menuName) {
@@ -199,8 +231,8 @@ class CodeGenerator < AST::Visitor(Object)
       end
 
       # Generates get request
-      if @menu_context.first? == "get"
-        s << %(if (type === "get") {)
+      if in_get_context?
+        s << %(if (type === "get") {\n)
         s << "let message: string = '';"
 
         # Add remaining logic, based on 'GET' request context
@@ -210,9 +242,20 @@ class CodeGenerator < AST::Visitor(Object)
         s << "await runtime.saveState();"
         s << "return runtime.respond(message);"
 
-        s << '}' # close 'get' if
+        s << "}\n" # close 'get' if
       end
-      @ts << '}' # close function
+
+      # Generates get request
+      if in_post_context?
+        s << %(if (type === "post") {\n)
+        s << execute(stmt.body)
+
+        s << "}\n" # close 'post' if
+      end
+
+      if @menu_context.size == 1
+        s << "}\n" # close function
+      end
     end
     # class_name = "Menu_#{Util.generate_identifier_name(stmt.name.value)}".camelcase
 
@@ -230,9 +273,14 @@ class CodeGenerator < AST::Visitor(Object)
     #   JS
     # end
 
+    if @menu_context.empty?
+      return function.to_s
+    end
+
     @menu_context.shift
 
-    # return function.to_s
+    @ts << function.to_s
+    return execute(stmt)
   end
 
   def visit_block_stmt(block : AST::BlockStatement) : String
@@ -246,7 +294,7 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_end_stmt(stmt : AST::EndStatement) : String
-    "return true;"
+    "runtime.endSession();"
   end
 
   def generate_end_function(end_stmts : Array(AST::Stmt)) : String
@@ -425,36 +473,37 @@ class CodeGenerator < AST::Visitor(Object)
   # end
 
   def visit_input_stmt(stmt : AST::InputStatement) : String
-    return "await this.request.session.set(\"#{stmt.variable.value}\", this.request.input!);"
+    "await runtime.setValue(\"#{stmt.variable.value}\", runtime.session().userData());"
   end
 
   def visit_option_stmt(stmt : AST::OptionStatement)
-    group : Array(AST::Option) = stmt.group
-    code = String.build do |s|
-      s << "actions_list.push("
-      group.each do |opt|
-        s << evaluate(opt)
-      end
-      s << ");\n"
-    end
+    # group : Array(AST::Option) = stmt.group
+    # code = String.build do |s|
+    #   s << "actions_list.push("
+    #   group.each do |opt|
+    #     s << evaluate(opt)
+    #   end
+    #   s << ");\n"
+    # end
 
-    return code.to_s
+    # return code.to_s
+    return ""
   end
 
   def visit_option_expr(expr : AST::Option) : String
     code = String.build do |s|
       # TODO: check token type, if number/string, add to label
-      s << "{" << "choice: #{expr.target.value},"
-      s << "display: #{expr.label.value},"
-      if !expr.next_menu.nil?
-        s << "next_menu: '#{expr.next_menu.as(AST::Goto).name.value}',"
-      end
-      if !expr.action.nil?
-        s << "next_menu: async(req, res) => {"
-        s << evaluate(expr.action.as(AST::Action))
-        s << "},"
-      end
-      s << "}"
+      # s << "{" << "choice: #{expr.target.value},"
+      # s << "display: #{expr.label.value},"
+      # if !expr.next_menu.nil?
+      #   s << "next_menu: '#{expr.next_menu.as(AST::Goto).name.value}',"
+      # end
+      # if !expr.action.nil?
+      #   s << "next_menu: async(req, res) => {"
+      #   s << evaluate(expr.action.as(AST::Action))
+      #   s << "},"
+      # end
+      # s << "}"
     end
     return code.to_s
   end
@@ -471,7 +520,7 @@ class CodeGenerator < AST::Visitor(Object)
       param : Token = expr.params[key]
 
       if param.type == TokenType::IDENTIFIER
-        code += "await req.session.get('#{param.value}'),"
+        code += "await runtime.getValue('#{param.value}'),"
       else
         code += "#{param.value},"
       end
@@ -542,7 +591,19 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_display_stmt(stmt : AST::DisplayStatement) : String
-    "message = #{evaluate(stmt.expression)};\n"
+    if in_get_context?
+      return "message = #{evaluate(stmt.expression)};\n"
+    end
+
+    return ""
+  end
+
+  private def in_get_context?
+    @menu_context.first? == "get"
+  end
+
+  private def in_post_context?
+    @menu_context.first? == "post"
   end
 
   # Returns a closing brace with a newline
