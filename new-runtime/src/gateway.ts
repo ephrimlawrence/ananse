@@ -29,7 +29,7 @@ export class WigalGateway {
 		res.writeHead(200, { "Content-Type": "text/plain" });
 
 		let msg = `${req.query?.network}|${session.mode()}|${session.phone()}|`;
-		msg += `${session?.sessionId()}|${message?.replace(/\n/g, "^") ?? ""}|`;
+		msg += `${session?.sessionId()}|${message.trim().replace(/\n/g, "^") ?? ""}|`;
 		msg += `${req.query?.username}|${req.query?.trafficid}|${nextMenu || ""}`;
 
 		return res.end(msg);

@@ -36,6 +36,8 @@ class CodeGenerator < AST::Visitor(Object)
       @ts << "import { " << @ast.actions.uniq.join(", ") << " } from './actions';\n"
     end
 
+    fallback_menu_stub : String::Builder = String::Builder.new("")
+
     menu_handler_func = String.build do |s|
       s << "function menuHandler(runtime: Runtime) {\n"
       s << "const currentMenu: string | undefined = runtime.getCurrentMenu();\n"
@@ -81,14 +83,15 @@ class CodeGenerator < AST::Visitor(Object)
         # end
 
         if menu.start?
-          s << "default:\n"
-          s << "if (runtime.session().mode() === SessionMode.start) {\n"
-          s << %(runtime.setNextMenu("#{runtime_id}_[POST]");)
-          s << %(return #{runtime_id}(runtime, "get");)
-          s << "}\n" # close if
+          fallback_menu_stub << "if (runtime.session().mode() === SessionMode.start) {\n"
+          fallback_menu_stub << %(runtime.setNextMenu("#{runtime_id}_[POST]");)
+          fallback_menu_stub << %(return #{runtime_id}(runtime, "get");)
+          fallback_menu_stub << "}\n" # close if
         end
       end
 
+      s << "default:\n"
+      s << fallback_menu_stub.to_s
       s << "runtime.endSession();"
       s << %(runtime.respond("Session cannot be retrieved");)
 
@@ -485,19 +488,25 @@ class CodeGenerator < AST::Visitor(Object)
 
   def visit_option_stmt(stmt : AST::OptionStatement)
     # group : Array(AST::Option) = stmt.group
-    # code = String.build do |s|
-    #   s << "actions_list.push("
-    #   group.each do |opt|
-    #     s << evaluate(opt)
-    #   end
-    #   s << ");\n"
-    # end
+    if in_get_context?
+      code = String.build do |s|
+        stmt.group.each do |opt|
+          s << "message += \n" << evaluate(opt) << "\n;"
+        end
+      end
 
-    # return code.to_s
+      return code.to_s
+    end
+
     return ""
   end
 
   def visit_option_expr(expr : AST::Option) : String
+    if in_get_context?
+      return %(#{expr.label.value})
+    end
+
+    # TODO: implement post
     code = String.build do |s|
       # TODO: check token type, if number/string, add to label
       # s << "{" << "choice: #{expr.target.value},"
