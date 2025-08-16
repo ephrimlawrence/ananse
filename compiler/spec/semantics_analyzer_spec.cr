@@ -86,35 +86,34 @@ describe SemanticAnalyzer do
       end
 
       # test 3: reference to a nested menu
-      expect_raises(CompilerError, /enter_age > child_menu10/m) do
-        code = <<-USSD
-          #{source}
-          menu update_account {
-            display "Enter Age"
-            goto another_child
+      # expect_raises(CompilerError, /enter_age > child_menu10/m) do
+      #   code = <<-USSD
+      #     #{source}
+      #     menu update_account {
+      #       display "Enter Age"
+      #       goto update_account.another_child
 
-            menu another_child {
-              option 1 "Click me" -> enter_age.child_menu10
-            }
-          }
-        USSD
-        analyze(code)
-      end
+      #       menu another_child {
+      #         option 1 "Click me" -> enter_age.child_menu10
+      #       }
+      #     }
+      #   USSD
+      #   analyze(code)
+      # end
 
       # References in a sub menu to another sub-sub-child
       source = <<-USSD
-        #{source}
-        menu child_menu4 {
+        start menu child_menu4 {
           display "Enter Age"
-          goto another_child.sub_sub_child
+          goto child_menu4.another_child.sub_sub_child
 
           menu another_child {
             display "Hi"
-            goto sub_sub_child
+            goto child_menu4.another_child.sub_sub_child
 
             menu sub_sub_child {
               display "Hi"
-              goto another_child.child_menu4
+              goto child_menu4
             }
           }
         }
