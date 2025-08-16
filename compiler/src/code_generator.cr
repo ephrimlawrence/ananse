@@ -45,7 +45,7 @@ class CodeGenerator < AST::Visitor(Object)
 
       @ast.menus.each do |menu_name, definition|
         menu : AST::MenuStatement = definition["menu"].first.as(AST::MenuStatement)
-        stmts : TransformedAST::GroupedStatements = definition
+        # stmts : TransformedAST::GroupedStatements = definition
 
         @menu_context << "get"
         @menu_context << "post"
@@ -166,7 +166,7 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_variable_expr(expr : AST::Variable) : Object
-    %(await this.request.session.get("#{expr.name.value}"))
+    %(await runtime.getValue<any>("#{expr.name.value}"))
     # return @environment.get(expr.name)
   end
 
@@ -184,23 +184,21 @@ class CodeGenerator < AST::Visitor(Object)
       return ""
     end
 
-    code = String.build do |s|
-      condition : String = "(#{evaluate(stmt.condition)})"
+    code : String::Builder = String::Builder.new("if (#{evaluate(stmt.condition)}){\n")
 
-      # then branch might be empty after transformation
-      # whilst the else branch is not empty.
-      # We negate the condition and skip generating code for 'else'
-      if stmt.then_branch.statements.size == 0 && !stmt.else_branch.nil?
-        s << "if " << "(!#{condition})" << "{"
-        s << execute(stmt.else_branch.as(AST::Stmt)) << "}"
-      else
-        s << "if " << condition << "{"
-        s << execute(stmt.then_branch) << "}"
-        if !stmt.else_branch.nil? && stmt.else_branch.as(AST::BlockStatement).statements.size > 0
-          s << "else {" << execute(stmt.else_branch.as(AST::Stmt)) << "}"
-        end
-      end
+    # then branch might be empty after transformation
+    # whilst the else branch is not empty.
+    # We negate the condition and skip generating code for 'else'
+    # if stmt.then_branch.statements.size == 0 && !stmt.else_branch.nil?
+    #   s << "if " << "(!#{condition})" << "{"
+    #   s << execute(stmt.else_branch.as(AST::Stmt)) << "}"
+    # else
+    code << execute(stmt.then_branch) << "}"
+    if !stmt.else_branch.nil? && stmt.else_branch.as(AST::BlockStatement).statements.size > 0
+      code << "else {" << execute(stmt.else_branch.as(AST::Stmt)) << "}\n"
     end
+    #   end
+    # end
 
     return code.to_s
   end
@@ -299,37 +297,37 @@ class CodeGenerator < AST::Visitor(Object)
     "runtime.endSession();"
   end
 
-  def generate_end_function(end_stmts : Array(AST::Stmt)) : String
-    stmts : Array(AST::Stmt) = end_stmts.sort_by { |stmt| stmt.location.line }
+  # def generate_end_function(end_stmts : Array(AST::Stmt)) : String
+  #   stmts : Array(AST::Stmt) = end_stmts.sort_by { |stmt| stmt.location.line }
 
-    code = String.build do |s|
-      s << "async end() #{opening_brace}"
+  #   code = String.build do |s|
+  #     s << "async end() #{opening_brace}"
 
-      if stmts.empty?
-        s << "return false;#{closing_brace}"
-        break
-        # return s.to_s
-      end
+  #     if stmts.empty?
+  #       s << "return false;#{closing_brace}"
+  #       break
+  #       # return s.to_s
+  #     end
 
-      str : String = ""
-      stmts.each do |stmt|
-        str += execute(stmt)
-        str += @newline
-      end
+  #     str : String = ""
+  #     stmts.each do |stmt|
+  #       str += execute(stmt)
+  #       str += @newline
+  #     end
 
-      # The runtime 'end()' API requires boolean return value.
-      # However, in some instances, the generated snippet doesn't end with a 'return',
-      # eg. when 'end' is in an if statement.
-      # We fixup this by appending 'return false' to the code
-      if /return (true|false);$/.match(str).nil?
-        str += "return false;"
-      end
+  #     # The runtime 'end()' API requires boolean return value.
+  #     # However, in some instances, the generated snippet doesn't end with a 'return',
+  #     # eg. when 'end' is in an if statement.
+  #     # We fixup this by appending 'return false' to the code
+  #     if /return (true|false);$/.match(str).nil?
+  #       str += "return false;"
+  #     end
 
-      s << str << closing_brace
-    end
+  #     s << str << closing_brace
+  #   end
 
-    return code.to_s
-  end
+  #   return code.to_s
+  # end
 
   # Generates code for `input` and `action` statements.
   #
@@ -337,115 +335,115 @@ class CodeGenerator < AST::Visitor(Object)
   # `input` is treated as an option statement that accepts any value.
   # `action` is generated as `MenuAction.handler` callback.
   #
-  def generate_action_function(action_stmts : Array(AST::Stmt), input_stmts : Array(AST::Stmt))
-    # Merge and sort (by line number) action and input statements
-    # This ensures that the order of the generated codes matches closely with the source
-    stmts : Array(AST::Stmt) = action_stmts.concat(input_stmts).sort_by { |stmt| stmt.location.line }
+  # def generate_action_function(action_stmts : Array(AST::Stmt), input_stmts : Array(AST::Stmt))
+  #   # Merge and sort (by line number) action and input statements
+  #   # This ensures that the order of the generated codes matches closely with the source
+  #   stmts : Array(AST::Stmt) = action_stmts.concat(input_stmts).sort_by { |stmt| stmt.location.line }
 
-    # TODO: merge all action code into an option with .* choice
-    code = String.build do |s|
-      s << "async actions() #{opening_brace}"
+  #   # TODO: merge all action code into an option with .* choice
+  #   code = String.build do |s|
+  #     s << "async actions() #{opening_brace}"
 
-      if stmts.empty?
-        s << "return [];#{closing_brace}"
-        return s.to_s
-      end
+  #     if stmts.empty?
+  #       s << "return [];#{closing_brace}"
+  #       return s.to_s
+  #     end
 
-      s << "return [{ choice: /.*/, display: undefined, handler: async (req: Request) => {"
-      stmts.each do |stmt|
-        s << execute(stmt) << @newline
-      end
-      s << "}}];" << closing_brace
-    end
+  #     s << "return [{ choice: /.*/, display: undefined, handler: async (req: Request) => {"
+  #     stmts.each do |stmt|
+  #       s << execute(stmt) << @newline
+  #     end
+  #     s << "}}];" << closing_brace
+  #   end
 
-    return code.to_s
-  end
+  #   return code.to_s
+  # end
 
-  def generate_options_code(stmts : Array(AST::Stmt))
-    code = String.build do |s|
-      s << "async actions() #{opening_brace}"
+  # def generate_options_code(stmts : Array(AST::Stmt))
+  #   code = String.build do |s|
+  #     s << "async actions() #{opening_brace}"
 
-      if stmts.empty?
-        s << "return []; #{closing_brace}"
-        return s.to_s
-      end
+  #     if stmts.empty?
+  #       s << "return []; #{closing_brace}"
+  #       return s.to_s
+  #     end
 
-      variable_name = "actions_list" # variable name for options
-      s << "const #{variable_name}: MenuAction[] = [];\n"
-      stmts.each do |stmt|
-        s << execute(stmt)
-      end
+  #     variable_name = "actions_list" # variable name for options
+  #     s << "const #{variable_name}: MenuAction[] = [];\n"
+  #     stmts.each do |stmt|
+  #       s << execute(stmt)
+  #     end
 
-      s << "return " << variable_name << ";"
-      s << closing_brace
-    end
+  #     s << "return " << variable_name << ";"
+  #     s << closing_brace
+  #   end
 
-    return code.to_s
-  end
+  #   return code.to_s
+  # end
 
   # Generates corresponding `nextMenu` function
-  def generate_goto_function(menu : String, stmts : Array(AST::Stmt))
-    code = String.build do |s|
-      # TODO: implement 'input()' api for BaseMenu in the runtime
-      s << "async nextMenu() #{opening_brace}"
+  # def generate_goto_function(menu : String, stmts : Array(AST::Stmt))
+  #   code = String.build do |s|
+  #     # TODO: implement 'input()' api for BaseMenu in the runtime
+  #     s << "async nextMenu() #{opening_brace}"
 
-      if stmts.empty?
-        s << "return undefined; #{closing_brace}"
-        return s.to_s
-      end
+  #     if stmts.empty?
+  #       s << "return undefined; #{closing_brace}"
+  #       return s.to_s
+  #     end
 
-      # item = stmts.find { |s| s.is_a?(AST::GotoStatement) }
-      # if item.nil?
-      #   raise Exception.new("No goto statement found in '#{menu}' menu")
-      # end
-      # item = item.as(AST::GotoStatement)
+  #     # item = stmts.find { |s| s.is_a?(AST::GotoStatement) }
+  #     # if item.nil?
+  #     #   raise Exception.new("No goto statement found in '#{menu}' menu")
+  #     # end
+  #     # item = item.as(AST::GotoStatement)
 
-      variable_name = Util.generate_identifier_name
-      s << "let #{variable_name} = '';\n"
-      stmts.each do |stmt|
-        if stmt.is_a?(AST::GotoStatement)
-          s << "#{variable_name} = #{execute(stmt)};\n"
-        else
-          s << execute(stmt)
-        end
-      end
+  #     variable_name = Util.generate_identifier_name
+  #     s << "let #{variable_name} = '';\n"
+  #     stmts.each do |stmt|
+  #       if stmt.is_a?(AST::GotoStatement)
+  #         s << "#{variable_name} = #{execute(stmt)};\n"
+  #       else
+  #         s << execute(stmt)
+  #       end
+  #     end
 
-      s << "return " << variable_name << ";"
-      s << closing_brace
-    end
+  #     s << "return " << variable_name << ";"
+  #     s << closing_brace
+  #   end
 
-    return code.to_s
-  end
+  #   return code.to_s
+  # end
 
   # Generates corresponding `message` function
-  def generate_display_function(menu : String, stmts : Array(AST::Stmt))
-    code = String.build do |s|
-      # TODO: implement 'input()' api for BaseMenu in the runtime
-      s << "async message() #{opening_brace}"
+  # def generate_display_function(menu : String, stmts : Array(AST::Stmt))
+  #   code = String.build do |s|
+  #     # TODO: implement 'input()' api for BaseMenu in the runtime
+  #     s << "async message() #{opening_brace}"
 
-      if stmts.empty?
-        s << "return undefined; #{closing_brace}"
-        return s.to_s
-      end
+  #     if stmts.empty?
+  #       s << "return undefined; #{closing_brace}"
+  #       return s.to_s
+  #     end
 
-      # Push name to the stack
-      variable_name = Util.generate_identifier_name
-      @display_variable_names.unshift(variable_name)
+  #     # Push name to the stack
+  #     variable_name = Util.generate_identifier_name
+  #     @display_variable_names.unshift(variable_name)
 
-      s << "let #{variable_name} = '';\n"
-      stmts.each do |stmt|
-        s << execute(stmt)
-      end
+  #     s << "let #{variable_name} = '';\n"
+  #     stmts.each do |stmt|
+  #       s << execute(stmt)
+  #     end
 
-      # Pop name from the stack
-      @display_variable_names.shift
+  #     # Pop name from the stack
+  #     @display_variable_names.shift
 
-      s << "return " << variable_name << ";"
-      s << closing_brace
-    end
+  #     s << "return " << variable_name << ";"
+  #     s << closing_brace
+  #   end
 
-    return code.to_s
-  end
+  #   return code.to_s
+  # end
 
   # Generates corresponding input function
   # def generate_input_function(menu : String, stmts : Array(AST::Stmt))
@@ -479,7 +477,7 @@ class CodeGenerator < AST::Visitor(Object)
       name : String = stmt.variable.value
 
       code = "const #{name} = runtime.userData();"
-      code += %(await runtime.setValue("#{name}", #{name}))
+      code += %(await runtime.setValue("#{name}", #{name});\n)
       return code
     end
 
@@ -557,29 +555,39 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_action_expr(expr : AST::Action) : String
-    code : String = "await #{expr.func_name.value}({"
+    code : String::Builder = String::Builder.new("await #{expr.func_name.value}(")
+    has_params = !expr.params.empty?
+
+    if has_params
+      code << '{'
+    end
 
     expr.params.each_key do |key|
-      code += "#{key.value}:"
+      code << "#{key.value}:"
       param : Token = expr.params[key]
 
       if param.type == TokenType::IDENTIFIER
-        code += "await runtime.getValue('#{param.value}'),"
+        code << "await runtime.getValue<any>('#{param.value}'),"
       else
-        code += "#{param.value},"
+        code << "#{param.value},"
       end
     end
-    code += "});"
+
+    if has_params
+      code << "})"
+    else
+      code << ")"
+    end
 
     if expr.name != nil
-      var_name = Util.generate_identifier_name
-      code = <<-JS
-          const #{var_name} = #{code}
-          await req.session.set("#{expr.name.as(Token).value}", #{var_name});
+      var_name = expr.name.as(Token).value
+      return <<-JS
+          const #{var_name} = #{code.to_s};
+          await runtime.setValue("#{var_name}", #{var_name});
         JS
     end
 
-    return code
+    return code.to_s
   end
 
   def visit_goto_stmt(stmt : AST::GotoStatement) : String
@@ -644,7 +652,7 @@ class CodeGenerator < AST::Visitor(Object)
 
   def visit_display_stmt(stmt : AST::DisplayStatement) : String
     if in_get_context?
-      return "message = #{evaluate(stmt.expression)};\n"
+      return "message += #{evaluate(stmt.expression)};\n"
     end
 
     return ""

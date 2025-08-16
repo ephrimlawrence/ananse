@@ -67,8 +67,8 @@ export class Runtime {
 		return await this.#cache.set(this.#session.sessionId(), key, value);
 	}
 
-	async getValue(key: string) {
-		return await this.#cache.get(this.#session.sessionId(), key);
+	async getValue<T>(key: string) {
+		return await this.#cache.get<T>(this.#session.sessionId(), key);
 	}
 
 	async clearError(menuName: string) {
