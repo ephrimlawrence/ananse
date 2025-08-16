@@ -33,10 +33,7 @@ export class MemoryCache extends BaseSessionCache {
 	// }
 
 	async set(sessionId: string, key: string, value: any) {
-		if (this.data[sessionId] == null) {
-			this.data[sessionId] = {};
-		}
-
+		this.data[sessionId] ??= {};
 		this.data[sessionId][key] = value;
 	}
 
@@ -50,6 +47,7 @@ export class MemoryCache extends BaseSessionCache {
 		key: string,
 		defaultValue?: T,
 	): Promise<T> {
+		this.data[sessionId] ??= {};
 		return (this.data[sessionId][key] || defaultValue) as T;
 	}
 

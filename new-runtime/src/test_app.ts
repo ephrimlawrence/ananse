@@ -13,30 +13,9 @@ import { Request, Response, SessionMode } from "./types";
 
 // An in-memory Map to simulate a session database.
 // In a real application, this would be Redis, Firestore, or a similar store.
-const sessions = new Map();
 const menuStack: string[] = [];
 
-/**
- * Saves a session state to the mock database.
- * @param {string} sessionId The unique session ID.
- * @param {object} sessionData The data to store for the session.
- */
-function saveSession(sessionId, sessionData) {
-	sessions.set(sessionId, sessionData);
-}
 
-/**
- * Retrieves a session state from the mock database.
- * @param {string} sessionId The unique session ID.
- * @returns {object | undefined} The session data or undefined if not found.
- */
-function getSession(sessionId) {
-	return sessions.get(sessionId);
-}
-
-function saveSession(request) {
-	// TODO: save session to db/redis/memory/
-}
 
 // Menu api
 async function menu_name_function(
@@ -189,17 +168,19 @@ function handleMenu(runtime: Runtime) {
 		// 	return menu_name_function();
 		default:
 			if (runtime.session().mode() === SessionMode.start) {
-				menuStack.unshift("start_menu");
+				runtime.setNextMenu("start_menu_[POST]");
 
 				return "start menu function(get)";
 			}
 
-			return "Session cannot be retrieved";
+      runtime.endSession();
+			runtime.respond("Session cannot be retrieved");
 	}
 }
 
 export async function requestHandler(req: Request, resp: Response) {
-	const runtime = await new Runtime().processRequest(req, resp);
+	const runtime = await new Runtime(req, resp);
+  await runtime.loadState();
 	handleMenu(runtime);
 	// get session
 }

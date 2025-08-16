@@ -13,6 +13,29 @@ export class Runtime {
 	#menuStack: string[] = [];
 
 	// TODO: add config singleton insance
+
+	// TODO: add load session
+	constructor(req: Request, resp: Response) {
+		this.#request = req;
+		this.#response = resp;
+		// TODO: retrieve gateway from config
+		this.#gateway = new WigalGateway();
+		this.#session = new Session(this.#gateway.requestHandler(req));
+
+		// TODO: get cache type from config
+		this.#cache = MemoryCache.getInstance();
+		// use wigal for now
+
+		// return {
+		// 	session: new Session(this.#gateway.requestHandler(req)),
+		// 	cache: MemoryCache.getInstance(),
+		//   gateway: new WigalGateway(),
+		//   request: req,
+		//   response: resp
+		// };
+		// return this;
+	}
+
 	request() {
 		return this.#request;
 	}
@@ -81,30 +104,17 @@ export class Runtime {
 		);
 	}
 
-	async endSession() {
-		this.#session.end();
+	async loadState() {
+		const data: Record<string, any> = await this.#cache.get(
+			this.#session.sessionId(),
+			"__session_state",
+			{},
+		);
+		this.#menuStack = data.menuStack ?? [];
 	}
 
-	// TODO: add load session
-	async processRequest(req: Request, resp: Response) {
-		this.#request = req;
-		this.#response = resp;
-		// TODO: retrieve gateway from config
-		this.#gateway = new WigalGateway();
-		this.#session = new Session(this.#gateway.requestHandler(req));
-
-		// TODO: get cache type from config
-		this.#cache = MemoryCache.getInstance();
-		// use wigal for now
-
-		// return {
-		// 	session: new Session(this.#gateway.requestHandler(req)),
-		// 	cache: MemoryCache.getInstance(),
-		//   gateway: new WigalGateway(),
-		//   request: req,
-		//   response: resp
-		// };
-		return this;
+	async endSession() {
+		this.#session.end();
 	}
 
 	respond(message: string) {
