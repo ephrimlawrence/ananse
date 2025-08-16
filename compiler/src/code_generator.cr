@@ -92,7 +92,6 @@ class CodeGenerator < AST::Visitor(Object)
       s << "runtime.endSession();"
       s << %(runtime.respond("Session cannot be retrieved");)
 
-      # TODO: add start menu logic
       s << "}\n" # close witch
       s << "}\n" # close function
     end
@@ -284,10 +283,10 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_block_stmt(block : AST::BlockStatement) : String
-    code = String.build do |s|
-      block.statements.each do |stmt|
-        s << execute(stmt)
-      end
+    code = String::Builder.new("")
+
+    block.statements.each do |stmt|
+      code << execute(stmt)
     end
 
     return code.to_s
@@ -473,7 +472,15 @@ class CodeGenerator < AST::Visitor(Object)
   # end
 
   def visit_input_stmt(stmt : AST::InputStatement) : String
-    "await runtime.setValue(\"#{stmt.variable.value}\", runtime.session().userData());"
+    if in_post_context?
+      name : String = stmt.variable.value
+
+      code = "const #{name} = runtime.session().userData();"
+      code += %(await runtime.setValue("#{name}", #{name}))
+      return code
+    end
+
+    return ""
   end
 
   def visit_option_stmt(stmt : AST::OptionStatement)
