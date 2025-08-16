@@ -6,6 +6,7 @@ export function listen(
 	requestHandler: (runtimeRequest: Req, runtimeResponse: Resp) => void,
 	port?: number,
 	hostname?: string,
+	listeningListener?: () => void,
 ) {
 	const requestListener = (req: IncomingMessage, res: ServerResponse) => {
 		const host = req.headers.host ?? "localhost";
@@ -52,15 +53,16 @@ export function listen(
 			});
 		}
 
-		return requestHandler(request, res);
+		requestHandler(request, res);
 	};
 
 	return createServer((req, res) => requestListener(req, res)).listen(
 		port,
 		hostname,
-		// listeningListener,
+		listeningListener,
 	);
 }
 
 export { Runtime } from "./runtime";
 export { Request, Response, SessionMode } from "./types";
+export { isMatch } from "./helpers";

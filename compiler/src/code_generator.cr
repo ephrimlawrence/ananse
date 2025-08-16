@@ -21,7 +21,7 @@ class CodeGenerator < AST::Visitor(Object)
 
   alias ExpressionType = String | Int32 | Float64 | Bool | AST::Expr | Nil
 
-  private getter runtime_imports = ["Request", "Response", "SessionMode", "Runtime"]
+  private getter runtime_imports = ["Request", "Response", "SessionMode", "Runtime", "isMatch"]
 
   private property ts : String::Builder = String::Builder.new("")
 
@@ -478,7 +478,7 @@ class CodeGenerator < AST::Visitor(Object)
     if in_post_context?
       name : String = stmt.variable.value
 
-      code = "const #{name} = runtime.session().userData();"
+      code = "const #{name} = runtime.userData();"
       code += %(await runtime.setValue("#{name}", #{name}))
       return code
     end
@@ -487,17 +487,45 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_option_stmt(stmt : AST::OptionStatement)
-    # group : Array(AST::Option) = stmt.group
     if in_get_context?
-      code = String.build do |s|
-        stmt.group.each do |opt|
-          s << "message += \n" << evaluate(opt) << "\n;"
-        end
+      code = String::Builder.new("")
+      stmt.group.each do |opt|
+        code << "message += \n" << evaluate(opt) << "\n;"
       end
 
       return code.to_s
     end
 
+    if in_post_context?
+      code = String::Builder.new("")
+
+      last_index = stmt.group.size - 1
+      stmt.group.each_with_index do |opt, idx|
+        if idx == 0
+          code << "if "
+        else
+          code << "else if"
+        end
+
+        code << "(isMatch(runtime.userData(), #{opt.target.value})){\n"
+
+        if !opt.action.nil? && !opt.next_menu.nil?
+          # If both action & goto is defined,
+          # then next_menu is called only if action result is truthy
+          code << "if (" << evaluate(opt.action.as(AST::Action)) << "){\n"
+          code << evaluate(opt.next_menu.as(AST::Goto))
+          code << "}\n"
+        elsif !opt.action.nil?
+          code << evaluate(opt.action.as(AST::Action)) << ";"
+        elsif !opt.next_menu.nil?
+          code << evaluate(opt.next_menu.as(AST::Goto))
+        end
+
+        code << "}\n" # close if/else
+      end
+
+      return code.to_s
+    end
     return ""
   end
 
@@ -559,7 +587,15 @@ class CodeGenerator < AST::Visitor(Object)
   end
 
   def visit_goto_expr(expr : AST::Goto) : String
-    %("#{@ast.symbol_table.lookup_goto_target(expr.name).runtime_id}")
+    name : String = @ast.symbol_table.lookup_goto_target(expr.name).runtime_id
+    stub = String.build do |s|
+      s << "await runtime.removeCurrentMenu(); // remove current menu from the stack\n"
+      s << %(runtime.setNextMenu("#{name}_[GET]"); // push new menu onto the stack\n)
+      s << "await runtime.saveState();"
+      s << %(return #{name}(runtime, "get"))
+    end
+
+    return stub.to_s
   end
 
   def visit_interpolation_expr(str : AST::InterpolatedString) : String

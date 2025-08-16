@@ -117,6 +117,10 @@ export class Runtime {
 		this.#session.end();
 	}
 
+	async userData() {
+		return this.#session.userData();
+	}
+
 	respond(message: string) {
 		this.#gateway.responseHandler(
 			this.#request,
