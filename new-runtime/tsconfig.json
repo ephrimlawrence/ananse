@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "declaration": true,
+    "removeComments": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2017",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": false,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "strictBindCallApply": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": false,
+    "resolveJsonModule": true,
+    "exactOptionalPropertyTypes": true,
+    "strictFunctionTypes": true,
+    "moduleResolution": "node",
+    "types": [
+      "node"
+    ],
+    "paths": {
+      "@src/*": [
+        "src/*"
+      ],
+      "@helpers/*": [
+        "src/helpers/*"
+      ],
+      "@config/*": [
+        "src/config/*"
+      ],
+      "@test/*": [
+        "test/*"
+      ]
+    },
+  },
+  "include": [
+    "src/**/*"
+  ]
+}

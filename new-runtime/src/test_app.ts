@@ -239,7 +239,7 @@ export async function requestHandler(req: Request, resp: Response) {
 }
 
 // The main server route to handle all USSD requests.
-app.get("/", async (req, res) => {
+app.get("/", async (req: any, res: any) => {
 	// Determine gateway and retrieve/create session
 	const { sessionId, input, ...params } = req.query;
 
