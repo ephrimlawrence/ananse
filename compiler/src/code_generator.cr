@@ -495,6 +495,7 @@ class CodeGenerator < AST::Visitor(Object)
       code = String::Builder.new("")
       stmt.group.each do |opt|
         code << "message += \n" << evaluate(opt) << "\n;"
+        code << %(message += "\\n";)
       end
 
       return code.to_s
@@ -661,7 +662,8 @@ class CodeGenerator < AST::Visitor(Object)
 
   def visit_display_stmt(stmt : AST::DisplayStatement) : String
     if in_get_context?
-      return "message += #{evaluate(stmt.expression)};\n"
+      str = "message += #{evaluate(stmt.expression)};\n"
+      str += %(message += "\\n";)
     end
 
     return ""
