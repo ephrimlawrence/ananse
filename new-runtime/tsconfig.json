@@ -17,7 +17,7 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": false,
     "resolveJsonModule": true,
-    "exactOptionalPropertyTypes": true,
+    "exactOptionalPropertyTypes": false,
     "strictFunctionTypes": true,
     "moduleResolution": "node",
     "types": [

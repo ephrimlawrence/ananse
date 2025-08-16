@@ -9,6 +9,7 @@ export enum SessionMode {
 // export type
 export type Request = {
 	query?: Record<string, string>;
+	body: any;
 };
 
 export type GatewayData = {
@@ -24,5 +25,5 @@ export type GatewayData = {
 };
 
 export class Response extends ServerResponse {
-	data: Record<string, any> | any;
+	// data: Record<string, any> | any;
 }
