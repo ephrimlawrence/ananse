@@ -82,7 +82,7 @@ export class Runtime {
 		return this.#menuStack[0];
 	}
 
-	async removeCurrentMenu() {
+	removeCurrentMenu() {
 		this.#menuStack.shift();
 	}
 
@@ -113,11 +113,11 @@ export class Runtime {
 		this.#menuStack = data.menuStack ?? [];
 	}
 
-	async endSession() {
+	endSession() {
 		this.#session.end();
 	}
 
-	async userData() {
+	userData() {
 		return this.#session.userData();
 	}
 

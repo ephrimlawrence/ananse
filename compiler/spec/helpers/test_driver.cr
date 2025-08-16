@@ -7,7 +7,6 @@ class TestDriver
 
   getter program_name : String
 
-  # property simulator : Simulator? = nil
   private property server : Process? = nil
   private property port : String
 

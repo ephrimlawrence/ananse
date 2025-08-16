@@ -240,6 +240,7 @@ class CodeGenerator < AST::Visitor(Object)
         s << execute(stmt.body)
 
         # Save state and return response
+        s << %(runtime.setNextMenu("#{runtime_id}_[POST]");)
         s << "await runtime.saveState();"
         s << "return runtime.respond(message);"
 

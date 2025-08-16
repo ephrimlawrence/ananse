@@ -17,10 +17,10 @@ if (port == null) {
 	);
 }
 listen(
-	(req, res) => {
-		console.log(`Server listening on port ${port}`);
-		requestHandler(req, res);
-	},
+	requestHandler,
 	parseInt(port),
 	"localhost",
+	() => {
+		console.log(`Server listening on port ${port}`);
+	},
 );

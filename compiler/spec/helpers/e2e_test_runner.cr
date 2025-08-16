@@ -101,6 +101,7 @@ class E2eTestRunner
 
   def execute_tests(test_file : String, ts_file : String)
     yml = YAML.parse(File.read("#{PROGRAMS_DIR}/#{test_file}"))
+    driver : TestDriver = TestDriver.new(ts_file, @debug_mode).start
 
     log "#{test_file}: #{yml["name"]}"
 
@@ -109,7 +110,7 @@ class E2eTestRunner
       test = t.as_h
 
       if test.has_key?("it")
-        if run_test(test: test, index: index, ts_file: ts_file)[:ok]
+        if run_test(test: test, index: index, driver: driver)[:ok]
           passed test["it"].as_s
         else
           error test["it"].as_s
@@ -133,7 +134,7 @@ class E2eTestRunner
             test: test,
             index: step_index,
             previous_steps: previous_steps,
-            ts_file: ts_file
+            driver: driver
           )
 
           previous_steps = result[:inputs]
@@ -147,18 +148,22 @@ class E2eTestRunner
         end
       end
     end
+
+    driver.stop
   end
 
-  private def run_test(test : Hash, index : Int32, ts_file : String, previous_steps : Array(String) = [] of String) : NamedTuple(inputs: Array(String), ok: Bool)
+  private def run_test(test : Hash, index : Int32, driver : TestDriver, previous_steps : Array(String) = [] of String) : NamedTuple(inputs: Array(String), ok: Bool)
     label : String = test["it"].as_s
     params : Array(String) = [] of String
+
+    if !test.has_key?("input")
+      raise Exception.new(error "An 'input' is required for each scenario. #{label} > scenario #{index}")
+    end
 
     begin
       params = test["input"].as_a.map { |i| i.to_s }
     rescue e : TypeCastError
       params << test["input"].to_s
-      # if !val.empty? && val != "\"\""
-      #   params <<
     rescue e : TypeCastError
       params << test["input"].as_s
     end
@@ -170,15 +175,11 @@ class E2eTestRunner
       params = tmp
     end
 
-    if !test.has_key?("input")
-      raise Exception.new(error "An 'input' is required for each scenario. #{label} > scenario #{index}")
-    end
-
     ok : Bool = true
-    driver : TestDriver = TestDriver.new(ts_file, @debug_mode)
+    # driver : TestDriver = TestDriver.new(ts_file, @debug_mode)
 
     begin
-      resp : String? = driver.start.input(params)
+      resp : String? = driver.input(params)
 
       if resp.nil?
         error("'#{label}' - Response was empty")
@@ -189,7 +190,7 @@ class E2eTestRunner
         outputs = test["output"].as_a
 
         outputs.each do |o|
-          unless resp.as(String).includes?(o.to_s)
+          if !resp.as(String).includes?(o.to_s)
             error "'#{label}' - Expected output '#{o}' not found in response: #{resp}"
             ok = false
           end
@@ -198,8 +199,9 @@ class E2eTestRunner
     rescue exception
       ok = false
       p! exception
-    ensure
-      driver.stop
+    #   driver.stop
+    # ensure
+    #   driver.stop
     end
 
     {inputs: params, ok: ok}
