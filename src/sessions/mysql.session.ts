@@ -23,172 +23,197 @@ import { SQLSessionOptions } from "@src/types";
  * ```
  */
 export class MySQLSession extends BaseSession {
-  private static instance: MySQLSession;
+	private static instance: MySQLSession;
 
-  private config: SQLSessionOptions;
-  private db: any;
+	private config: SQLSessionOptions;
+	private db: any;
+	private connectionRetries: number = 0;
 
-  private constructor() {
-    super();
-  }
+	private constructor() {
+		super();
+	}
 
-  public static getInstance(): MySQLSession {
-    if (!MySQLSession.instance) {
-      MySQLSession.instance = new MySQLSession();
-    }
+	public static getInstance(): MySQLSession {
+		if (!MySQLSession.instance) {
+			MySQLSession.instance = new MySQLSession();
+		}
 
-    return MySQLSession.instance;
-  }
+		return MySQLSession.instance;
+	}
 
-  async configure(options: SQLSessionOptions): Promise<void> {
-    if (options == null) {
-      throw new Error("Postgres session configuration is required!");
-    }
-    this.config = options;
-    this.config.tableName ??= "ussd_sessions";
+	async configure(options: SQLSessionOptions): Promise<void> {
+		if (options == null) {
+			throw new Error("Postgres session configuration is required!");
+		}
+		this.config = options;
+		this.config.tableName ??= "ussd_sessions";
 
-    // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
-    let mysql;
+		// biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
+		let mysql;
 
-    try {
-      mysql = await import("mysql2/promise");
-    } catch (error) {
-      throw new Error(
-        "'mysql2/promise' module is required for postgres session. Please install it using 'npm install mysql2/promise' or 'yarn add mysql2/promise'",
-      );
-    }
+		try {
+			mysql = await import("mysql2/promise");
+		} catch (error) {
+			throw new Error(
+				"'mysql2/promise' module is required for postgres session. Please install it using 'npm install mysql2/promise' or 'yarn add mysql2/promise'",
+			);
+		}
 
-    this.db = await mysql.createPool({
-      host: this.config?.host || "localhost",
-      user: this.config.username || "root",
-      database: this.config.database,
-      password: this.config.password as string,
-      enableKeepAlive:true
-    });
+		this.db = await mysql.createPool({
+			host: this.config?.host || "localhost",
+			user: this.config.username || "root",
+			database: this.config.database,
+			password: this.config.password as string,
+			enableKeepAlive: true,
+		});
 
+		// // Based on https://github.com/sidorares/node-mysql2/issues/836#issuecomment-414281593
+		// // To prevent connection timeout
+		// this.db.query("select 1 + 1", (_err: any, _rows: any) => {
+		// 	/* */
+		// });
+	}
 
-    // Based on https://github.com/sidorares/node-mysql2/issues/836#issuecomment-414281593
-    // To prevent connection timeout
-    this.db.query('select 1 + 1', (_err: any, _rows: any) => { /* */ });
-  }
+	private get softDeleteQuery() {
+		if (this.config.softDelete === false || this.config.softDelete == null)
+			return "";
 
-  private get softDeleteQuery() {
-    if (this.config.softDelete === false || this.config.softDelete == null)
-      return "";
+		return "AND deleted_at IS NULL";
+	}
 
-    return "AND deleted_at IS NULL";
-  }
+	private get tableName() {
+		// biome-ignore lint/style/noNonNullAssertion: <explanation>
+		return this.config.tableName!;
+	}
 
-  private get tableName() {
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
-    return this.config.tableName!;
-  }
+	async setState(sessionId: string, state: State) {
+		this.states[sessionId] = state;
 
-  async setState(sessionId: string, state: State) {
-    this.states[sessionId] = state;
-
-    // Write postgres query to insert or update state
-    await this.db.query(
-      `INSERT INTO ${this.tableName} (session_id, state, created_at, updated_at) VALUES (?, ?, NOW(), NOW())
+		// Write postgres query to insert or update state
+		await this.queryWithReconnect(
+			`INSERT INTO ${this.tableName} (session_id, state, created_at, updated_at) VALUES (?, ?, NOW(), NOW())
      ON DUPLICATE KEY UPDATE state = ?`,
-      [
-        sessionId,
-        JSON.stringify(state.toJSON()),
-        JSON.stringify(state.toJSON()),
-        sessionId,
-      ],
-    );
-    return state;
-  }
+			[
+				sessionId,
+				JSON.stringify(state.toJSON()),
+				JSON.stringify(state.toJSON()),
+				sessionId,
+			],
+		);
+		return state;
+	}
 
-  async getState(sessionId: string) {
-    const [resp, _fields] = await this.db.query(
-      `SELECT state, data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery} LIMIT 1`,
-      [sessionId],
-    );
+	async getState(sessionId: string) {
+		const [resp, _fields] = await this.queryWithReconnect(
+			`SELECT state, data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery} LIMIT 1`,
+			[sessionId],
+		);
 
-    if (resp.length === 0) return undefined;
+		if (resp.length === 0) return undefined;
 
-    const val = typeof resp[0] === "string" ? JSON.parse(resp[0]) : resp[0];
-    this.data[sessionId] = val.data;
-    return State.fromJSON(val.state);
-  }
+		const val = typeof resp[0] === "string" ? JSON.parse(resp[0]) : resp[0];
+		this.data[sessionId] = val.data;
+		return State.fromJSON(val.state);
+	}
 
-  clear(sessionId: string): State {
-    const _state = this.states[sessionId];
-    delete this.states[sessionId];
-    delete this.data[sessionId];
+	clear(sessionId: string): State {
+		const _state = this.states[sessionId];
+		delete this.states[sessionId];
+		delete this.data[sessionId];
 
-    if (this.config.softDelete === false || this.config.softDelete == null) {
-      this.db
-        .query(`DELETE FROM ${this.tableName} WHERE session_id = ?`, [
-          sessionId,
-        ])
-        .catch((error: Error) => {
-          throw error;
-        });
-    } else {
-      this.db
-        .query(
-          `UPDATE ${this.tableName} SET deleted_at = ? WHERE session_id = ? ${this.softDeleteQuery}`,
-          [new Date().toISOString(), sessionId],
-        )
-        .catch((error: Error) => {
-          throw error;
-        });
-    }
+		if (this.config.softDelete === false || this.config.softDelete == null) {
+			this.queryWithReconnect(`DELETE FROM ${this.tableName} WHERE session_id = ?`, [
+					sessionId,
+				])
+				.catch((error: Error) => {
+					throw error;
+				});
+		} else {
+			this.queryWithReconnect(
+					`UPDATE ${this.tableName} SET deleted_at = ? WHERE session_id = ? ${this.softDeleteQuery}`,
+					[new Date().toISOString(), sessionId],
+				)
+				.catch((error: Error) => {
+					throw error;
+				});
+		}
 
-    return _state;
-  }
+		return _state;
+	}
 
-  async set(sessionId: string, key: string, value: any): Promise<void> {
-    this.data[sessionId] ??= {};
-    this.data[sessionId][key] = value;
+	async set(sessionId: string, key: string, value: any): Promise<void> {
+		this.data[sessionId] ??= {};
+		this.data[sessionId][key] = value;
 
-    await this.db.query(
-      `UPDATE ${this.tableName} SET data = ? WHERE session_id = ? ${this.softDeleteQuery}`,
-      [JSON.stringify(this.data[sessionId]), sessionId],
-    );
-  }
+		await this.queryWithReconnect(
+			`UPDATE ${this.tableName} SET data = ? WHERE session_id = ? ${this.softDeleteQuery}`,
+			[JSON.stringify(this.data[sessionId]), sessionId],
+		);
+	}
 
-  async remove(sessionId: string, key: string): Promise<void> {
-    this.data[sessionId] ??= {};
-    delete this.data[sessionId][key];
+	async remove(sessionId: string, key: string): Promise<void> {
+		this.data[sessionId] ??= {};
+		delete this.data[sessionId][key];
 
-    await this.db.query(
-      `UPDATE ${this.tableName} SET data = ? WHERE session_id = ? ${this.softDeleteQuery}`,
-      [JSON.stringify(this.data[sessionId]), sessionId],
-    );
-  }
+		await this.queryWithReconnect(
+			`UPDATE ${this.tableName} SET data = ? WHERE session_id = ? ${this.softDeleteQuery}`,
+			[JSON.stringify(this.data[sessionId]), sessionId],
+		);
+	}
 
-  async get<T>(
-    sessionId: string,
-    key: string,
-    defaultValue?: T,
-  ): Promise<T | undefined> {
-    const [resp, _fields] = await this.db.query(
-      `SELECT data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery} LIMIT 1`,
-      [sessionId],
-    );
+	async get<T>(
+		sessionId: string,
+		key: string,
+		defaultValue?: T,
+	): Promise<T | undefined> {
+		const [resp, _fields] = await this.queryWithReconnect(
+			`SELECT data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery} LIMIT 1`,
+			[sessionId],
+		);
 
-    if (resp == null) {
-      return defaultValue;
-    }
+		if (resp == null) {
+			return defaultValue;
+		}
 
-    const val = typeof resp[0] === "string" ? JSON.parse(resp[0]) : resp[0];
-    return ((val?.data || "{}")[key] || defaultValue) as T;
-  }
+		const val = typeof resp[0] === "string" ? JSON.parse(resp[0]) : resp[0];
+		return ((val?.data || "{}")[key] || defaultValue) as T;
+	}
 
-  async getAll<T>(sessionId: string): Promise<T | undefined> {
-    const [[val]] = await this.db.query(
-      `SELECT data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery}`,
-      [sessionId],
-    );
+	async getAll<T>(sessionId: string): Promise<T | undefined> {
+		const [[val]] = await this.queryWithReconnect(
+			`SELECT data FROM ${this.tableName} WHERE session_id = ? ${this.softDeleteQuery}`,
+			[sessionId],
+		);
 
-    if (val == null) {
-      return undefined;
-    }
+		if (val == null) {
+			return undefined;
+		}
 
-    return JSON.parse(val.data || "{}") as T;
-  }
+		return JSON.parse(val.data || "{}") as T;
+	}
+
+	private async queryWithReconnect(sql: string, params: any[] = []) {
+		try {
+			return await this.db.query(sql, params);
+		} catch (err: any) {
+			// Check for connection errors (ER_CON_COUNT_ERROR, PROTOCOL_CONNECTION_LOST, etc.)
+			if (
+				err.code === "PROTOCOL_CONNECTION_LOST" ||
+				err.code === "ECONNRESET" ||
+				err.code === "PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR" ||
+				err.code === "PROTOCOL_ENQUEUE_HANDSHAKE_TWICE" ||
+				err.code === "ER_CON_COUNT_ERROR"
+			) {
+				if (this.connectionRetries >= 3) throw err;
+
+				// Attempt to reconnect
+				await this.configure(this.config);
+				this.connectionRetries += 1;
+
+				// Retry the query once
+				return await this.db.query(sql, params);
+			}
+			throw err;
+		}
+	}
 }
