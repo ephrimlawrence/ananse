@@ -64,8 +64,6 @@ class E2eTestRunner
 
     File.copy(ACTIONS_JS, dest)
 
-    log "CodeGenerator"
-
     @files.each do |basename, value|
       if value[:test].nil?
         next
@@ -92,8 +90,6 @@ class E2eTestRunner
     # Generate spec files
     dest : String = "#{OUTPUT_DIR}/actions.ts"
     File.copy(ACTIONS_JS, dest)
-
-    log "CodeGenerator"
 
     @spacing = 2
     execute_tests("#{program_name}.yaml", "#{program_name}.ts")

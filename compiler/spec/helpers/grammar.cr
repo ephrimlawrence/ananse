@@ -1,17 +1,17 @@
 struct Grammar
   # <action_stmt>	::= "@" <identifier> "(" (<identifier> ":" <identifier> ",")* ")" ( "as" <identifier>)?
-  # def self.action(with_params : Bool = true, with_name : Bool = true) : String
-  #   str : String = "@jsFunctionName(param1: 2, param2: value2, param3: \"string\")"
-  #   if !with_params
-  #     str = "@jsFunctionName()"
-  #   end
+  def self.action(with_params : Bool = true, with_name : Bool = true) : String
+    str : String = "@jsFunctionName(param1: 2, param2: value2, param3: \"string\")"
+    if !with_params
+      str = "@jsFunctionName()"
+    end
 
-  #   if with_name
-  #     return "#{str} as variableName"
-  #   end
+    if with_name
+      return "#{str} as variableName"
+    end
 
-  #   return str
-  # end
+    return str
+  end
 
   # <goto_stmt>			::= "goto" <space> ( <navigate_stmt> | ( <identifier> ( "." <identifier> )* ))
   # <navigate_stmt>		::= "end" | "start"

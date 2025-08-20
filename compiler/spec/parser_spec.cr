@@ -51,7 +51,7 @@ describe Parser do
   describe "goto grammar" do
     it "goto with menu name" do
       ["cameCaseName", "snake_case_name"].each do |name|
-        stmts = parse(Grammar.goto(name: name))
+        stmts = parse("goto #{name}")
         stmts.size.should eq(1)
         stmts[0].is_a?(AST::GotoStatement).should eq(true)
 
@@ -62,7 +62,7 @@ describe Parser do
 
     it "goto a nested menu" do
       ["parentMenu.child_menu.grandChild", "parent_menu.childMenu.grandChild.father"].each do |name|
-        stmts = parse(Grammar.goto(name: name))
+        stmts = parse("goto #{name}")
         stmts.size.should eq(1)
         stmts[0].is_a?(AST::GotoStatement).should eq(true)
 
@@ -71,31 +71,6 @@ describe Parser do
       end
     end
 
-    it "goto start" do
-      stmts = parse(Grammar.goto(start: true))
-      stmts.size.should eq(1)
-      stmts[0].is_a?(AST::GotoStatement).should eq(true)
-
-      stmt = stmts[0].as(AST::GotoStatement)
-      stmt.menu.name.value.should eq("start")
-      stmt.menu.name.type.should eq(TokenType::START)
-    end
-
-    it "goto end" do
-      stmts = parse(Grammar.goto(is_end: true))
-      stmts.size.should eq(1)
-      stmts[0].is_a?(AST::GotoStatement).should eq(true)
-
-      stmt = stmts[0].as(AST::GotoStatement)
-      stmt.menu.name.value.should eq("end")
-      stmt.menu.name.type.should eq(TokenType::END)
-    end
-
-    it "goto end" do
-      tokens = scan(Grammar.goto(is_end: true))
-      tokens.is_a?(Array(Token)).should eq(true)
-      tokens.size.should eq(3)
-    end
   end
 
   describe "action grammar" do
