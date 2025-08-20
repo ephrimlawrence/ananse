@@ -1,6 +1,104 @@
 require "./spec_helper.cr"
 
 describe Scanner do
+  describe "if statement" do
+    it "if" do
+      str = <<-USSD
+        if (3 == 2) {}
+      USSD
+      tokens = scan(str)
+      tokens.size.should eq(9)
+
+      tokens[0].type.should eq(TokenType::IF)
+      tokens[0].literal.should eq("if")
+      tokens[0].value.should eq("if")
+
+      tokens[1].type.should eq(TokenType::LEFT_PAREN)
+      tokens[1].literal.should eq(nil)
+      tokens[1].value.should eq("(")
+
+      tokens[2].type.should eq(TokenType::NUMBER)
+      tokens[2].literal.should eq(3.0)
+      tokens[2].value.should eq("3")
+
+      tokens[3].type.should eq(TokenType::EQUAL_EQUAL)
+      tokens[3].literal.should eq(nil)
+      tokens[3].value.should eq("==")
+
+      tokens[4].type.should eq(TokenType::NUMBER)
+      tokens[4].literal.should eq(2.0)
+      tokens[4].value.should eq("2")
+
+      tokens[5].type.should eq(TokenType::RIGHT_PAREN)
+      tokens[5].literal.should eq(nil)
+      tokens[5].value.should eq(")")
+
+      tokens[6].type.should eq(TokenType::LEFT_BRACE)
+      tokens[6].literal.should eq(nil)
+      tokens[6].value.should eq("{")
+
+      tokens[7].type.should eq(TokenType::RIGHT_BRACE)
+      tokens[7].literal.should eq(nil)
+      tokens[7].value.should eq("}")
+
+      tokens[8].type.should eq(TokenType::EOF)
+    end
+
+    it "if + else" do
+      str = <<-USSD
+        if (3 == 2) {} else {}
+      USSD
+      tokens = scan(str)
+      tokens.size.should eq(12)
+
+      tokens[0].type.should eq(TokenType::IF)
+      tokens[0].literal.should eq("if")
+      tokens[0].value.should eq("if")
+
+      tokens[1].type.should eq(TokenType::LEFT_PAREN)
+      tokens[1].literal.should eq(nil)
+      tokens[1].value.should eq("(")
+
+      tokens[2].type.should eq(TokenType::NUMBER)
+      tokens[2].literal.should eq(3.0)
+      tokens[2].value.should eq("3")
+
+      tokens[3].type.should eq(TokenType::EQUAL_EQUAL)
+      tokens[3].literal.should eq(nil)
+      tokens[3].value.should eq("==")
+
+      tokens[4].type.should eq(TokenType::NUMBER)
+      tokens[4].literal.should eq(2.0)
+      tokens[4].value.should eq("2")
+
+      tokens[5].type.should eq(TokenType::RIGHT_PAREN)
+      tokens[5].literal.should eq(nil)
+      tokens[5].value.should eq(")")
+
+      tokens[6].type.should eq(TokenType::LEFT_BRACE)
+      tokens[6].literal.should eq(nil)
+      tokens[6].value.should eq("{")
+
+      tokens[7].type.should eq(TokenType::RIGHT_BRACE)
+      tokens[7].literal.should eq(nil)
+      tokens[7].value.should eq("}")
+
+      tokens[8].type.should eq(TokenType::ELSE)
+      tokens[8].literal.should eq("else")
+      tokens[8].value.should eq("else")
+
+      tokens[9].type.should eq(TokenType::LEFT_BRACE)
+      tokens[9].literal.should eq(nil)
+      tokens[9].value.should eq("{")
+
+      tokens[10].type.should eq(TokenType::RIGHT_BRACE)
+      tokens[10].literal.should eq(nil)
+      tokens[10].value.should eq("}")
+
+      tokens[11].type.should eq(TokenType::EOF)
+    end
+  end
+
   describe "option statement scanning" do
     it "option with target + label" do
       tokens = scan(%(option 1 "Label"))
@@ -53,7 +151,6 @@ describe Scanner do
     it "option with target + label + target" do
       tokens = scan(%{option 1 "Label" @jsFunc()})
       tokens.is_a?(Array(Token)).should eq(true)
-      p! tokens
       tokens.size.should eq(7)
 
       tokens[0].type.should eq(TokenType::OPTION)

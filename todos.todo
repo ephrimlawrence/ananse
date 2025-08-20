@@ -3,6 +3,7 @@ Compiler:
     ☐ standard library
       ☐ validation helpers (phone number, age, amount)
     ☐ goto with an error message
+    ☐ elsif syntax
 
   ☐ statements implementation
     ☐ variable definition
