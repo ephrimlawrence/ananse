@@ -122,20 +122,19 @@ export class MySQLSession extends BaseSession {
 		delete this.data[sessionId];
 
 		if (this.config.softDelete === false || this.config.softDelete == null) {
-			this.queryWithReconnect(`DELETE FROM ${this.tableName} WHERE session_id = ?`, [
-					sessionId,
-				])
-				.catch((error: Error) => {
-					throw error;
-				});
+			this.queryWithReconnect(
+				`DELETE FROM ${this.tableName} WHERE session_id = ?`,
+				[sessionId],
+			).catch((error: Error) => {
+				throw error;
+			});
 		} else {
 			this.queryWithReconnect(
-					`UPDATE ${this.tableName} SET deleted_at = ? WHERE session_id = ? ${this.softDeleteQuery}`,
-					[new Date().toISOString(), sessionId],
-				)
-				.catch((error: Error) => {
-					throw error;
-				});
+				`UPDATE ${this.tableName} SET deleted_at = ? WHERE session_id = ? ${this.softDeleteQuery}`,
+				[new Date().toISOString(), sessionId],
+			).catch((error: Error) => {
+				throw error;
+			});
 		}
 
 		return _state;
@@ -196,13 +195,15 @@ export class MySQLSession extends BaseSession {
 		try {
 			return await this.db.query(sql, params);
 		} catch (err: any) {
+			console.log(err?.message || "MySQL query error:", err);
 			// Check for connection errors (ER_CON_COUNT_ERROR, PROTOCOL_CONNECTION_LOST, etc.)
 			if (
 				err.code === "PROTOCOL_CONNECTION_LOST" ||
 				err.code === "ECONNRESET" ||
-				err.code === "PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR" ||
-				err.code === "PROTOCOL_ENQUEUE_HANDSHAKE_TWICE" ||
-				err.code === "ER_CON_COUNT_ERROR"
+				err.code === "ER_CON_COUNT_ERROR" ||
+				err?.message?.includes(
+					"Can't add new command when connection is in closed state",
+				)
 			) {
 				if (this.connectionRetries >= 3) throw err;
 
