@@ -6,16 +6,88 @@ require "./spec_helper.cr"
 # than verify the generated tokens in every test
 describe Scanner do
   describe "strings" do
-    it "raw string" do
+    it "scans simple string" do
       tokens = scan(%("Hello World!"))
       tokens.is_a?(Array(Token)).should eq(true)
       tokens.size.should eq(2)
+      tokens[0].type.should eq(TokenType::STRING)
+      tokens[0].literal.should eq("Hello World!")
+      tokens[0].value.should eq(%("Hello World!"))
+      tokens[1].type.should eq(TokenType::EOF)
     end
 
-    it "interpolated string" do
+    it "scans string with 1 interpolation" do
       tokens = scan(%("Count {{ 1+2 }}"))
       tokens.is_a?(Array(Token)).should eq(true)
       tokens.size.should eq(8)
+
+      tokens[0].type.should eq(TokenType::STRING)
+      tokens[0].literal.should eq("Count")
+      tokens[0].value.should eq(%("Count ))
+
+      tokens[1].type.should eq(TokenType::INTERPOLATION_START)
+      tokens[1].value.should eq("{{")
+
+      tokens[2].type.should eq(TokenType::NUMBER)
+      tokens[2].value.should eq("1")
+      tokens[2].literal.should eq(1.0)
+
+      tokens[3].type.should eq(TokenType::PLUS)
+      tokens[3].value.should eq("+")
+      tokens[3].literal.should eq(nil)
+
+      tokens[4].type.should eq(TokenType::NUMBER)
+      tokens[4].value.should eq("2")
+      tokens[4].literal.should eq(2.0)
+
+      tokens[5].type.should eq(TokenType::INTERPOLATION_END)
+      tokens[5].value.should eq("}}")
+
+      tokens[6].type.should eq(TokenType::STRING)
+      tokens[6].value.should eq("\"")
+      tokens[6].literal.should eq("")
+
+      tokens[7].type.should eq(TokenType::EOF)
+    end
+
+    it "scans string with 2 interpolations" do
+      tokens = scan(%("Hi {{ 1 }} {{ 2 }}"))
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(10)
+
+      tokens[0].type.should eq(TokenType::STRING)
+      tokens[0].literal.should eq("Hi")
+      tokens[0].value.should eq(%("Hi ))
+
+      tokens[1].type.should eq(TokenType::INTERPOLATION_START)
+      tokens[1].value.should eq("{{")
+
+      tokens[2].type.should eq(TokenType::NUMBER)
+      tokens[2].value.should eq("1")
+      tokens[2].literal.should eq(1.0)
+
+      tokens[3].type.should eq(TokenType::INTERPOLATION_END)
+      tokens[3].value.should eq("}}")
+
+      tokens[4].type.should eq(TokenType::STRING)
+      tokens[4].literal.should eq("")
+      tokens[4].value.should eq(" ")
+
+      tokens[5].type.should eq(TokenType::INTERPOLATION_START)
+      tokens[5].value.should eq("{{")
+
+      tokens[6].type.should eq(TokenType::NUMBER)
+      tokens[6].value.should eq("2")
+      tokens[6].literal.should eq(2.0)
+
+      tokens[7].type.should eq(TokenType::INTERPOLATION_END)
+      tokens[7].value.should eq("}}")
+
+      tokens[8].type.should eq(TokenType::STRING)
+      tokens[8].value.should eq("\"")
+      tokens[8].literal.should eq("")
+
+      tokens[9].type.should eq(TokenType::EOF)
     end
   end
 

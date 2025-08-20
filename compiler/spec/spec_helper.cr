@@ -39,5 +39,3 @@ def generate_js(source : String)
   analyze(ast)
   CodeGenerator.new.generate(transform_ast(ast))
 end
-
-E2eTestRunner.new.run
