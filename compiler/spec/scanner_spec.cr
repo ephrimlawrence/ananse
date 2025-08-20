@@ -1,9 +1,5 @@
 require "./spec_helper.cr"
 
-# Given that is it tedious to verify the individuals tokens of a given grammar,
-# It is acceptable to simply test the number of tokens scanned against the expected number
-# The parser tests handles the structure of the generates tokens, which is easier
-# than verify the generated tokens in every test
 describe Scanner do
   describe "strings scanning" do
     it "scans simple string" do
@@ -163,7 +159,6 @@ describe Scanner do
       tokens.is_a?(Array(Token)).should eq(true)
       tokens.size.should eq(7)
 
-      p! tokens
       tokens[0].type.should eq(TokenType::GOTO)
       tokens[0].literal.should eq("goto")
       tokens[0].value.should eq("goto")
@@ -187,18 +182,6 @@ describe Scanner do
       tokens[5].value.should eq("grand_child")
 
       tokens[6].type.should eq(TokenType::EOF)
-    end
-
-    it "goto end" do
-      tokens = scan(Grammar.goto(is_end: true))
-      tokens.is_a?(Array(Token)).should eq(true)
-      tokens.size.should eq(3)
-    end
-
-    it "goto start" do
-      tokens = scan(Grammar.goto(start: true))
-      tokens.is_a?(Array(Token)).should eq(true)
-      tokens.size.should eq(3)
     end
   end
 

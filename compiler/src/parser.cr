@@ -251,8 +251,7 @@ class Parser
   end
 
   # Parse goto statement
-  #  <goto_stmt>			::= "goto" <space> ( <navigate_stmt> | ( <identifier> ( "." <identifier> )* ))
-  #  <navigate_stmt>		::= "end" | "back" | "start"
+  #  <goto_stmt>			::= "goto" <space> ( <identifier> ( "." <identifier> )* )
   #
   # Example:
   # ```
@@ -261,30 +260,30 @@ class Parser
   # goto parent_menu.child_menu.grandchild.great_grand_child
   # ```
   private def parse_goto(shorthand : Bool) : AST::Goto
-    name : Token = if check(TokenType::START, TokenType::END)
-      advance()
-    else
-      # Parse call to nested menu
-      nested_names : Array(Token) = [] of Token
+    # name : Token = if check(TokenType::START, TokenType::END)
+    #   advance()
+    # else
+    # Parse call to nested menu
+    nested_names : Array(Token) = [] of Token
 
-      err : String = shorthand ? "Expected next menu name after '->'" : "Expected a menu name, 'back', 'start' or 'end' after 'goto'"
-      nested_names << consume(TokenType::IDENTIFIER, err)
+    err : String = shorthand ? "Expected next menu name after '->'" : "Expected a menu name, 'back', 'start' or 'end' after 'goto'"
+    nested_names << consume(TokenType::IDENTIFIER, err)
 
-      while match(TokenType::DOT)
-        nested_names << consume(TokenType::IDENTIFIER, "Expected a menu name after '.'.")
-      end
-
-      new_name : String = nested_names.map { |token| token.value }.join(".")
-      Token.new(
-        type: TokenType::IDENTIFIER,
-        value: new_name,
-        location: Location.new(
-          nested_names.first?.as(Token).location.line,
-          nested_names.last?.as(Token).location.column
-        ),
-        literal: nil
-      )
+    while match(TokenType::DOT)
+      nested_names << consume(TokenType::IDENTIFIER, "Expected a menu name after '.'.")
     end
+
+    new_name : String = nested_names.map { |token| token.value }.join(".")
+    name = Token.new(
+      type: TokenType::IDENTIFIER,
+      value: new_name,
+      location: Location.new(
+        nested_names.first?.as(Token).location.line,
+        nested_names.last?.as(Token).location.column
+      ),
+      literal: nil
+    )
+    # end
 
     if check(TokenType::NEW_LINE)
       advance()

@@ -30,11 +30,9 @@
 
 <input_statement> 	::= "input" <space> <identifier> <end_statment>
 
-<goto_symbol_stmt>	::= "->" <space> (<identifier> | <navigate_stmt>)
+<goto_symbol_stmt>	::= "->" <space> (<identifier>)
 
-<goto_stmt>			::= "goto" <space> ( <navigate_stmt> | ( <identifier> ( "." <identifier> )* ))
-
-<navigate_stmt>		::= "end" | "start"
+<goto_stmt>			::= "goto" <space> ( <identifier> ( "." <identifier> )* )
 
 <if_statement> ::= "if" "(" <condition> ")" "{" <statement_list> "}" ("else" "{" <statement_list> "}" )?
 
