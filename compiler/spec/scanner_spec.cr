@@ -1,6 +1,63 @@
 require "./spec_helper.cr"
 
 describe Scanner do
+  describe "menu statement" do
+    it "start menu" do
+      str = <<-USSD
+        start menu welcome {}
+      USSD
+      tokens = scan(str)
+      tokens.size.should eq(6)
+
+      tokens[0].type.should eq(TokenType::START)
+      tokens[0].literal.should eq("start")
+      tokens[0].value.should eq("start")
+
+      tokens[1].type.should eq(TokenType::MENU)
+      tokens[1].literal.should eq("menu")
+      tokens[1].value.should eq("menu")
+
+      tokens[2].type.should eq(TokenType::IDENTIFIER)
+      tokens[2].literal.should eq("welcome")
+      tokens[2].value.should eq("welcome")
+
+      tokens[3].type.should eq(TokenType::LEFT_BRACE)
+      tokens[3].literal.should eq(nil)
+      tokens[3].value.should eq("{")
+
+      tokens[4].type.should eq(TokenType::RIGHT_BRACE)
+      tokens[4].literal.should eq(nil)
+      tokens[4].value.should eq("}")
+
+      tokens[5].type.should eq(TokenType::EOF)
+    end
+    it "menu + name" do
+      str = <<-USSD
+        menu welcome {}
+      USSD
+      tokens = scan(str)
+      tokens.size.should eq(5)
+
+      tokens[0].type.should eq(TokenType::MENU)
+      tokens[0].literal.should eq("menu")
+      tokens[0].value.should eq("menu")
+
+      tokens[1].type.should eq(TokenType::IDENTIFIER)
+      tokens[1].literal.should eq("welcome")
+      tokens[1].value.should eq("welcome")
+
+      tokens[2].type.should eq(TokenType::LEFT_BRACE)
+      tokens[2].literal.should eq(nil)
+      tokens[2].value.should eq("{")
+
+      tokens[3].type.should eq(TokenType::RIGHT_BRACE)
+      tokens[3].literal.should eq(nil)
+      tokens[3].value.should eq("}")
+
+      tokens[4].type.should eq(TokenType::EOF)
+    end
+  end
+
   describe "if statement" do
     it "if" do
       str = <<-USSD
