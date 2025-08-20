@@ -143,15 +143,50 @@ describe Scanner do
 
   describe "goto grammar" do
     it "goto with menu name" do
-      tokens = scan(Grammar.goto(name: "my_menu"))
+      tokens = scan("goto my_menu")
       tokens.is_a?(Array(Token)).should eq(true)
       tokens.size.should eq(3)
+
+      tokens[0].type.should eq(TokenType::GOTO)
+      tokens[0].literal.should eq("goto")
+      tokens[0].value.should eq("goto")
+
+      tokens[1].type.should eq(TokenType::IDENTIFIER)
+      tokens[1].literal.should eq("my_menu")
+      tokens[1].value.should eq("my_menu")
+
+      tokens[2].type.should eq(TokenType::EOF)
     end
 
     it "goto a nested menu" do
       tokens = scan(Grammar.goto(name: "parent.child.grand_child"))
       tokens.is_a?(Array(Token)).should eq(true)
       tokens.size.should eq(7)
+
+      p! tokens
+      tokens[0].type.should eq(TokenType::GOTO)
+      tokens[0].literal.should eq("goto")
+      tokens[0].value.should eq("goto")
+
+      tokens[1].type.should eq(TokenType::IDENTIFIER)
+      tokens[1].literal.should eq("parent")
+      tokens[1].value.should eq("parent")
+
+      tokens[2].type.should eq(TokenType::DOT)
+      tokens[2].value.should eq(".")
+
+      tokens[3].type.should eq(TokenType::IDENTIFIER)
+      tokens[3].literal.should eq("child")
+      tokens[3].value.should eq("child")
+
+      tokens[4].type.should eq(TokenType::DOT)
+      tokens[4].value.should eq(".")
+
+      tokens[5].type.should eq(TokenType::IDENTIFIER)
+      tokens[5].literal.should eq("grand_child")
+      tokens[5].value.should eq("grand_child")
+
+      tokens[6].type.should eq(TokenType::EOF)
     end
 
     it "goto end" do
