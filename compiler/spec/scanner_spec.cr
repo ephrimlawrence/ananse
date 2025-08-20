@@ -5,7 +5,7 @@ require "./spec_helper.cr"
 # The parser tests handles the structure of the generates tokens, which is easier
 # than verify the generated tokens in every test
 describe Scanner do
-  describe "strings" do
+  describe "strings scanning" do
     it "scans simple string" do
       tokens = scan(%("Hello World!"))
       tokens.is_a?(Array(Token)).should eq(true)
@@ -91,23 +91,53 @@ describe Scanner do
     end
   end
 
-  describe "display grammar" do
-    it "display a string" do
+  describe "display statement" do
+    it "displays a string" do
       tokens = scan(%(display "Hello World!"))
       tokens.is_a?(Array(Token)).should eq(true)
       tokens.size.should eq(3)
+
+      tokens[0].type.should eq(TokenType::DISPLAY)
+      tokens[0].literal.should eq("display")
+      tokens[0].value.should eq("display")
+
+      tokens[1].type.should eq(TokenType::STRING)
+      tokens[1].literal.should eq("Hello World!")
+      tokens[1].value.should eq(%("Hello World!"))
+
+      tokens[2].type.should eq(TokenType::EOF)
     end
 
     it "display a number" do
       tokens = scan(%(display 122334))
       tokens.is_a?(Array(Token)).should eq(true)
       tokens.size.should eq(3)
+
+      tokens[0].type.should eq(TokenType::DISPLAY)
+      tokens[0].literal.should eq("display")
+      tokens[0].value.should eq("display")
+
+      tokens[1].type.should eq(TokenType::NUMBER)
+      tokens[1].literal.should eq(122334.0)
+      tokens[1].value.should eq("122334")
+
+      tokens[2].type.should eq(TokenType::EOF)
     end
 
     it "display a variable" do
       tokens = scan(%(display variable_name))
       tokens.is_a?(Array(Token)).should eq(true)
       tokens.size.should eq(3)
+
+      tokens[0].type.should eq(TokenType::DISPLAY)
+      tokens[0].literal.should eq("display")
+      tokens[0].value.should eq("display")
+
+      tokens[1].type.should eq(TokenType::IDENTIFIER)
+      tokens[1].literal.should eq("variable_name")
+      tokens[1].value.should eq("variable_name")
+
+      tokens[2].type.should eq(TokenType::EOF)
     end
   end
 
