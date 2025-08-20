@@ -10,9 +10,24 @@
     },
     {
       "include": "#param-expression"
+    },
+    {
+      "include": "#literal"
     }
   ],
   "repository": {
+    "literal": {
+      "patterns": [
+        {
+          "match": "\\b(true|false)\\b(?![?!:])",
+          "name": "constant.language.boolean.ussd"
+        },
+        {
+          "name": "constant.language.ussd",
+          "match": "\\b(null)\\b"
+        }
+      ]
+    },
     "keywords": {
       "patterns": [
         {
