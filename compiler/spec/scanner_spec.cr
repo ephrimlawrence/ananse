@@ -155,7 +155,7 @@ describe Scanner do
     end
 
     it "goto a nested menu" do
-      tokens = scan(Grammar.goto(name: "parent.child.grand_child"))
+      tokens = scan("goto parent.child.grand_child")
       tokens.is_a?(Array(Token)).should eq(true)
       tokens.size.should eq(7)
 
@@ -187,39 +187,177 @@ describe Scanner do
 
   describe "action grammar" do
     it "action with params" do
-      tokens = scan(Grammar.action)
+      tokens = scan("@jsFunctionName(param1: 2, param2: value2)")
       tokens.is_a?(Array(Token)).should eq(true)
-      tokens.size.should eq(17)
+      tokens.size.should eq(11)
+
+      tokens[0].type.should eq(TokenType::ACTION)
+      tokens[0].literal.should eq("jsFunctionName")
+      tokens[0].value.should eq("jsFunctionName")
+
+      tokens[1].type.should eq(TokenType::LEFT_PAREN)
+      tokens[1].literal.should eq(nil)
+      tokens[1].value.should eq("(")
+
+      tokens[2].type.should eq(TokenType::IDENTIFIER)
+      tokens[2].literal.should eq("param1")
+      tokens[2].value.should eq("param1")
+
+      tokens[3].type.should eq(TokenType::COLON)
+      tokens[3].literal.should eq(nil)
+      tokens[3].value.should eq(":")
+
+      tokens[4].type.should eq(TokenType::NUMBER)
+      tokens[4].literal.should eq(2.0)
+      tokens[4].value.should eq("2")
+
+      tokens[5].type.should eq(TokenType::COMMA)
+      tokens[5].literal.should eq(nil)
+      tokens[5].value.should eq(",")
+
+      tokens[6].type.should eq(TokenType::IDENTIFIER)
+      tokens[6].literal.should eq("param2")
+      tokens[6].value.should eq("param2")
+
+      tokens[7].type.should eq(TokenType::COLON)
+      tokens[7].literal.should eq(nil)
+      tokens[7].value.should eq(":")
+
+      tokens[8].type.should eq(TokenType::IDENTIFIER)
+      tokens[8].literal.should eq("value2")
+      tokens[8].value.should eq("value2")
+
+      tokens[9].type.should eq(TokenType::RIGHT_PAREN)
+      tokens[9].literal.should eq(nil)
+      tokens[9].value.should eq(")")
+
+      tokens[10].type.should eq(TokenType::EOF)
     end
 
     it "action with params and a trailing comma before closing bracket" do
-      tokens = scan(Grammar.action.gsub(")", ",)"))
+      tokens = scan("@js(param1: 2,)")
       tokens.is_a?(Array(Token)).should eq(true)
-      tokens.size.should eq(18)
+      tokens.size.should eq(8)
+
+      tokens[0].type.should eq(TokenType::ACTION)
+      tokens[0].literal.should eq("js")
+      tokens[0].value.should eq("js")
+
+      tokens[1].type.should eq(TokenType::LEFT_PAREN)
+      tokens[1].literal.should eq(nil)
+      tokens[1].value.should eq("(")
+
+      tokens[2].type.should eq(TokenType::IDENTIFIER)
+      tokens[2].literal.should eq("param1")
+      tokens[2].value.should eq("param1")
+
+      tokens[3].type.should eq(TokenType::COLON)
+      tokens[3].literal.should eq(nil)
+      tokens[3].value.should eq(":")
+
+      tokens[4].type.should eq(TokenType::NUMBER)
+      tokens[4].literal.should eq(2.0)
+      tokens[4].value.should eq("2")
+
+      tokens[5].type.should eq(TokenType::COMMA)
+      tokens[5].literal.should eq(nil)
+      tokens[5].value.should eq(",")
+
+      tokens[6].type.should eq(TokenType::RIGHT_PAREN)
+      tokens[6].literal.should eq(nil)
+      tokens[6].value.should eq(")")
+
+      tokens[7].type.should eq(TokenType::EOF)
     end
 
     it "action without params" do
-      tokens = scan(Grammar.action(false))
+      tokens = scan("@jsFunctionName()")
       tokens.is_a?(Array(Token)).should eq(true)
-      tokens.size.should eq(6)
+      tokens.size.should eq(4)
+      tokens[0].type.should eq(TokenType::ACTION)
+      tokens[0].literal.should eq("jsFunctionName")
+      tokens[0].value.should eq("jsFunctionName")
+
+      tokens[1].type.should eq(TokenType::LEFT_PAREN)
+      tokens[1].literal.should eq(nil)
+      tokens[1].value.should eq("(")
+
+      tokens[2].type.should eq(TokenType::RIGHT_PAREN)
+      tokens[2].literal.should eq(nil)
+      tokens[2].value.should eq(")")
+
+      tokens[3].type.should eq(TokenType::EOF)
+    end
+
+    it "action a string in params" do
+      tokens = scan(%{@jsFunctionName(param3: "str")})
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(7)
+      tokens[0].type.should eq(TokenType::ACTION)
+      tokens[0].literal.should eq("jsFunctionName")
+      tokens[0].value.should eq("jsFunctionName")
+
+      tokens[1].type.should eq(TokenType::LEFT_PAREN)
+      tokens[1].literal.should eq(nil)
+      tokens[1].value.should eq("(")
+
+      tokens[2].type.should eq(TokenType::IDENTIFIER)
+      tokens[2].literal.should eq("param3")
+      tokens[2].value.should eq("param3")
+
+      tokens[3].type.should eq(TokenType::COLON)
+      tokens[3].literal.should eq(nil)
+      tokens[3].value.should eq(":")
+
+      tokens[4].type.should eq(TokenType::STRING)
+      tokens[4].literal.should eq("str")
+      tokens[4].value.should eq(%("str"))
+
+      tokens[5].type.should eq(TokenType::RIGHT_PAREN)
+      tokens[5].literal.should eq(nil)
+      tokens[5].value.should eq(")")
+
+      tokens[6].type.should eq(TokenType::EOF)
     end
 
     it "action with params and without variable name" do
-      tokens = scan(Grammar.action(with_name: false))
+      tokens = scan("@js(param: 2) as variableName")
       tokens.is_a?(Array(Token)).should eq(true)
-      tokens.size.should eq(15)
-    end
+      tokens.size.should eq(9)
 
-    it "action with params and a trailing comma before closing bracket,  and without variable name" do
-      tokens = scan(Grammar.action(with_name: false).gsub(")", ",)"))
-      tokens.is_a?(Array(Token)).should eq(true)
-      tokens.size.should eq(16)
-    end
+      tokens[0].type.should eq(TokenType::ACTION)
+      tokens[0].literal.should eq("js")
+      tokens[0].value.should eq("js")
 
-    it "action without params,  and without variable name" do
-      tokens = scan(Grammar.action(with_params: false, with_name: false))
-      tokens.is_a?(Array(Token)).should eq(true)
-      tokens.size.should eq(4)
+      tokens[1].type.should eq(TokenType::LEFT_PAREN)
+      tokens[1].literal.should eq(nil)
+      tokens[1].value.should eq("(")
+
+      tokens[2].type.should eq(TokenType::IDENTIFIER)
+      tokens[2].literal.should eq("param")
+      tokens[2].value.should eq("param")
+
+      tokens[3].type.should eq(TokenType::COLON)
+      tokens[3].literal.should eq(nil)
+      tokens[3].value.should eq(":")
+
+      tokens[4].type.should eq(TokenType::NUMBER)
+      tokens[4].literal.should eq(2.0)
+      tokens[4].value.should eq("2")
+
+      tokens[5].type.should eq(TokenType::RIGHT_PAREN)
+      tokens[5].literal.should eq(nil)
+      tokens[5].value.should eq(")")
+
+      tokens[6].type.should eq(TokenType::AS)
+      tokens[6].literal.should eq("as")
+      tokens[6].value.should eq("as")
+
+      tokens[7].type.should eq(TokenType::IDENTIFIER)
+      tokens[7].literal.should eq("variableName")
+      tokens[7].value.should eq("variableName")
+
+      tokens[8].type.should eq(TokenType::EOF)
     end
   end
 end
