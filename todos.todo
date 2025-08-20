@@ -1,49 +1,51 @@
 Compiler:
-  ☐ advance features
+  advance features:
     ☐ standard library
       ☐ validation helpers (phone number, age, amount)
     ☐ goto with an error message
 
   ☐ statements implementation
-    ✔ string interpolation @done(25-08-08 07:16)
-    ✔ end @done(25-08-08 08:42)
     ☐ variable definition
       ☐ constants
     ☐ js variables (later)
 
-  ☐ semantic analysis
+  semantic analysis:
     ☐ action variable resolution
     ☐ input variable resolution
 
-  ✔ program testing @done(25-08-11 21:59)
-    ✔ all actions must be in one file @done(25-08-11 21:59)
-    ✔ tests code generation @done(25-08-11 21:59)
-      ✔ save code to tempfile in tmp/ @done(25-08-11 21:59)
-      ✔ select random unused port @done(25-08-11 21:59)
-        ✔ start ananse server @done(25-08-11 21:59)
-      ✔ read test cases from yaml file @done(25-08-11 21:59)
-        ✔ run against server via simulator @done(25-08-11 21:59)
-      ✔ clean up resources @done(25-08-11 21:59)
 
-  ☐ simulator
+  simulator:
     ☐ broken test if user input contains white space
-  ✔ code gen tests @done(25-08-11 21:58)
-    ✔ nested menus @done(25-08-11 21:58)
 
-Runtime:
-  ☐ rename 'actions' api to 'options' (breaking change)
-  ☐ use 'stack' to track menu states, instead of linked list
-  ☐ handle missing menu errors gracefully
-    ☐ don't terminate the server in production
 
 Pending features:
-  ☐ input validation error display
-  ☐ implement menu.input((req, res)) => NextMenu
-    ☐ needed for language 'input <variable>' syntax
   ☐ implement on demand termination from anywhere in the code
   ☐ add 'socket' params to redis config
 
+
+
 Archive:
+  ✔ string interpolation @done(25-08-08 07:16) @project(Compiler)
+  ✔ end @done(25-08-08 08:42) @project(Compiler)
+  ✔ program testing @done(25-08-11 21:59) @project(Compiler)
+  ✔ all actions must be in one file @done(25-08-11 21:59) @project(Compiler)
+  ✔ tests code generation @done(25-08-11 21:59) @project(Compiler)
+  ✔ save code to tempfile in tmp/ @done(25-08-11 21:59) @project(Compiler)
+  ✔ select random unused port @done(25-08-11 21:59) @project(Compiler)
+  ✔ start ananse server @done(25-08-11 21:59) @project(Compiler)
+  ✔ read test cases from yaml file @done(25-08-11 21:59) @project(Compiler)
+  ✔ run against server via simulator @done(25-08-11 21:59) @project(Compiler)
+  ✔ clean up resources @done(25-08-11 21:59) @project(Compiler)
+  ✔ code gen tests @done(25-08-11 21:58) @project(Compiler)
+  ✔ nested menus @done(25-08-11 21:58) @project(Compiler)
+  ✔ Runtime: @done(25-08-20 12:12)
+  ✔ rename 'actions' api to 'options' (breaking change) @done(25-08-20 12:12)
+  ✔ use 'stack' to track menu states, instead of linked list @done(25-08-20 12:12)
+  ✔ handle missing menu errors gracefully @done(25-08-20 12:12)
+  ✔ don't terminate the server in production @done(25-08-20 12:12)
+  ✔ input validation error display @done(25-08-20 12:13) @project(Pending features)
+  ✔ implement menu.input((req, res)) => NextMenu @done(25-08-20 12:12) @project(Pending features)
+  ✔ needed for language 'input <variable>' syntax @done(25-08-20 12:12) @project(Pending features)
   ✔ option @done(25-07-08 23:06) @project(Compiler)
   ✔ action @done(25-07-08 23:06) @project(Compiler)
   ✔ replace action keyword with @funcName(''') @done(25-07-26 16:58) @project(Compiler)

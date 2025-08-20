@@ -70,7 +70,6 @@ describe Parser do
         stmt.menu.name.value.should eq(name)
       end
     end
-
   end
 
   describe "action grammar" do

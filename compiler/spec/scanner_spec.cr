@@ -1,6 +1,105 @@
 require "./spec_helper.cr"
 
 describe Scanner do
+  describe "option statement scanning" do
+    it "option with target + label" do
+      tokens = scan(%(option 1 "Label"))
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(4)
+
+      tokens[0].type.should eq(TokenType::OPTION)
+      tokens[0].literal.should eq("option")
+      tokens[0].value.should eq("option")
+
+      tokens[1].type.should eq(TokenType::NUMBER)
+      tokens[1].literal.should eq(1.0)
+      tokens[1].value.should eq("1")
+
+      tokens[2].type.should eq(TokenType::STRING)
+      tokens[2].literal.should eq("Label")
+      tokens[2].value.should eq(%("Label"))
+
+      tokens[3].type.should eq(TokenType::EOF)
+    end
+
+    it "option with target + label + goto" do
+      tokens = scan(%(option 1 "Label" -> my_menu))
+      tokens.is_a?(Array(Token)).should eq(true)
+      tokens.size.should eq(6)
+
+      tokens[0].type.should eq(TokenType::OPTION)
+      tokens[0].literal.should eq("option")
+      tokens[0].value.should eq("option")
+
+      tokens[1].type.should eq(TokenType::NUMBER)
+      tokens[1].literal.should eq(1.0)
+      tokens[1].value.should eq("1")
+
+      tokens[2].type.should eq(TokenType::STRING)
+      tokens[2].literal.should eq("Label")
+      tokens[2].value.should eq(%("Label"))
+
+      tokens[3].type.should eq(TokenType::ARROW)
+      tokens[3].literal.should eq(nil)
+      tokens[3].value.should eq("->")
+
+      tokens[4].type.should eq(TokenType::IDENTIFIER)
+      tokens[4].literal.should eq("my_menu")
+      tokens[4].value.should eq("my_menu")
+
+      tokens[5].type.should eq(TokenType::EOF)
+    end
+
+    it "option with target + label + target" do
+      tokens = scan(%{option 1 "Label" @jsFunc()})
+      tokens.is_a?(Array(Token)).should eq(true)
+      p! tokens
+      tokens.size.should eq(7)
+
+      tokens[0].type.should eq(TokenType::OPTION)
+      tokens[0].literal.should eq("option")
+      tokens[0].value.should eq("option")
+
+      tokens[1].type.should eq(TokenType::NUMBER)
+      tokens[1].literal.should eq(1.0)
+      tokens[1].value.should eq("1")
+
+      tokens[2].type.should eq(TokenType::STRING)
+      tokens[2].literal.should eq("Label")
+      tokens[2].value.should eq(%("Label"))
+
+      tokens[3].type.should eq(TokenType::ACTION)
+      tokens[3].literal.should eq("jsFunc")
+      tokens[3].value.should eq("jsFunc")
+
+      tokens[4].type.should eq(TokenType::LEFT_PAREN)
+      tokens[4].literal.should eq(nil)
+      tokens[4].value.should eq("(")
+
+      tokens[5].type.should eq(TokenType::RIGHT_PAREN)
+      tokens[5].literal.should eq(nil)
+      tokens[5].value.should eq(")")
+
+      tokens[6].type.should eq(TokenType::EOF)
+    end
+  end
+
+  it "input statement" do
+    tokens = scan("input variable_name")
+    tokens.is_a?(Array(Token)).should eq(true)
+    tokens.size.should eq(3)
+
+    tokens[0].type.should eq(TokenType::INPUT)
+    tokens[0].literal.should eq("input")
+    tokens[0].value.should eq("input")
+
+    tokens[1].type.should eq(TokenType::IDENTIFIER)
+    tokens[1].literal.should eq("variable_name")
+    tokens[1].value.should eq("variable_name")
+
+    tokens[2].type.should eq(TokenType::EOF)
+  end
+
   describe "strings scanning" do
     it "scans simple string" do
       tokens = scan(%("Hello World!"))
@@ -137,7 +236,7 @@ describe Scanner do
     end
   end
 
-  describe "goto grammar" do
+  describe "goto statement" do
     it "goto with menu name" do
       tokens = scan("goto my_menu")
       tokens.is_a?(Array(Token)).should eq(true)
