@@ -317,7 +317,7 @@ module Scanner
 
       read_char
 
-      return token
+      token
     end
   end
 end

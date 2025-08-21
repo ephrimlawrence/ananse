@@ -29,7 +29,7 @@ class Parser
     if match(TokenType::VAR)
       return var_declaration()
     end
-    return statement()
+    statement()
     # rescue exception
     #   synchronize()
     #   return nil
@@ -104,7 +104,7 @@ class Parser
       elseBranch = statement().as(AST::BlockStatement)
     end
 
-    return AST::IfStatement.new(condition, thenBranch, elseBranch, location)
+    AST::IfStatement.new(condition, thenBranch, elseBranch, location)
   end
 
   # Parse menu statement
@@ -119,7 +119,7 @@ class Parser
 
     consume(TokenType::LEFT_BRACE, "Expected '{' after menu name")
 
-    return AST::MenuStatement.new(menu_name, block_statements, start)
+    AST::MenuStatement.new(menu_name, block_statements, start)
   end
 
   # Parse block statements
@@ -134,7 +134,7 @@ class Parser
 
     consume(TokenType::RIGHT_BRACE, "Expected '}' after menu definition")
     skip_newlines
-    return AST::BlockStatement.new(statements, location)
+    AST::BlockStatement.new(statements, location)
   end
 
   private def options : AST::OptionStatement
@@ -160,7 +160,7 @@ class Parser
     end
 
     opt_action : AST::Action? = if match(TokenType::ACTION)
-      opt_action = action()
+      action()
     else
       nil
     end
@@ -169,7 +169,7 @@ class Parser
 
     # TODO: peek next, and group options
     option = AST::Option.new(target, label, next_menu, opt_action)
-    return AST::OptionStatement.new([option], target.location)
+    AST::OptionStatement.new([option], target.location)
   end
 
   private def action : AST::Action
@@ -215,7 +215,7 @@ class Parser
 
     skip_newlines
 
-    return AST::Action.new(func_name, params, variable_name)
+    AST::Action.new(func_name, params, variable_name)
   end
 
   # Parse display statement
@@ -233,7 +233,7 @@ class Parser
     expr : AST::Expr = expression()
     skip_newlines
 
-    return AST::DisplayStatement.new(expr, location)
+    AST::DisplayStatement.new(expr, location)
   end
 
   # Parse input statement
@@ -247,7 +247,7 @@ class Parser
     name : Token = consume(TokenType::IDENTIFIER, "Expect variable name.")
     consume(TokenType::NEW_LINE, "Expected new line after variable.")
     skip_newlines
-    return AST::InputStatement.new(name)
+    AST::InputStatement.new(name)
   end
 
   # Parse goto statement
@@ -273,7 +273,7 @@ class Parser
       nested_names << consume(TokenType::IDENTIFIER, "Expected a menu name after '.'.")
     end
 
-    new_name : String = nested_names.map { |token| token.value }.join(".")
+    new_name : String = nested_names.map(&.value).join(".")
     name = Token.new(
       type: TokenType::IDENTIFIER,
       value: new_name,
@@ -289,12 +289,12 @@ class Parser
       advance()
     end
 
-    return AST::Goto.new(name)
+    AST::Goto.new(name)
   end
 
   private def var_definition : AST::Variable
     name : Token = consume(TokenType::IDENTIFIER, "Expect variable name.")
-    return AST::Variable.new(name)
+    AST::Variable.new(name)
   end
 
   # @deprecated
@@ -303,7 +303,7 @@ class Parser
     value : AST::Expr = expression()
     #  TODO: remove this, not needed in our grammar
     consume(TokenType::SEMICOLON, "Expect ';' after value.")
-    return AST::Print.new(value)
+    AST::Print.new(value)
   end
 
   # @deprecated
@@ -316,19 +316,19 @@ class Parser
     end
 
     consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.")
-    return AST::VariableStmt.new(name, initializer)
+    AST::VariableStmt.new(name, initializer)
   end
 
   private def expression_statement : AST::ExpressionStmt
     expr : AST::Expr = expression()
     consume(TokenType::SEMICOLON, "Expect ';' after expression.")
-    return AST::ExpressionStmt.new(expr)
+    AST::ExpressionStmt.new(expr)
   end
 
   private def equality : AST::Expr
     expr : AST::Expr = comparison
 
-    while (match(TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL))
+    while match(TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL)
       operator : Token = previous
       right : AST::Expr = comparison
       expr = AST::Binary.new(expr, operator, right)
@@ -340,7 +340,7 @@ class Parser
   private def comparison : AST::Expr
     expr : AST::Expr = term()
 
-    while (match(TokenType::GREATER, TokenType::GREATER_EQUAL, TokenType::LESS, TokenType::LESS_EQUAL))
+    while match(TokenType::GREATER, TokenType::GREATER_EQUAL, TokenType::LESS, TokenType::LESS_EQUAL)
       operator : Token = previous
       right : AST::Expr = term
       expr = AST::Binary.new(expr, operator, right)
@@ -496,7 +496,7 @@ class Parser
       end
     end
 
-    return false
+    false
   end
 
   private def advance : Token
@@ -525,7 +525,7 @@ class Parser
     if !is_at_end?
       return @tokens[@current + 1]
     end
-    return peek
+    peek
   end
 
   private def previous : Token

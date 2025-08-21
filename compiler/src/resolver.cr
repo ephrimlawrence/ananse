@@ -45,7 +45,7 @@ class SymbolTable
       raise CompilerError.new("Menu '#{target.value}' is referenced but not defined", target)
     end
 
-    return @menu_map[target.value]
+    @menu_map[target.value]
   end
 end
 

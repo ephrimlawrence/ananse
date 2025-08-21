@@ -120,7 +120,7 @@ class AstTransformer < AST::Visitor(Nil)
   end
 
   def visit_block_stmt(block : AST::BlockStatement)
-    block.statements.each { |stmt| stmt.accept(self) }
+    block.statements.each(&.accept(self))
   end
 
   def visit_display_stmt(stmt : AST::DisplayStatement)
@@ -161,7 +161,7 @@ class AstTransformer < AST::Visitor(Nil)
 
   def visit_option_stmt(stmt : AST::OptionStatement)
     # Check options group validity
-    stmt.group.each { |opt| opt.accept(self) }
+    stmt.group.each(&.accept(self))
   end
 
   def visit_end_stmt(stmt : AST::EndStatement)

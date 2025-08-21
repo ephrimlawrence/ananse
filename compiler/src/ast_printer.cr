@@ -6,16 +6,16 @@ class AstPrinter < Expression::Visitor(String)
       return
     end
 
-    return expr.accept(self)
+    expr.accept(self)
   end
 
   def visit_binary_expr(expr : Expression::Binary) : String
-    return parenthesize(expr.operator.value,
+    parenthesize(expr.operator.value,
       expr.left, expr.right)
   end
 
   def visit_grouping_expr(expr : Expression::Grouping) : String
-    return parenthesize("group", expr.expression)
+    parenthesize("group", expr.expression)
   end
 
   def visit_literal_expr(expr : Expression::Literal) : String
@@ -23,11 +23,11 @@ class AstPrinter < Expression::Visitor(String)
       return "null"
     end
 
-    return expr.value.to_s
+    expr.value.to_s
   end
 
   def visit_unary_expr(expr : Expression::Unary) : String
-    return parenthesize(expr.operator.value, expr.right)
+    parenthesize(expr.operator.value, expr.right)
   end
 
   private def parenthesize(name : String, *exprs : Expression::Expr) : String

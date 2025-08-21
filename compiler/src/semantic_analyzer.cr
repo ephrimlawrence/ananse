@@ -183,7 +183,7 @@ class SemanticAnalyzer < AST::Visitor(Nil)
 
   def visit_option_stmt(stmt : AST::OptionStatement)
     # Check options group validity
-    stmt.group.each { |opt| opt.accept(self) }
+    stmt.group.each(&.accept(self))
   end
 
   def visit_literal_expr(expr : AST::Literal) : Nil

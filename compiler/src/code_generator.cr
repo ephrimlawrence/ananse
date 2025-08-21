@@ -109,7 +109,7 @@ class CodeGenerator < AST::Visitor(Object)
         menuHandler(runtime);
       }
     JS
-    return @ts.to_s
+    @ts.to_s
   end
 
   def visit_literal_expr(expr : AST::Literal) : String
@@ -201,7 +201,7 @@ class CodeGenerator < AST::Visitor(Object)
     #   end
     # end
 
-    return code.to_s
+    code.to_s
   end
 
   # Generates menu class definition code stub
@@ -282,7 +282,7 @@ class CodeGenerator < AST::Visitor(Object)
     @menu_context.shift
 
     @ts << function.to_s
-    return execute(stmt)
+    execute(stmt)
   end
 
   def visit_block_stmt(block : AST::BlockStatement) : String
@@ -297,7 +297,7 @@ class CodeGenerator < AST::Visitor(Object)
       code << execute(stmt)
     end
 
-    return code.to_s
+    code.to_s
   end
 
   def visit_end_stmt(stmt : AST::EndStatement) : String
@@ -488,7 +488,7 @@ class CodeGenerator < AST::Visitor(Object)
       return code
     end
 
-    return ""
+    ""
   end
 
   def visit_option_stmt(stmt : AST::OptionStatement)
@@ -532,7 +532,7 @@ class CodeGenerator < AST::Visitor(Object)
 
       return code.to_s
     end
-    return ""
+    ""
   end
 
   def visit_option_expr(expr : AST::Option) : String
@@ -541,7 +541,7 @@ class CodeGenerator < AST::Visitor(Object)
     end
 
     # TODO: implement post
-    code = String.build do |s|
+    code = String.build do |_|
       # TODO: check token type, if number/string, add to label
       # s << "{" << "choice: #{expr.target.value},"
       # s << "display: #{expr.label.value},"
@@ -555,11 +555,11 @@ class CodeGenerator < AST::Visitor(Object)
       # end
       # s << "}"
     end
-    return code.to_s
+    code.to_s
   end
 
   def visit_action_stmt(stmt : AST::ActionStatement) : String
-    return evaluate(stmt.expression)
+    evaluate(stmt.expression)
   end
 
   def visit_action_expr(expr : AST::Action) : String
@@ -595,14 +595,14 @@ class CodeGenerator < AST::Visitor(Object)
         JS
     end
 
-    return code.to_s
+    code.to_s
   end
 
   def visit_goto_stmt(stmt : AST::GotoStatement) : String
     if in_post_context?
       return evaluate(stmt.menu)
     end
-    return ""
+    ""
   end
 
   def visit_goto_expr(expr : AST::Goto) : String
@@ -614,7 +614,7 @@ class CodeGenerator < AST::Visitor(Object)
       s << %(return #{name}(runtime, "get"))
     end
 
-    return stub.to_s
+    stub.to_s
   end
 
   def visit_interpolation_expr(str : AST::InterpolatedString) : String
@@ -633,14 +633,14 @@ class CodeGenerator < AST::Visitor(Object)
       end
     end
 
-    return output.to_s
+    output.to_s
   end
 
   # TODO: remove this
   # FIXME: rename to log?
   def visit_print_stmt(stmt : AST::Print) : String
     value : ExpressionType = evaluate(stmt.expression)
-    return "console.log(#{value});"
+    "console.log(#{value});"
   end
 
   # TODO: remove this
@@ -651,14 +651,14 @@ class CodeGenerator < AST::Visitor(Object)
     # end
 
     @environment.define(stmt.name.value, "false")
-    return "const #{stmt.name.value} = value;"
+    "const #{stmt.name.value} = value;"
   end
 
   def visit_variable_stmt(stmt : AST::VariableStatement) : String
     name = evaluate(stmt.name)
     # @environment.define(stmt.name, false)
     # TODO: relook at this
-    return "#TODO: to be implemented"
+    "#TODO: to be implemented"
   end
 
   def visit_display_stmt(stmt : AST::DisplayStatement) : String
@@ -668,7 +668,7 @@ class CodeGenerator < AST::Visitor(Object)
       return str
     end
 
-    return ""
+    ""
   end
 
   private def in_get_context?

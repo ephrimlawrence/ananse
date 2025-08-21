@@ -4,7 +4,7 @@ class CompilerError < Exception
   end
 
   def initialize(message : String, token : Token)
-    if (token.type == TokenType::EOF)
+    if token.type == TokenType::EOF
       super CompilerError.report(token.location, " at end", message)
     else
       super CompilerError.report(token.location, " at '" + token.value + "'", message)
@@ -20,7 +20,7 @@ class CompilerError < Exception
   end
 
   def self.report(location : Location, where : String, message : String)
-    return "[line #{location.line}:#{location.column}] Error #{where} : #{message}"
+    "[line #{location.line}:#{location.column}] Error #{where} : #{message}"
   end
 
   def backtrace?

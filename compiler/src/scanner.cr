@@ -64,7 +64,7 @@ module Scanner
       end
 
       add_token(TokenType::EOF, "")
-      return tokens
+      tokens
     end
 
     private def scan_token
@@ -246,7 +246,7 @@ module Scanner
 
       @current += 1
       @column += 1
-      return true
+      true
     end
 
     private def peek : Char
@@ -254,14 +254,14 @@ module Scanner
         return '\0'
       end
 
-      return @source[@current]
+      @source[@current]
     end
 
     private def peek_next : Char
       if @current + 1 >= source.size
         return '\0'
       end
-      return source[@current + 1]
+      source[@current + 1]
     end
 
     private def is_at_end? : Bool
@@ -274,7 +274,7 @@ module Scanner
 
       @current += 1
       @column += 1
-      return value
+      value
     end
 
     def get_location : Location
