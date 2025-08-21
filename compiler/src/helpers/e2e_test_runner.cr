@@ -9,7 +9,7 @@ require "option_parser"
 class E2eTestRunner
   PROGRAMS_DIR      = "spec/programs"
   OUTPUT_DIR        = "spec/tmp"
-  PROGRAM_STUB_FILE = "spec/helpers/program_stub.txt"
+  PROGRAM_STUB_FILE = "src/helpers/program_stub.txt"
   ACTIONS_JS        = "#{PROGRAMS_DIR}/actions.ts"
 
   # Track list of programs and test files.  {file_name: []}

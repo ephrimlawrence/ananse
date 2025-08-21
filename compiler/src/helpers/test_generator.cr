@@ -7,7 +7,7 @@ require "../compiler"
 class ProgramTestGenerator
   EXPECTED_DIR      = "spec/expected"
   PROGRAMS_DIR      = "spec/programs"
-  PROGRAM_STUB_FILE = "spec/helpers/program_stub.txt"
+  PROGRAM_STUB_FILE = "src/helpers/program_stub.txt"
   ACTIONS_JS        = "#{PROGRAMS_DIR}/actions.ts"
 
   # Track list of programs and test files.  {file_name: []}
