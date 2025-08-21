@@ -37,8 +37,8 @@ module Compiler
       output_file = "#{File.dirname(path)}/#{File.basename(path, suffix: File.extname(path))}.ts"
       File.write(output_file, code)
       # STDOUT.puts code
-    rescue err
-      STDERR.puts err.message
+    rescue ex
+      STDERR.puts ex.message
     end
   end
 end

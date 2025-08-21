@@ -10,7 +10,7 @@ class Parser
 
   def parse : Array(AST::Stmt)
     statements : Array(AST::Stmt) = [] of AST::Stmt
-    while !is_at_end?
+    while !at_end?
       val = declaration()
       if !val.nil?
         statements << val
@@ -97,14 +97,14 @@ class Parser
     condition : AST::Expr = expression()
     consume(TokenType::RIGHT_PAREN, "Expect ')' after if condition.")
 
-    thenBranch : AST::BlockStatement = statement().as(AST::BlockStatement)
-    elseBranch : AST::BlockStatement? = nil
+    then_branch : AST::BlockStatement = statement().as(AST::BlockStatement)
+    else_branch : AST::BlockStatement? = nil
 
     if match(TokenType::ELSE)
-      elseBranch = statement().as(AST::BlockStatement)
+      else_branch = statement().as(AST::BlockStatement)
     end
 
-    AST::IfStatement.new(condition, thenBranch, elseBranch, location)
+    AST::IfStatement.new(condition, then_branch, else_branch, location)
   end
 
   # Parse menu statement
@@ -128,7 +128,7 @@ class Parser
     statements : Array(AST::Stmt) = [] of AST::Stmt
     skip_newlines # Skip newline after '{'
 
-    while !check(TokenType::RIGHT_BRACE) && !is_at_end?
+    while !check(TokenType::RIGHT_BRACE) && !at_end?
       statements << statement()
     end
 
@@ -182,7 +182,7 @@ class Parser
     if check(TokenType::RIGHT_PAREN) # Empty params
       advance()
     else
-      while !check(TokenType::RIGHT_PAREN) && !is_at_end?
+      while !check(TokenType::RIGHT_PAREN) && !at_end?
         param_name = consume(TokenType::IDENTIFIER, "Expected parameter name")
         consume(TokenType::COLON, "Expected ':' after parameter name")
 
@@ -403,7 +403,7 @@ class Parser
         results : Array(AST::Expr) = [str_literal]
 
         # advance()
-        while !check(TokenType::INTERPOLATION_END) && !is_at_end?
+        while !check(TokenType::INTERPOLATION_END) && !at_end?
           results << expression()
         end
 
@@ -434,7 +434,7 @@ class Parser
   # private def synchronize
   #   advance
 
-  #   while !is_at_end?
+  #   while !at_end?
   #     if previous.type == TokenType::SEMICOLON
   #       return
   #     end
@@ -486,7 +486,7 @@ class Parser
   end
 
   private def check(*types : TokenType) : Bool
-    if is_at_end?
+    if at_end?
       return false
     end
 
@@ -500,7 +500,7 @@ class Parser
   end
 
   private def advance : Token
-    if !is_at_end?
+    if !at_end?
       @current += 1
     end
 
@@ -513,7 +513,7 @@ class Parser
     end
   end
 
-  private def is_at_end? : Bool
+  private def at_end? : Bool
     peek.type == TokenType::EOF
   end
 
@@ -522,7 +522,7 @@ class Parser
   end
 
   private def peek_next : Token
-    if !is_at_end?
+    if !at_end?
       return @tokens[@current + 1]
     end
     peek

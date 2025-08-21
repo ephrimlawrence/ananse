@@ -132,7 +132,7 @@ class Parser
 
       # Add interpolation
       identifier_name = match[1]
-      interpolation_id = Identifier.new(identifier_name, location) # Use string_token's location for simplicity
+      # interpolation_id = Identifier.new(identifier_name, location) # Use string_token's location for simplicity
       interpolation_var = VariableInterpolation.new(identifier_name, location)
       parts << InterpolatedStringPart.new(interpolation_var, location)
 
