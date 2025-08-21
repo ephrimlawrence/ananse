@@ -37,43 +37,41 @@ class Simulator
 
   # Start the USSD session.
   private def make_request(url : String? = nil, user_input : String? = nil)
-    begin
-      case @provider
-      when SupportedGateway::Wigal
-        # For Wigal, we make a GET request.
-        response = HTTP::Client.get(url || wigal_reply())
-        data = response.body
+    case @provider
+    when SupportedGateway::Wigal
+      # For Wigal, we make a GET request.
+      response = HTTP::Client.get(url || wigal_reply())
+      data = response.body
 
-        @session_cache = parse_response(data)
-        @message = @session_cache["userdata"].to_s
+      @session_cache = parse_response(data)
+      @message = @session_cache["userdata"].to_s
 
-        if @debug
-          p! user_input, @message
-        end
-
-        # TODO: exit only when called from cli
-        # if @session_cache["mode"] == "end"
-        #   exit 0
-        # end
-      when SupportedGateway::EmergentTechnology
-        # For Emergent Technology, we make a POST request with a JSON body.
-        reply_data = emergent_reply(nil, user_input)
-        response = HTTP::Client.post(reply_data["url"].to_s, body: reply_data["body"].to_json)
-
-        @session_cache = Hash(String, String).from_json(response.body)
-        @message = @session_cache["Message"]
-
-        # TODO: exit only when called from cli
-        # if @session_cache["Type"] == "Release"
-        #   Process.exit(0)
-        # end
+      if @debug
+        p! user_input, @message
       end
-      return self
-    rescue ex
-      raise ex
-      puts "Simulator error: #{ex.message}"
-      Process.exit(1)
+
+      # TODO: exit only when called from cli
+      # if @session_cache["mode"] == "end"
+      #   exit 0
+      # end
+    when SupportedGateway::EmergentTechnology
+      # For Emergent Technology, we make a POST request with a JSON body.
+      reply_data = emergent_reply(nil, user_input)
+      response = HTTP::Client.post(reply_data["url"].to_s, body: reply_data["body"].to_json)
+
+      @session_cache = Hash(String, String).from_json(response.body)
+      @message = @session_cache["Message"]
+
+      # TODO: exit only when called from cli
+      # if @session_cache["Type"] == "Release"
+      #   Process.exit(0)
+      # end
     end
+    self
+  rescue ex
+    raise ex
+    puts "Simulator error: #{ex.message}"
+    Process.exit(1)
   end
 
   def input : Simulator
@@ -84,7 +82,7 @@ class Simulator
       data = emergent_reply(nil, nil)
       return make_request(data["url"].to_s, data["body"].to_json)
     end
-    return self
+    self
   end
 
   def input(value : String) : Simulator
@@ -101,7 +99,7 @@ class Simulator
       data = emergent_reply(@session_cache, value)
       return make_request(data["url"].to_s, data["body"].to_json)
     end
-    return self
+    self
   end
 
   def input(values : Array(String)) : Simulator
@@ -113,7 +111,7 @@ class Simulator
         input(value)
       end
     end
-    return self
+    self
   end
 
   # Helper method to generate the URL or request body for the next step.
@@ -135,7 +133,7 @@ class Simulator
     # Update the cache with the current session ID.
     @session_key_cache[:emergent] = data["SessionId"].to_s
 
-    return {"url" => @url, "body" => data}
+    {"url" => @url, "body" => data}
   end
 
   private def wigal_reply(data : Hash(String, String)? = nil, input : String? = nil) : String
@@ -149,7 +147,7 @@ class Simulator
     end
 
     # URL-encode the input if it contains a hash symbol.
-    input = input.try { |i| i.chomp.gsub("#", "%23") }
+    input = input.try(&.chomp.gsub("#", "%23"))
     session_id : String = body["sessionid"].to_s || UUID.random.to_s
 
     # req_url : String = "#{@url}?network=#{data["network"]}&sessionid=#{session_id}&mode=#{data["mode"]}&msisdn=#{data["msisdn"]}&userdata=#{input.to_s}&username=#{data["username"]}&trafficid=#{UUID.random.to_s}"
@@ -198,7 +196,7 @@ class Simulator
       number = number[..9]
     end
 
-    return number
+    number
   end
 end
 

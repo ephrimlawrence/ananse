@@ -27,12 +27,10 @@ class TestDriver
   end
 
   def stop
-    begin
-      if !@server.nil? && !@server.as(Process).terminated?
-        @server.as(Process).terminate
-      end
-    rescue e
+    if !@server.nil? && !@server.as(Process).terminated?
+      @server.as(Process).terminate
     end
+  rescue e
   end
 
   def simulator : Simulator
@@ -40,32 +38,28 @@ class TestDriver
       start
     end
 
-    return Simulator.new(provider: SupportedGateway::Wigal, port: port, debug: @debug)
+    Simulator.new(provider: SupportedGateway::Wigal, port: port, debug: @debug)
   end
 
   def input(value : String | Array(String)) : String?
-    begin
-      return simulator.input(value).message
-    rescue e : Exception
-      stop
-      return nil
-    end
+    simulator.input(value).message
+  rescue e : Exception
+    stop
+    nil
   end
 
   def input : String?
-    begin
-      return simulator.input.message
-    rescue e : Exception
-      stop
-      return nil
-    end
+    simulator.input.message
+  rescue e : Exception
+    stop
+    nil
   end
 
   def generate_port_number : UInt16
     port : UInt16 = 3000
     attempts : Int32 = 0
 
-    while true
+    loop do
       if attempts == 20
         raise Exception.new("Could not find an unused port after #{attempts} attempts.")
       end

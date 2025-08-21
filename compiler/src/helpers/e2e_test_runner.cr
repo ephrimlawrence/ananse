@@ -64,7 +64,7 @@ class E2eTestRunner
 
     File.copy(ACTIONS_JS, dest)
 
-    @files.each do |basename, value|
+    @files.each do |_, value|
       if value[:test].nil?
         next
       end
@@ -157,7 +157,7 @@ class E2eTestRunner
     end
 
     begin
-      params = test["input"].as_a.map { |i| i.to_s }
+      params = test["input"].as_a.map(&.to_s)
     rescue e : TypeCastError
       params << test["input"].to_s
     rescue e : TypeCastError
@@ -228,7 +228,7 @@ class E2eTestRunner
     ast = Parser.new(scanner.scan_tokens).parse
     analyzer = SemanticAnalyzer.new(ast)
     analyzer.analyze
-    return CodeGenerator.new(AstTransformer.new(ast, analyzer.symbol_table).transform).generate
+    CodeGenerator.new(AstTransformer.new(ast, analyzer.symbol_table).transform).generate
   end
 end
 

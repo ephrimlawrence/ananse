@@ -124,7 +124,7 @@ class Parser
 
     parts = Array(StringPart).new
     current_pos = 0
-    while (match = raw_value.match(/\{\{([a-zA-Z0-9_.]+)\}\}/, current_pos))
+    while match = raw_value.match(/\{\{([a-zA-Z0-9_.]+)\}\}/, current_pos)
       # Add text before interpolation
       if match.begin(0) > current_pos
         parts << TextStringPart.new(raw_value[current_pos...match.begin(0)], location)

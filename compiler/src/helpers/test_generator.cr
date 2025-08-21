@@ -2,7 +2,7 @@
 
 require "yaml"
 # require "../spec_helper.cr"
-require "../../src/compiler"
+require "../compiler"
 
 class ProgramTestGenerator
   EXPECTED_DIR      = "spec/expected"
@@ -54,7 +54,7 @@ class ProgramTestGenerator
       s << %(require "./spec_helper" \n)
       s << "describe CodeGenerator do \n"
 
-      @files.each do |basename, value|
+      @files.each do |_, value|
         if value[:test].nil?
           next
         end
@@ -173,7 +173,7 @@ class ProgramTestGenerator
 
     params : Array(String) = [] of String
     begin
-      params = test["input"].as_a.map { |i| i.to_s }
+      params = test["input"].as_a.map(&.to_s)
     rescue e : TypeCastError
       params << test["input"].to_s
       # if !val.empty? && val != "\"\""
@@ -235,7 +235,7 @@ class ProgramTestGenerator
     ast = Parser.new(scanner.scan_tokens).parse
     analyzer = SemanticAnalyzer.new(ast)
     analyzer.analyze
-    return CodeGenerator.new(AstTransformer.new(ast, analyzer.symbol_table).transform).generate
+    CodeGenerator.new(AstTransformer.new(ast, analyzer.symbol_table).transform).generate
   end
 end
 

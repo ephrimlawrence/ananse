@@ -158,7 +158,7 @@ module AST
         return @name.value
       end
 
-      return "#{@parent.as(MenuStatement).runtime_id}_#{@name.value}"
+      "#{@parent.as(MenuStatement).runtime_id}_#{@name.value}"
     end
 
     def clone
@@ -467,11 +467,11 @@ class TransformedAST
 
   def add_menu(name : Token, values : GroupedStatements)
     @menus[name] = values
-    return @menus[name]
+    @menus[name]
   end
 
   def self.new_group : GroupedStatements
-    return {
+    {
       display: [] of AST::Stmt,
       option:  [] of AST::Stmt,
       input:   [] of AST::Stmt,
