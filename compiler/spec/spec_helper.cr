@@ -1,7 +1,7 @@
 require "spec"
 require "../src/compiler"
 # require "./helpers/grammar"
-require "./helpers/e2e_test_runner"
+require "../src/helpers/e2e_test_runner"
 
 def scan(source : String)
   scanner = Scanner::Scan.new(source)
